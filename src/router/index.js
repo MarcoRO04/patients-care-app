@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import LoginView from '@/components/LoginView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,6 +18,26 @@ const router = createRouter({
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue'),
     },
+    {
+      path: '/login',
+      name: 'login',
+      component: LoginView,
+    },
+    {
+      path: '/recover_password',
+      name: 'recover_password',
+      component: () => import('../components/RecoverPasswordView.vue'),
+    },
+    {
+      path: '/recipes',
+      name: 'recipes',
+      component: () => import('../views/ReteteView.vue'),
+    },
+    {
+      path: '/add_new_recipe',
+      name: 'add_new_recipe',
+      component: () => import('../views/AddNewRecipeView.vue'),
+    }
   ],
 })
 
