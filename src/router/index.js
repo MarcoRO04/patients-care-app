@@ -31,7 +31,7 @@ const router = createRouter({
     {
       path: '/recipes',
       name: 'recipes',
-      component: () => import('../views/ReteteView.vue'),
+      component: () => import('../views/RecipesView.vue'),
     },
     {
       path: '/add_new_recipe',
