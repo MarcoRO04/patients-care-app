@@ -13,7 +13,7 @@
          patient_name:"",
          doctor_name:"",
          future_prescription_date:"",
-         duration:"",
+         recipe_duration:"",
          last_prescription_dates:[],
          status:"",
          distance_between_prescriptions:""
