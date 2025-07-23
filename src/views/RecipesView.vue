@@ -1,47 +1,45 @@
 <script>
-export default {
-  name:"RecipesView",
-  mounted() {
-    let recipes = localStorage.getItem("recipes")
-    this.recipes_list = (recipes === null) ? [] : JSON.parse(recipes)
-  },
-  components: {
-  },
+  import RecipeCard from '@/components/RecipeCard.vue'
+  export default {
+    name:"RecipesView",
+    mounted() {
+      let recipes = localStorage.getItem("recipes")
+      this.recipes_list = (recipes === null) ? [] : JSON.parse(recipes)
+    },
+    components: {
+      RecipeCard
+    },
 
-  data(){
-    return {
-      recipe: {
-        patients_list:{
-          name:"",
+    data(){
+      return {
+        recipe: {
+          patient:{
+            name:"Marco Rotunjanu",
+          },
+          doctor:{
+            name:"Dr. Daniel Nan",
+            specialization:"",
+          },
+          future_prescription_date:"",
+          current_prescription_date:"",
+          recipe_duration:"1 luna",
+          last_prescription_dates:[],
+          status:"",
+          distance_between_prescriptions:"30",
         },
-        doctor:{
-          name:"",
-          specialization:"",
-        },
-        future_prescription_date:"",
-        current_prescription_date:"",
-        recipe_duration:"",
-        last_prescription_dates:[],
-        status:"",
-        distance_between_prescriptions:"",
-      },
-      recipes_list: [],
-      doctors_list:[],
-      patients_list:[],
-      recipe_periods_list:[],
-    }
-  },
-  methods: {
-
-  },
-}
+        recipes_list: [],
+        doctors_list:[],
+        patients_list:[],
+        recipe_periods_list:[],
+      }
+    },
+    methods: {
+    },
+  }
 </script>
 
 <template>
-  <p v-for="(recipe,index) in recipes_list" :key="index">
-    {{recipe.patient.name}} -
-    {{recipe.doctor.name}} - {{recipe.doctor.specialization}} -
-    {{recipe.distance_between_prescriptions}} zile - {{recipe.status}}</p>
+  <RecipeCard :patient_name="recipe.patient.name" :doctor_name="recipe.doctor.name"  :recipe_duration="recipe.recipe_duration" :distance_between_recipes="recipe.distance_between_prescriptions"></RecipeCard>
 </template>
 
 <style scoped>

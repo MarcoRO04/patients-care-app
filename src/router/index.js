@@ -37,6 +37,10 @@ const router = createRouter({
       path: '/add_new_recipe',
       name: 'add_new_recipe',
       component: () => import('../views/AddNewRecipeView.vue'),
+    },
+    {
+      path: '/recipe_card',
+      name: 'recipe_card',
     }
   ],
 })
