@@ -39,8 +39,14 @@ const router = createRouter({
       component: () => import('../views/AddNewRecipeView.vue'),
     },
     {
-      path: '/recipe_card',
-      name: 'recipe_card',
+      path: '/more_details_recipe',
+      name: 'moredetails',
+      component: () => import('../views/LoginView.vue'),
+    },
+    {
+      path: '/more_details_recipe/:patient_name/:doctor_name/:doctor_specialization/:recipe_duration/:distance_between_recipes/:last_prescription_dates/:current_prescription_date/:future_prescription_date/:status',
+      name: 'more_details_recipe',
+      component: () => import('../views/MoreDetailsRecipe.vue'),
     }
   ],
 })

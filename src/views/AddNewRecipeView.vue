@@ -135,7 +135,7 @@ export default {
       Salvare
     </button>
 
-    <button>Anulare</button>
+    <RouterLink to="/recipes">Anulare</RouterLink>
     <br />
     <br />
   </div>

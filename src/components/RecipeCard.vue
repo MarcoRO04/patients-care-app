@@ -5,26 +5,40 @@ export default {
   props: {
     patient_name: String,
     doctor_name: String,
+    doctor_specialization: String,
     recipe_duration: String,
     distance_between_recipes: String,
+    future_prescription_date: String,
+    current_prescription_date: String,
+    status: String,
+    last_prescription_dates: Array,
+
   },
   data() {
     return {}
   },
-  methods: {},
+  methods: {
+    goToDetails(){
+      console.log(this.$route)
+      this.$router.push(`/more_details_recipe/${this.patient_name}/${this.doctor_name}/${this.doctor_specialization}/${this.recipe_duration}/${this.distance_between_recipes}/${this.last_prescription_dates}/${this.current_prescription_date}/${this.future_prescription_date}/${this.status}`)
+    }
+  },
 }
 </script>
 
 <template>
-  <div class="recipe-card">
+  <div class="recipe-card" @click="goToDetails">
     <div class="recipe-details">
       <p style="font-size: 20px; font-weight: bold">{{ patient_name }}</p>
-      <p>{{doctor_name}} ({{recipe_duration}})</p>
+      <p>{{ doctor_name }} ({{ recipe_duration }})</p>
     </div>
     <div class="days-left-square">
-      <p style="font-size: 30px">{{distance_between_recipes}}</p>
+      <p style="font-size: 30px">{{ distance_between_recipes }}</p>
       <p>zile</p>
     </div>
+
+<!--    <router-link :to="{path: `/more_details_recipe/${patient_name}/${doctor_name}/${doctor_specialization}/${recipe_duration}/${distance_between_recipes}/${last_prescription_dates}/${current_prescription_date}/${future_prescription_date}/${status}`}" class="main-link"></router-link>-->
+
   </div>
 </template>
 
@@ -38,7 +52,29 @@ export default {
   padding: 8px 12px;
   border-radius: 10px;
   display: flex;
+  position: relative;
 }
+
+ .main-link {
+  color: #85baff;
+  text-align: right;
+  display: block;
+  z-index: 1;
+}
+
+ .main-link:hover{
+   color: #90c0ff;
+ }
+ .main-link:after {
+   position: absolute;
+   content: "";
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+ }
+
+
 .recipe-details {
   flex: 1;
   text-align: left;
