@@ -28,32 +28,53 @@
           distance_between_prescriptions:"",
         },
         recipes_list: [],
-        status_button:true,
+        status_btn: 0,
       }
     },
     methods: {
       check_recipe(r){
-        return (r.patient.name.length > 0)
+        return ((r.patient.name.length > 0) && ((r.status === (this.status_btn.toString())) || this.status_btn === 0 || this.status_btn === 4))
       },
-      show_status(r){
-        return(r.status === 'green')
-      },
+
       change_status(){
-        if (this.status_button === true){
-          this.status_button = false
-        } else{
-          this.status_button = true
+        this.status_btn++
+        if(this.status_btn === 0){
+          document.getElementById("status_filter_btn").style.backgroundColor="gray"
+          document.getElementById("status_filter_btn").style.color = "black"
+          document.getElementById("status_filter_btn").textContent="Gri"
         }
-      }
+        if(this.status_btn === 1){
+          document.getElementById("status_filter_btn").style.backgroundColor="red"
+          document.getElementById("status_filter_btn").style.color = "black"
+          document.getElementById("status_filter_btn").textContent="Rosu"
+        }
+        if(this.status_btn === 2){
+          document.getElementById("status_filter_btn").style.backgroundColor="orange"
+          document.getElementById("status_filter_btn").style.color = "black"
+          document.getElementById("status_filter_btn").textContent="Portocaliu"
+        }
+        if(this.status_btn === 3){
+          document.getElementById("status_filter_btn").style.backgroundColor="green"
+          document.getElementById("status_filter_btn").style.color = "black"
+          document.getElementById("status_filter_btn").textContent="Verde"
+
+        }
+        if(this.status_btn === 4){
+          document.getElementById("status_filter_btn").style.backgroundColor="gray"
+          document.getElementById("status_filter_btn").style.color = "black"
+          document.getElementById("status_filter_btn").textContent="Gri"
+          this.status_btn = 0
+        }
+      },
     },
   }
 </script>
 
 <template>
   <div >
-    <button class="status-filter" @click="change_status">status</button>
+    <button id="status_filter_btn" @click="change_status" style="background-color: gray;color: black">Gri</button>
     <br><br>
-    <RecipeCard style="margin-bottom: 10px" v-show="check_recipe(recipe) && status_button" v-for="recipe in recipes_list" :key="recipe"
+    <RecipeCard style="margin-bottom: 10px" v-show="check_recipe(recipe)" v-for="recipe in recipes_list" :key="recipe"
               :patient_name= "recipe.patient.name"
               :doctor_name= "recipe.doctor.name"
               :doctor_specialization="recipe.doctor.specialization"

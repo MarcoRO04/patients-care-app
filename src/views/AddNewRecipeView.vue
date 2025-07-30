@@ -40,7 +40,7 @@ export default {
     saveRecipe() {
       this.calculateFuturePrescriptionDate()
       this.recipe.last_prescription_dates.push(this.recipe.current_prescription_date)
-      this.recipe.status = 'green'
+      this.recipe.status = '3'
       //saving also the doctor's specialization
       for (let i = 0; i < this.doctors_list.length; i++) {
         if (this.recipe.doctor.name === this.doctors_list[i].name) {

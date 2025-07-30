@@ -7,7 +7,7 @@ export default {
     doctor_name: String,
     doctor_specialization: String,
     recipe_duration: String,
-    distance_between_recipes: String,
+    distance_between_recipes: Number,
     future_prescription_date: String,
     current_prescription_date: String,
     status: String,
@@ -19,7 +19,6 @@ export default {
   },
   methods: {
     goToDetails(){
-      console.log(this.$route)
       this.$router.push(`/more_details_recipe/${this.patient_name}/${this.doctor_name}/${this.doctor_specialization}/${this.recipe_duration}/${this.distance_between_recipes}/${this.last_prescription_dates}/${this.current_prescription_date}/${this.future_prescription_date}/${this.status}`)
     }
   },
@@ -36,9 +35,6 @@ export default {
       <p style="font-size: 30px">{{ distance_between_recipes }}</p>
       <p>zile</p>
     </div>
-
-<!--    <router-link :to="{path: `/more_details_recipe/${patient_name}/${doctor_name}/${doctor_specialization}/${recipe_duration}/${distance_between_recipes}/${last_prescription_dates}/${current_prescription_date}/${future_prescription_date}/${status}`}" class="main-link"></router-link>-->
-
   </div>
 </template>
 
@@ -55,17 +51,10 @@ export default {
   position: relative;
 }
 
- .main-link {
-  color: #85baff;
-  text-align: right;
-  display: block;
-  z-index: 1;
-}
-
- .main-link:hover{
-   color: #90c0ff;
+ .recipe-card:hover{
+   background-color: #dfe2ec;
  }
- .main-link:after {
+ .recipe-card:after {
    position: absolute;
    content: "";
    top: 0;
