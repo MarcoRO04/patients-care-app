@@ -1,5 +1,6 @@
 <script>
   import RecipeCard from '@/components/RecipeCard.vue'
+  import AddNewRecipeView from '@/views/AddNewRecipeView.vue'
   export default {
     name:"RecipesView",
     mounted() {
@@ -8,6 +9,7 @@
       this.recalculate_distance_between_prescriptions()
     },
     components: {
+      AddNewRecipeView,
       RecipeCard
     },
 

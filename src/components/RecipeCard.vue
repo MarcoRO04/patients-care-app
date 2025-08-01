@@ -18,6 +18,25 @@ export default {
   },
   data() {
     return {
+      recipe: {
+        patient:{
+          name: this.patient_name,
+        },
+        doctor:{
+          name: this.doctor_name,
+          specialization: this.doctor_specialization,
+        },
+        recipe_duration: this.recipe_duration,
+        distance_between_recipes: this.distance_between_recipes,
+        future_prescription_date: this.future_prescription_date,
+        current_prescription_date: this.current_prescription_date,
+        last_prescription_dates: this.last_prescription_dates,
+        status: this.status,
+      },
+      styleObject:{
+        backgroundColor: this.status_color
+      },
+      status_color:"",
     }
   },
   methods: {
@@ -25,23 +44,29 @@ export default {
       this.$router.push(`/more_details_recipe/${this.patient_name}/${this.doctor_name}/${this.doctor_specialization}/${this.recipe_duration}/${this.distance_between_recipes}/${this.last_prescription_dates}/${this.current_prescription_date}/${this.future_prescription_date}/${this.status}`)
     },
     change_recipe_status(){
-      console.log(this.patient_name)
-      if(Number(this.distance_between_recipes) < 0){
-        document.getElementById('days_left_square').style.color = 'red'
-        document.getElementById('days_right_square').textContent = '0'
+      console.log(this.recipe.patient.name + " " + this.recipe.status)
+      switch (this.recipe.status) {
+        case "1":
+          console.log('sunt red');
+          // document.getElementById('days_left_square').style.backgroundColor = 'red';
+          this.status_color = "red";
+          break;
+        case "2":
+          console.log('sunt orange');
+          // document.getElementById('days_left_square').style.backgroundColor = 'orange';
+          this.status_color = "orange";
+          break;
+        case "3":
+          console.log('sunt green');
+          // document.getElementById('days_left_square').style.backgroundColor = 'green';
+          this.status_color = "green";
+          break;
+        default:
+          console.log('am ajuns aici');
+          break;
       }
-      else if(this.status === "1"){
-        console.log("sunt red")
-        document.getElementById('days_left_square').style.color = 'red'
-      }
-      else if(this.status === "2"){
-        console.log("sunt orange")
-        document.getElementById('days_left_square').style.color = 'orange'
-      }else{
-        console.log("sunt green")
-        document.getElementById('days_left_square').style.color = 'green'
-      }
-    }
+    },
+
   },
 }
 </script>
@@ -52,14 +77,14 @@ export default {
       <p style="font-size: 20px; font-weight: bold">{{ this.patient_name }}</p>
       <p>{{ this.doctor_name }} ({{ this.recipe_duration }})</p>
     </div>
-    <div class="days-left-square" id="days_left_square">
+    <div class="days-left-square" id="days_left_square" v-bind:style="{backgroundColor: this.status_color}">
       <p style="font-size: 30px">{{ this.distance_between_recipes }}</p>
       <p>zile</p>
     </div>
   </div>
 </template>
 
-<style scoped>
+<style>
 .recipe-card {
   /* Add shadows to create the "card" effect */
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
