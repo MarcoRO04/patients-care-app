@@ -1,13 +1,15 @@
 <script>
 export default {
   name: 'RecipeCard',
-  mounted() {},
+  mounted() {
+    this.change_recipe_status()
+  },
   props: {
     patient_name: String,
     doctor_name: String,
     doctor_specialization: String,
     recipe_duration: String,
-    distance_between_recipes: Number,
+    distance_between_recipes: String,
     future_prescription_date: String,
     current_prescription_date: String,
     status: String,
@@ -15,24 +17,43 @@ export default {
 
   },
   data() {
-    return {}
+    return {
+    }
   },
   methods: {
     goToDetails(){
       this.$router.push(`/more_details_recipe/${this.patient_name}/${this.doctor_name}/${this.doctor_specialization}/${this.recipe_duration}/${this.distance_between_recipes}/${this.last_prescription_dates}/${this.current_prescription_date}/${this.future_prescription_date}/${this.status}`)
+    },
+    change_recipe_status(){
+      console.log(this.patient_name)
+      if(Number(this.distance_between_recipes) < 0){
+        document.getElementById('days_left_square').style.color = 'red'
+        document.getElementById('days_right_square').textContent = '0'
+      }
+      else if(this.status === "1"){
+        console.log("sunt red")
+        document.getElementById('days_left_square').style.color = 'red'
+      }
+      else if(this.status === "2"){
+        console.log("sunt orange")
+        document.getElementById('days_left_square').style.color = 'orange'
+      }else{
+        console.log("sunt green")
+        document.getElementById('days_left_square').style.color = 'green'
+      }
     }
   },
 }
 </script>
 
 <template>
-  <div class="recipe-card" @click="goToDetails">
+  <div class="recipe-card" @click="goToDetails" id="recipe_card">
     <div class="recipe-details">
-      <p style="font-size: 20px; font-weight: bold">{{ patient_name }}</p>
-      <p>{{ doctor_name }} ({{ recipe_duration }})</p>
+      <p style="font-size: 20px; font-weight: bold">{{ this.patient_name }}</p>
+      <p>{{ this.doctor_name }} ({{ this.recipe_duration }})</p>
     </div>
-    <div class="days-left-square">
-      <p style="font-size: 30px">{{ distance_between_recipes }}</p>
+    <div class="days-left-square" id="days_left_square">
+      <p style="font-size: 30px">{{ this.distance_between_recipes }}</p>
       <p>zile</p>
     </div>
   </div>

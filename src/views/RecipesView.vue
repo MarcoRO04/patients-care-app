@@ -5,6 +5,7 @@
     mounted() {
       let recipes = localStorage.getItem("recipes")
       this.recipes_list = (recipes === null) ? [] : JSON.parse(recipes)
+      this.recalculate_distance_between_prescriptions()
     },
     components: {
       RecipeCard
@@ -35,8 +36,7 @@
       check_recipe(r){
         return ((r.patient.name.length > 0) && ((r.status === (this.status_btn.toString())) || this.status_btn === 0 || this.status_btn === 4))
       },
-
-      change_status(){
+      change_filter_button_status(){
         this.status_btn++
         if(this.status_btn === 0){
           document.getElementById("status_filter_btn").style.backgroundColor="gray"
@@ -66,13 +66,37 @@
           this.status_btn = 0
         }
       },
+      recalculate_distance_between_prescriptions(){
+        let status_changed_cnt = 0
+        for (let recipe in this.recipes_list) {
+          //the difference between the future prescription and the current date, converted from milliseconds to days, and from number to string
+          const date_difference = Math.round((Date.parse(this.recipes_list[recipe].future_prescription_date) - Date.now()) / 8.64e7).toString()
+          //if the date obtained is different, then modify the status
+          if (this.recipes_list[recipe].distance_between_prescriptions !== date_difference) {
+            status_changed_cnt++
+            this.recipes_list[recipe].distance_between_prescriptions = date_difference
+            if (this.recipes_list[recipe].distance_between_prescriptions < 0) {
+              this.recipes_list[recipe].status = "1";
+            } else if (this.recipes_list[recipe].distance_between_prescriptions >= 0 && this.recipes_list[recipe].distance_between_prescriptions <= 7) {
+              this.recipes_list[recipe].status = "1";
+            } else if (this.recipes_list[recipe].distance_between_prescriptions >= 8 && this.recipes_list[recipe].distance_between_prescriptions <= 14) {
+              this.recipes_list[recipe].status = "2";
+            } else {
+              this.recipes_list[recipe].status = "3";
+            }
+          }
+        }
+        if (status_changed_cnt > 0) {
+          localStorage.setItem("recipes", JSON.stringify(this.recipes_list))
+        }
+      },
     },
   }
 </script>
 
 <template>
   <div >
-    <button id="status_filter_btn" @click="change_status" style="background-color: gray;color: black">Gri</button>
+    <button id="status_filter_btn" @click="change_filter_button_status" style="background-color: gray;color: black">Gri</button>
     <br><br>
     <RecipeCard style="margin-bottom: 10px" v-show="check_recipe(recipe)" v-for="recipe in recipes_list" :key="recipe"
               :patient_name= "recipe.patient.name"
@@ -88,5 +112,4 @@
 </template>
 
 <style scoped>
-
 </style>
