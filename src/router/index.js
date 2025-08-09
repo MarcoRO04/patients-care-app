@@ -42,6 +42,11 @@ const router = createRouter({
       path: '/more_details_recipe/:patient_name/:doctor_name/:doctor_specialization/:recipe_duration/:distance_between_recipes/:last_prescription_dates/:current_prescription_date/:future_prescription_date/:status',
       name: 'more_details_recipe',
       component: () => import('../views/MoreDetailsRecipe.vue'),
+    },
+    {
+      path: '/test_swipe',
+      name: 'test_swipe',
+      component: () => import('../views/TestSwipeView.vue'),
     }
   ],
 })

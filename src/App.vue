@@ -17,6 +17,7 @@ import HelloWorld from './components/HelloWorld.vue'
         <RouterLink to="/recover_password">Recover Password</RouterLink>
         <RouterLink to="/recipes">Retete</RouterLink>
         <RouterLink to="/add_new_recipe">Reteta Noua</RouterLink>
+        <RouterLink to="/test_swipe">Test Swipe</RouterLink>
       </nav>
     </div>
   </header>

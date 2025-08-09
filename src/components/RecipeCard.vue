@@ -1,4 +1,5 @@
 <script>
+
 export default {
   name: 'RecipeCard',
   mounted() {
@@ -33,33 +34,41 @@ export default {
         last_prescription_dates: this.last_prescription_dates,
         status: this.status,
       },
-      styleObject:{
-        backgroundColor: this.status_color
-      },
       status_color:"",
+      name:"mynameButton",
+      mylink:"https://www.gsp.ro",
+      type:false,
+    }
+  },
+  computed: {
+    isFalse() {
+      return this.type
     }
   },
   methods: {
+    init() {
+      console.log("init")
+    },
+    updateType() {
+      this.type = !this.type
+    },
     goToDetails(){
       this.$router.push(`/more_details_recipe/${this.patient_name}/${this.doctor_name}/${this.doctor_specialization}/${this.recipe_duration}/${this.distance_between_recipes}/${this.last_prescription_dates}/${this.current_prescription_date}/${this.future_prescription_date}/${this.status}`)
     },
+    getMyLink() {
+      return this.mylink
+    },
     change_recipe_status(){
-      console.log(this.recipe.patient.name + " " + this.recipe.status)
       switch (this.recipe.status) {
         case "1":
-          console.log('sunt red');
-          // document.getElementById('days_left_square').style.backgroundColor = 'red';
           this.status_color = "red";
+          this.mylink = "https://www.prosport.ro"
           break;
         case "2":
-          console.log('sunt orange');
-          // document.getElementById('days_left_square').style.backgroundColor = 'orange';
           this.status_color = "orange";
           break;
         case "3":
-          console.log('sunt green');
-          // document.getElementById('days_left_square').style.backgroundColor = 'green';
-          this.status_color = "green";
+          this.status_color = "greenyellow";
           break;
         default:
           console.log('am ajuns aici');
@@ -72,16 +81,21 @@ export default {
 </script>
 
 <template>
-  <div class="recipe-card" @click="goToDetails" id="recipe_card">
+  <div class="recipe-card" @click.prevent="goToDetails" id="recipe_card">
     <div class="recipe-details">
       <p style="font-size: 20px; font-weight: bold">{{ this.patient_name }}</p>
       <p>{{ this.doctor_name }} ({{ this.recipe_duration }})</p>
     </div>
-    <div class="days-left-square" id="days_left_square" v-bind:style="{backgroundColor: this.status_color}">
+    <div class="days-left-square" id="days_left_square" :style="{backgroundColor: this.status_color}" @click="init">
       <p style="font-size: 30px">{{ this.distance_between_recipes }}</p>
       <p>zile</p>
     </div>
+
   </div>
+  <button class="ucard" v-show="status_color === 'red'" @click="updateType">{{name}}</button>
+  <a :href="getMyLink()" target="_blank">Link TO</a>
+  {{isFalse}}
+
 </template>
 
 <style>
@@ -100,6 +114,7 @@ export default {
  .recipe-card:hover{
    background-color: #dfe2ec;
  }
+ /*
  .recipe-card:after {
    position: absolute;
    content: "";
@@ -107,7 +122,7 @@ export default {
    left: 0;
    right: 0;
    bottom: 0;
- }
+ }*/
 
 
 .recipe-details {
@@ -122,6 +137,19 @@ export default {
   background: greenyellow;
   padding: 10px;
   border-radius: 10px;
+}
+.ucard {
+  font-size: 10px;
+  background-color: greenyellow;
+  border: none;
+  border-radius: 40%;
+  padding: 10px 10px;
+  height: 30px;
+  width: 30px;
+}
+.ucard:hover:after {
+  content: " \00AE";
+  font-size: 30px;
 }
 
 /* On mouse-over, add a deeper shadow */

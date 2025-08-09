@@ -1,6 +1,5 @@
 <script>
   import RecipeCard from '@/components/RecipeCard.vue'
-  import AddNewRecipeView from '@/views/AddNewRecipeView.vue'
   export default {
     name:"RecipesView",
     mounted() {
@@ -9,7 +8,6 @@
       this.recalculate_distance_between_prescriptions()
     },
     components: {
-      AddNewRecipeView,
       RecipeCard
     },
 
@@ -32,6 +30,7 @@
         },
         recipes_list: [],
         status_btn: 0,
+        searched_patient_name:"",
       }
     },
     methods: {
@@ -56,7 +55,7 @@
           document.getElementById("status_filter_btn").textContent="Portocaliu"
         }
         if(this.status_btn === 3){
-          document.getElementById("status_filter_btn").style.backgroundColor="green"
+          document.getElementById("status_filter_btn").style.backgroundColor="greenyellow"
           document.getElementById("status_filter_btn").style.color = "black"
           document.getElementById("status_filter_btn").textContent="Verde"
 
@@ -67,6 +66,7 @@
           document.getElementById("status_filter_btn").textContent="Gri"
           this.status_btn = 0
         }
+        this.searched_patient_name = "Dani"
       },
       recalculate_distance_between_prescriptions(){
         let status_changed_cnt = 0
@@ -92,26 +92,62 @@
           localStorage.setItem("recipes", JSON.stringify(this.recipes_list))
         }
       },
+      filter_list_by_patient_name(recipe){
+        return recipe.patient.name.includes(this.searched_patient_name)
+      },
     },
   }
 </script>
 
 <template>
-  <div >
-    <button id="status_filter_btn" @click="change_filter_button_status" style="background-color: gray;color: black">Gri</button>
-    <br><br>
-    <RecipeCard style="margin-bottom: 10px" v-show="check_recipe(recipe)" v-for="recipe in recipes_list" :key="recipe"
-              :patient_name= "recipe.patient.name"
-              :doctor_name= "recipe.doctor.name"
-              :doctor_specialization="recipe.doctor.specialization"
-              :recipe_duration= "recipe.recipe_duration"
-              :distance_between_recipes= "recipe.distance_between_prescriptions"
-              :current_prescription_date= "recipe.current_prescription_date"
-              :future_prescription_date= "recipe.future_prescription_date"
-              :status="recipe.status"
-              :last_prescription_dates=recipe.last_prescription_dates></RecipeCard>
+  <div>
+    <div class="filter-options">
+        <input type="text" class="search-patient" v-model="this.searched_patient_name" placeholder="Caută pacient" >
+        <button class="status-filter-button" id="status_filter_btn" @click="change_filter_button_status" style="background-color: gray;color: black">Gri</button>
+    </div>
+    <div>
+      <RecipeCard style="margin-bottom: 10px" v-show="check_recipe(recipe) && filter_list_by_patient_name(recipe)"
+                  v-for="recipe in recipes_list.sort((recipe1,recipe2) => Number(recipe1.distance_between_prescriptions) - Number(recipe2.distance_between_prescriptions))" :key="recipe"
+                :patient_name= "recipe.patient.name"
+                :doctor_name= "recipe.doctor.name"
+                :doctor_specialization="recipe.doctor.specialization"
+                :recipe_duration= "recipe.recipe_duration"
+                :distance_between_recipes= "recipe.distance_between_prescriptions"
+                :current_prescription_date= "recipe.current_prescription_date"
+                :future_prescription_date= "recipe.future_prescription_date"
+                :status="recipe.status"
+                :last_prescription_dates=recipe.last_prescription_dates></RecipeCard>
+    </div>
+    <button style="position: absolute;left: 200px;top: 500px;background-color: red">TEST</button>
   </div>
 </template>
 
 <style scoped>
+
+.filter-options{
+  display: flex;
+  position: relative;
+}
+
+.status-filter-button{
+  width:75px;
+  height: 38px;
+  margin: 2px;
+  float: right;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.search-patient{
+  background: white url("assets/search-icon.svg") no-repeat;
+  width: 70%;
+  font-size: 17px;
+  padding: 12px 20px 12px 40px;
+  border: 1px solid #ddd;
+  margin-bottom: 40px;
+  border-radius: 10px;
+  margin-right: 15px;
+}
+
+
 </style>

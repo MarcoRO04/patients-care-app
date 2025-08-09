@@ -113,8 +113,6 @@ export default {
         }
       }
     }
-
-
   },
 }
 </script>
@@ -123,18 +121,18 @@ export default {
   <div id="add_recipe_form" class="add_recipe_form">
     <label for="patients">Selectează pacient:</label>
     <br />
-    <select name="patients" id="patients" v-model="recipe.patient.name" @change="check_submission">
+    <select name="patients" id="patients" v-model="this.recipe.patient.name" @change="check_submission">
       <option></option>
-      <option v-for="(patient, index) in patients_list" :key="index">{{ patient }}</option>
+      <option v-for="(patient, index) in this.patients_list" :key="index">{{ patient }}</option>
     </select>
 
     <br />
 
     <label for="doctors">Selectează doctor:</label>
     <br />
-    <select name="doctors" id="doctors" v-model="recipe.doctor.name" @change="check_submission">
+    <select name="doctors" id="doctors" v-model="this.recipe.doctor.name" @change="check_submission">
       <option></option>
-      <option v-for="(doctor, index) in doctors_list" :key="index">{{ doctor.name }}</option>
+      <option v-for="(doctor, index) in this.doctors_list" :key="index">{{ doctor.name }}</option>
     </select>
 
     <br />
@@ -144,7 +142,7 @@ export default {
     <input
       type="date"
       id="prescription_date"
-      v-model="recipe.current_prescription_date"
+      v-model="this.recipe.current_prescription_date"
       @change="check_submission"
     />
     <br />
@@ -154,11 +152,11 @@ export default {
     <select
       name="recipe_duration"
       id="recipe_duration"
-      v-model="recipe.recipe_duration"
+      v-model="this.recipe.recipe_duration"
       @change="check_submission"
     >
       <option></option>
-      <option v-for="(duration, index) in recipe_periods_list" :key="index">{{ duration }}</option>
+      <option v-for="(duration, index) in this.recipe_periods_list" :key="index">{{ duration }}</option>
     </select>
 
     <br />
@@ -166,7 +164,7 @@ export default {
 
     <button style="margin-right: 16px"
             @click="saveRecipe"
-            :disabled="(submission_ok === false)">
+            :disabled="(this.submission_ok === false)">
       Salvare
     </button>
 
