@@ -43,11 +43,6 @@ const router = createRouter({
       name: 'more_details_recipe',
       component: () => import('../views/MoreDetailsRecipe.vue'),
     },
-    {
-      path: '/test_swipe',
-      name: 'test_swipe',
-      component: () => import('../views/TestSwipeView.vue'),
-    }
   ],
 })
 

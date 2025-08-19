@@ -30,7 +30,7 @@
         },
         recipes_list: [],
         status_btn: 0,
-        searched_patient_name:"",
+        searched_name:"",
       }
     },
     methods: {
@@ -66,7 +66,6 @@
           document.getElementById("status_filter_btn").textContent="Gri"
           this.status_btn = 0
         }
-        this.searched_patient_name = "Dani"
       },
       recalculate_distance_between_prescriptions(){
         let status_changed_cnt = 0
@@ -93,7 +92,7 @@
         }
       },
       filter_list_by_patient_name(recipe){
-        return recipe.patient.name.includes(this.searched_patient_name)
+        return (recipe.patient.name.includes(this.searched_name) || recipe.doctor.name.includes(this.searched_name))
       },
     },
   }
@@ -102,7 +101,7 @@
 <template>
   <div>
     <div class="filter-options">
-        <input type="text" class="search-patient" v-model="this.searched_patient_name" placeholder="Caută pacient" >
+        <input type="text" class="search-patient" v-model="this.searched_name" placeholder="Caută pacient sau doctor" >
         <button class="status-filter-button" id="status_filter_btn" @click="change_filter_button_status" style="background-color: gray;color: black">Gri</button>
     </div>
     <div>
@@ -118,7 +117,6 @@
                 :status="recipe.status"
                 :last_prescription_dates=recipe.last_prescription_dates></RecipeCard>
     </div>
-    <button style="position: absolute;left: 200px;top: 500px;background-color: red">TEST</button>
   </div>
 </template>
 
@@ -136,18 +134,18 @@
   float: right;
   font-size: 12px;
   font-weight: bold;
+  border-radius: 10px;
+  border: none;
 }
 
 .search-patient{
   background: white url("assets/search-icon.svg") no-repeat;
   width: 70%;
-  font-size: 17px;
+  font-size: 14px;
   padding: 12px 20px 12px 40px;
   border: 1px solid #ddd;
   margin-bottom: 40px;
   border-radius: 10px;
   margin-right: 15px;
 }
-
-
 </style>
