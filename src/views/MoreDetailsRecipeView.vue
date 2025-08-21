@@ -95,14 +95,6 @@ export default {
         `/edit_recipe/${this.recipe.patient.name}/${this.recipe.doctor.name}/${this.recipe.doctor.specialization}/${this.recipe.recipe_duration}/${this.recipe.distance_between_prescriptions}/${this.recipe.last_prescription_dates}/${this.recipe.current_prescription_date}/${this.recipe.future_prescription_date}/${this.recipe.status}`,
       )
     },
-    updateRecipeDetails() {
-      for (let r in this.recipes_list) {
-        if (this.recipes_list[r].patient.name === this.recipe.patient.name &&
-          this.recipes_list[r].doctor.name === this.recipe.doctor.name) {
-
-        }
-      }
-    },
   },
 }
 </script>
@@ -121,10 +113,10 @@ export default {
           @click="calculateFuturePrescriptionDate"
           v-show="this.recipe.status === '1'"
         >
-          Update
+          Actualizează
         </button>
-        <button class="button-delete" @click="showConfirmDeletePopUp">Delete</button>
-        <button class="button-edit" @click="goToEditRecipe">Edit</button>
+        <button class="button-delete" @click="showConfirmDeletePopUp">Șterge</button>
+        <button class="button-edit" @click="goToEditRecipe">Editează</button>
       </div>
     </div>
     <div class="middle-zone">
@@ -142,7 +134,7 @@ export default {
     <button @click="goToRecipesView">Back</button>
   </div>
 
-  <div id="delete-confirmation-popUp" class="modal" v-show="showModal === true">
+  <div id="delete-confirmation-popUp" class="delete-recipe-modal" v-show="showModal === true">
     <div class="modal-content">
       <h2 style="background-color: firebrick; color: white; font-weight: bold;">
         Confirmare ștergere rețetă
@@ -189,7 +181,7 @@ export default {
 }
 
 button {
-  width: 80px;
+  width: 90px;
   height: 33px;
   margin-top: 3px;
   margin-right: 20px;
@@ -201,7 +193,7 @@ button {
   font-size: 13px;
   border-radius: 3px;
   border: none;
-  opacity: 0.9;
+  opacity: 0.85;
 }
 
 button:hover {

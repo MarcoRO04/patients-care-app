@@ -7,10 +7,41 @@ export default {
     let doctors = localStorage.getItem('doctors')
     let recipes = localStorage.getItem('recipes')
 
-    this.recipes_list = recipes === null ? [] : JSON.parse(recipes)
-    this.patients_list = patients === null ? [] : JSON.parse(patients)
-    this.doctors_list = doctors === null ? [] : JSON.parse(doctors)
-    this.recipe_periods_list = recipe_duration === null ? [] : JSON.parse(recipe_duration)
+    this.recipes_list = (recipes === null) ? [] : JSON.parse(recipes)
+
+    if(doctors === "") {
+      this.doctors_list = [{"name":"Dr. Mihai Elena","specialization":"Neurolog"},
+        {"name":"Dr. Ana Azuga","specialization":"Psihiatru"},
+        {"name":"Dr. Maria Blandiana","specialization":"Neurolog"},
+        {"name":"Dr. Alin Mircea","specialization":"Psihiatru"}]
+      localStorage.setItem('doctors', JSON.stringify(this.doctors_list))
+    } else if(doctors === null) {
+      this.doctors_list = [{"name":"Dr. Mihai Elena","specialization":"Neurolog"},
+        {"name":"Dr. Ana Azuga","specialization":"Psihiatru"},
+        {"name":"Dr. Maria Blandiana","specialization":"Neurolog"},
+        {"name":"Dr. Alin Mircea","specialization":"Psihiatru"}]
+      localStorage.setItem('doctors', JSON.stringify(this.doctors_list))
+    } else{
+      this.doctors_list = JSON.parse(doctors)
+    }
+    if(patients === "") {
+      this.patients_list = [{"name":"Zora Chelici"},{"name":"Mirabela Jovic"},{"name":"Alin Mircea"},{"name":"Maria Popescu"}]
+      localStorage.setItem('patients', JSON.stringify(this.patients_list))
+    } else if(patients === null) {
+      this.patients_list = [{"name":"Zora Chelici"},{"name":"Mirabela Jovic"},{"name":"Alin Mircea"},{"name":"Maria Popescu"}]
+      localStorage.setItem('patients', JSON.stringify(this.patients_list))
+    } else{
+      this.patients_list = JSON.parse(patients)
+    }
+    if(recipe_duration === "") {
+      this.recipe_periods_list = ["1 lună","2 luni","3 luni"]
+      localStorage.setItem('recipe_duration', JSON.stringify(this.recipe_periods_list))
+    } else if(recipe_duration === null) {
+      this.recipe_periods_list = ["1 lună","2 luni","3 luni"]
+      localStorage.setItem('recipe_duration', JSON.stringify(this.recipe_periods_list))
+    } else{
+      this.recipe_periods_list = JSON.parse(recipe_duration)
+    }
   },
   data() {
     return {
@@ -127,7 +158,7 @@ export default {
     <br />
     <select name="patients" id="patients" v-model="this.recipe.patient.name" @change="check_submission">
       <option></option>
-      <option v-for="(patient, index) in this.patients_list" :key="index">{{ patient }}</option>
+      <option v-for="(patient, index) in this.patients_list" :key="index">{{ patient.name }}</option>
     </select>
 
     <br />

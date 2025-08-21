@@ -37,8 +37,6 @@ export default {
   },
   methods: {
     goToDetails() {
-      console.log(this.distance_between_recipes)
-      console.log(this.recipe.distance_between_recipes)
       this.$router.push(
         `/more_details_recipe/${this.patient_name}/${this.doctor_name}/${this.doctor_specialization}/${this.recipe_duration}/${this.distance_between_recipes}/${this.last_prescription_dates}/${this.current_prescription_date}/${this.future_prescription_date}/${this.status}`,
       )
@@ -70,7 +68,7 @@ export default {
       <p>{{ this.doctor_name }} ({{ this.recipe_duration }})</p>
     </div>
     <div class="div-update-button">
-      <button class="update-button" v-show="this.recipe.status === '1'">Update</button>
+      <button class="update-button" v-show="this.recipe.status === '1'">Actualizează</button>
     </div>
     <div class="days-left-square" id="days_left_square" :style="{ backgroundColor: this.status_color }">
       <p style="font-size: 30px">{{ this.distance_between_recipes }}</p>
@@ -108,7 +106,8 @@ export default {
   background: greenyellow;
   padding: 10px;
   border-radius: 10px;
-  width: 80px;
+  width: 76px;
+  margin-left: 24px;
 }
 
 /* On mouse-over, add a deeper shadow */
@@ -127,13 +126,13 @@ export default {
   display: block;
   margin-left: auto;
   margin-right: auto;
-  width:55px;
+  width:90px;
   padding: 2px;
 }
 
 .div-update-button{
   width:58px;
   height: 100%;
-  margin-right: 5px;
+  margin-right: 15px;
 }
 </style>
