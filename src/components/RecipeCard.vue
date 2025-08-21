@@ -37,6 +37,8 @@ export default {
   },
   methods: {
     goToDetails() {
+      console.log(this.distance_between_recipes)
+      console.log(this.recipe.distance_between_recipes)
       this.$router.push(
         `/more_details_recipe/${this.patient_name}/${this.doctor_name}/${this.doctor_specialization}/${this.recipe_duration}/${this.distance_between_recipes}/${this.last_prescription_dates}/${this.current_prescription_date}/${this.future_prescription_date}/${this.status}`,
       )
@@ -106,12 +108,12 @@ export default {
   background: greenyellow;
   padding: 10px;
   border-radius: 10px;
-  width: 18%;
+  width: 80px;
 }
 
 /* On mouse-over, add a deeper shadow */
 .recipe-card:hover {
-  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 16px 0 rgba(255, 255, 255, 0.89);
 }
 
 .update-button {

@@ -37,6 +37,9 @@ export default {
     }
   },
   methods: {
+    goToRecipesView() {
+      this.$router.push(`/recipes`)
+    },
     saveRecipe() {
       this.calculateFuturePrescriptionDate()
       this.recipe.last_prescription_dates.push(this.recipe.current_prescription_date)
@@ -51,6 +54,7 @@ export default {
       let new_recipe = this.recipe
       this.recipes_list.push(new_recipe)
       localStorage.setItem('recipes', JSON.stringify(this.recipes_list))
+      this.goToRecipesView()
     },
     check_submission() {
       //all field have to be completed, to be true
@@ -180,5 +184,7 @@ export default {
   margin: 100px auto;
   padding: 5px 10px;
   border: 2px solid black;
+  background-color: white;
+  color: black;
 }
 </style>

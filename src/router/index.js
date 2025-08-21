@@ -43,6 +43,11 @@ const router = createRouter({
       name: 'more_details_recipe',
       component: () => import('../views/MoreDetailsRecipe.vue'),
     },
+    {
+      path: '/edit_recipe/:patient_name/:doctor_name/:doctor_specialization/:recipe_duration/:distance_between_recipes/:last_prescription_dates/:current_prescription_date/:future_prescription_date/:status',
+      name: 'edit_recipe',
+      component: () => import('../views/EditRecipeView.vue'),
+    }
   ],
 })
 
