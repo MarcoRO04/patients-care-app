@@ -2,12 +2,10 @@
 export default {
   name: 'AddNewRecipeView',
   mounted() {
-    let recipe_duration = localStorage.getItem('recipe_duration')
+    let recipes = localStorage.getItem('recipes')
     let patients = localStorage.getItem('patients')
     let doctors = localStorage.getItem('doctors')
-    let recipes = localStorage.getItem('recipes')
-
-    this.recipes_list = (recipes === null) ? [] : JSON.parse(recipes)
+    let recipe_duration = localStorage.getItem('recipe_duration')
 
     if(doctors === "") {
       this.doctors_list = [{"name":"Dr. Mihai Elena","specialization":"Neurolog"},
@@ -42,10 +40,15 @@ export default {
     } else{
       this.recipe_periods_list = JSON.parse(recipe_duration)
     }
+
+    this.recipes_list = (recipes === null) ? [] : JSON.parse(recipes)
+
+    console.log(this.generateID())
   },
   data() {
     return {
       recipe: {
+        id:'',
         patient: {
           name: '',
         },
@@ -71,10 +74,13 @@ export default {
     goToRecipesView() {
       this.$router.push(`/recipes`)
     },
+    generateID(){
+      return new Date().getTime().toString();
+    },
     saveRecipe() {
       this.calculateFuturePrescriptionDate()
       this.recipe.last_prescription_dates.push(this.recipe.current_prescription_date)
-
+      this.recipe.id = this.generateID()
       //saving also the doctor's specialization
       for (let i = 0; i < this.doctors_list.length; i++) {
         if (this.recipe.doctor.name === this.doctors_list[i].name) {
@@ -134,7 +140,7 @@ export default {
         }
         return true;
       } else{
-        alert("Nu poți adăuga o rețeta unde data următoare de prescriere a rețetei este mai mică decât ziua curentă!")
+        alert("Nu poți adăuga o rețetă unde data următoare de prescriere a rețetei este mai mică decât ziua curentă!")
         return false;
       }
     },

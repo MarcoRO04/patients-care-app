@@ -2,9 +2,7 @@
 export default {
   name: 'ForgotPasswordView',
   mounted() {
-    console.log('Component mounted.');
-    console.log(this.userList);
-    this.userList = this.userList === null ? [] : JSON.parse(localStorage.getItem('users'))
+    this.userList = (this.userList === null) ? [] : JSON.parse(localStorage.getItem('users'))
     console.log(this.userList);
   },
   data() {

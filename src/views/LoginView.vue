@@ -17,9 +17,7 @@ export default {
 
   mounted() {
     let users = JSON.parse(localStorage.getItem('users'))
-    this.userList = this.userList === null ? [] : JSON.parse(localStorage.getItem('users'))
-    console.log(users)
-    console.log(this.userList)
+    this.userList = (this.userList === null) ? [] : users
   },
   methods: {
     validate() {

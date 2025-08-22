@@ -5,6 +5,7 @@ export default {
     this.change_recipe_status()
   },
   props: {
+    id: String,
     patient_name: String,
     doctor_name: String,
     doctor_specialization: String,
@@ -38,7 +39,7 @@ export default {
   methods: {
     goToDetails() {
       this.$router.push(
-        `/more_details_recipe/${this.patient_name}/${this.doctor_name}/${this.doctor_specialization}/${this.recipe_duration}/${this.distance_between_recipes}/${this.last_prescription_dates}/${this.current_prescription_date}/${this.future_prescription_date}/${this.status}`,
+        `/more_details_recipe/${this.id}/${this.patient_name}/${this.doctor_name}/${this.doctor_specialization}/${this.recipe_duration}/${this.distance_between_recipes}/${this.last_prescription_dates}/${this.current_prescription_date}/${this.future_prescription_date}/${this.status}`,
       )
     },
     change_recipe_status() {
@@ -78,61 +79,56 @@ export default {
 </template>
 
 <style scoped>
-.recipe-card {
-  /* Add shadows to create the "card" effect */
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-  transition: 0.3s;
-  background: #fff;
-  color: #181818;
-  padding: 8px 12px;
-  border-radius: 10px;
-  display: flex;
-  position: relative;
-}
+  .recipe-card {
+    /* Add shadows to create the "card" effect */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+    background: #fff;
+    color: #181818;
+    padding: 8px 12px;
+    border-radius: 10px;
+    display: flex;
+    position: relative;
+  }
+  .recipe-card:hover {
+    background-color: #dfe2ec;
+  }
+  .recipe-details {
+    flex: 1;
+    text-align: left;
+    flex-wrap: wrap;
+    padding: 8px 0 8px 8px;
+  }
+  .days-left-square {
+    align-self: center;
+    display: inline-flex;
+    background: greenyellow;
+    padding: 10px;
+    border-radius: 10px;
+    width: 76px;
+    margin-left: 24px;
+  }
+  /* On mouse-over, add a deeper shadow */
+  .recipe-card:hover {
+    box-shadow: 0 8px 16px 0 rgba(255, 255, 255, 0.89);
+  }
+  .update-button {
+    background-color: dodgerblue;
+    color: white;
+    font-weight: bolder;
+    font-size: 13px;
+    border-radius: 10px;
+    border: none;
 
-.recipe-card:hover {
-  background-color: #dfe2ec;
-}
-
-.recipe-details {
-  flex: 1;
-  text-align: left;
-  flex-wrap: wrap;
-  padding: 8px 0 8px 8px;
-}
-.days-left-square {
-  align-self: center;
-  display: inline-flex;
-  background: greenyellow;
-  padding: 10px;
-  border-radius: 10px;
-  width: 76px;
-  margin-left: 24px;
-}
-
-/* On mouse-over, add a deeper shadow */
-.recipe-card:hover {
-  box-shadow: 0 8px 16px 0 rgba(255, 255, 255, 0.89);
-}
-
-.update-button {
-  background-color: dodgerblue;
-  color: white;
-  font-weight: bolder;
-  font-size: 13px;
-  border-radius: 10px;
-  border: none;
-
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  width:90px;
-  padding: 2px;
-}
-
-.div-update-button{
-  width:58px;
-  height: 100%;
-  margin-right: 15px;
-}
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width:90px;
+    padding: 2px;
+  }
+  .div-update-button{
+    width:58px;
+    height: 100%;
+    margin-right: 15px;
+  }
 </style>

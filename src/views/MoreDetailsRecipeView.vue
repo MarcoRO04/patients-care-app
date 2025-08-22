@@ -4,12 +4,12 @@ export default {
   components: {},
   mounted() {
     let recipes = localStorage.getItem('recipes')
-    this.recipes_list = recipes === null ? [] : JSON.parse(recipes)
-    console.log(this.$route.params.distance_between_recipes)
+    this.recipes_list = (recipes === null) ? [] : JSON.parse(recipes)
   },
   data() {
     return {
       recipe: {
+        id: this.$route.params.id,
         patient: {
           name: this.$route.params.patient_name,
         },
@@ -43,11 +43,7 @@ export default {
     },
     calculateFuturePrescriptionDate() {
       for (let r in this.recipes_list) {
-        if (
-          this.$route.params.patient_name === this.recipes_list[r].patient.name &&
-          this.$route.params.doctor_name === this.recipes_list[r].doctor.name &&
-          this.$route.params.recipe_duration === this.recipes_list[r].recipe_duration
-        ) {
+        if (this.recipes_list[r].id === this.$route.params.id) {
           this.recipes_list[r].recipe_duration.split(' ')
           let unformatted_current_date = new Date(Date.now())
           this.recipes_list[r].current_prescription_date =
@@ -84,15 +80,14 @@ export default {
     },
     searchRecipe() {
       for (let i = 0; i < this.recipes_list.length; i++) {
-        if (this.recipes_list[i].patient.name === this.recipe.patient.name &&
-          this.recipes_list[i].doctor.name === this.recipe.doctor.name) {
+        if (this.recipes_list[i].id === this.$route.params.id) {
           return i;
         }
       }
     },
     goToEditRecipe() {
       this.$router.push(
-        `/edit_recipe/${this.recipe.patient.name}/${this.recipe.doctor.name}/${this.recipe.doctor.specialization}/${this.recipe.recipe_duration}/${this.recipe.distance_between_prescriptions}/${this.recipe.last_prescription_dates}/${this.recipe.current_prescription_date}/${this.recipe.future_prescription_date}/${this.recipe.status}`,
+        `/edit_recipe/${this.recipe.id}/${this.recipe.patient.name}/${this.recipe.doctor.name}/${this.recipe.doctor.specialization}/${this.recipe.recipe_duration}/${this.recipe.distance_between_prescriptions}/${this.recipe.last_prescription_dates}/${this.recipe.current_prescription_date}/${this.recipe.future_prescription_date}/${this.recipe.status}`,
       )
     },
   },
@@ -232,7 +227,7 @@ button:hover {
   width: 100%; /* Full width */
   height: 100%; /* Full height */
   overflow: auto; /* Enable scroll if needed */
-  padding-top: 55%;
+  padding-top: 200px;
 }
 
 .modal-content {
