@@ -1,7 +1,27 @@
 <script>
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+/* add fontawesome core */
+import { library } from '@fortawesome/fontawesome-svg-core'
+
+/* import all the icons in Free Solid, Free Regular, and Brands styles */
+import {
+  faAngleLeft,
+  faEdit, faRotate,
+  fas,
+  faTrashCan,
+  faXmark
+} from '@fortawesome/free-solid-svg-icons'
+import { far } from '@fortawesome/free-regular-svg-icons'
+import { fab } from '@fortawesome/free-brands-svg-icons'
+import * as byPrefixAndName from '@fortawesome/free-solid-svg-icons'
+
+library.add(fas, far, fab)
+
 export default {
   name: 'MoreDetailRecipe',
-  components: {},
+  computed: {
+  },
+  components: { FontAwesomeIcon },
   mounted() {
     let recipes = localStorage.getItem('recipes')
     this.recipes_list = (recipes === null) ? [] : JSON.parse(recipes)
@@ -30,6 +50,21 @@ export default {
     }
   },
   methods: {
+    faRotate() {
+      return faRotate
+    },
+    faXmark() {
+      return faXmark
+    },
+    faAngleLeft() {
+      return faAngleLeft
+    },
+    faTrashCan() {
+      return faTrashCan
+    },
+    faEdit() {
+      return faEdit
+    },
     initializeRecipe(){
       for (let r in this.recipes_list) {
         if (this.recipes_list[r].id === this.$route.params.id){
@@ -113,39 +148,41 @@ export default {
 </script>
 <template>
   <div class="more-details-recipe">
-    <h3 class="more-details-header">Detalii rețetă</h3>
+    <div class="more-details-header">
+      <h3 style="font-weight: bold">Detalii rețetă</h3>
+      <button class="button-cancel-x" @click="goToRecipesView"><FontAwesomeIcon :icon="faXmark()" /></button>
+    </div>
     <div class="upper-zone">
       <div class="upper-zone-left">
-        <div class="paragraph-divs-problem">
+        <div class="divs-paragraph-problem">
           <p class="label-problem">Pacient: </p> <p> {{ this.recipe.patient.name }}</p>
         </div>
-        <div class="paragraph-divs-problem">
+        <div class="divs-paragraph-problem">
           <p class="label-problem">Tip rețetă:</p> <p>{{ this.recipe.doctor.specialization }}</p>
         </div>
-        <div class="paragraph-divs-problem">
+        <div class="divs-paragraph-problem">
           <p class="label-problem">Doctor:</p> <p>{{ this.recipe.doctor.name }}</p>
         </div>
-        <div class="paragraph-divs-problem">
+        <div class="divs-paragraph-problem">
           <p class="label-problem">Durata:</p> <p>{{ this.recipe.recipe_duration }}</p>
         </div>
       </div>
       <div class="upper-zone-right">
-        <button
-          class="button-update"
+        <button class="button-update"
           @click="calculateFuturePrescriptionDate"
           v-show="this.recipe.status === '1'"
         >
-          Actualizează
+          <FontAwesomeIcon :icon="faRotate()"></FontAwesomeIcon>Actualizează
         </button>
-        <button class="button-delete" @click="showConfirmDeletePopUp">Șterge</button>
-        <button class="button-edit" @click="goToEditRecipe">Editează</button>
+        <button class="button-delete" @click="showConfirmDeletePopUp"><FontAwesomeIcon :icon="faTrashCan()"></FontAwesomeIcon>Șterge</button>
+        <button class="button-edit" @click="goToEditRecipe"><FontAwesomeIcon :icon="faEdit()"></FontAwesomeIcon>Editează</button>
       </div>
     </div>
     <div class="middle-zone">
-      <div class="paragraph-divs-problem">
+      <div class="divs-paragraph-problem">
         <p class="label-problem">Data ultimei rețete prescrise:</p> <p>{{ this.recipe.current_prescription_date }}</p>
       </div>
-      <div class="paragraph-divs-problem">
+      <div class="divs-paragraph-problem">
         <p class="label-problem" style="margin-bottom: 15px">Data următoarei prescrieri:</p><p>{{ this.formatDate(this.recipe.future_prescription_date) }}</p>
       </div>
       <p class="table-header">Rețetele prescrise anterior:</p>
@@ -154,7 +191,7 @@ export default {
           {{ counter + 1 }}. {{ index }}
         </p>
       </div>
-      <button class="back-button" @click="goToRecipesView">Înapoi</button>
+      <button class="back-button" @click="goToRecipesView"><FontAwesomeIcon :icon="faAngleLeft()"></FontAwesomeIcon>Înapoi</button>
     </div>
   </div>
 
@@ -181,7 +218,7 @@ export default {
 
 /*It didn't let me to do just a part of the paragraph bold, so I did this:*/
 /*-----------------------*/
-.paragraph-divs-problem{
+.divs-paragraph-problem{
   display: flex;
   position: relative;
 }
@@ -202,6 +239,17 @@ export default {
   padding-left: 15px;
   color: white;
   font-weight: bold;
+  position: relative;
+  display: flex;
+}
+
+.button-cancel-x{
+  background-color: transparent;
+  color: white;
+  border: none;
+  height: 25px;
+  text-align: right;
+  margin-left: auto;
 }
 .table-last-dates {
   height: 120px;
@@ -246,8 +294,8 @@ export default {
 }
 
 button {
-  width: 117px;
-  height: 37px;
+  width: 115px;
+  height: 36px;
   margin-top: 3px;
   margin-right: 20px;
   margin-bottom: 6px;
@@ -264,15 +312,20 @@ button:hover {
   opacity: 1;
 }
 
+.button-update{
+  border: none;
+  display: block;
+}
+
 .button-edit {
-  background: forestgreen url('assets/edit-icon.svg') no-repeat;
+  background-color: forestgreen;
   display: block;
   border: none;
 }
 
 .button-delete {
+  background-color: #cf2e2e;
   display: block;
-  background: #cf2e2e url('assets/delete-icon.svg') no-repeat;
   border: none;
 }
 
@@ -292,7 +345,7 @@ button:hover {
 }
 
 .back-button {
-  background: white url('assets/back-icon.svg') no-repeat;
+  background-color: white;
   border-color: #cf2e2e;
   color: #cf2e2e;
 }

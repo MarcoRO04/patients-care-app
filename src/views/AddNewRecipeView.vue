@@ -1,52 +1,70 @@
 <script>
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faXmark } from '@fortawesome/free-solid-svg-icons'
+
 export default {
   name: 'AddNewRecipeView',
+  components: { FontAwesomeIcon },
   mounted() {
     let recipes = localStorage.getItem('recipes')
     let patients = localStorage.getItem('patients')
     let doctors = localStorage.getItem('doctors')
     let recipe_duration = localStorage.getItem('recipe_duration')
 
-    if(doctors === "") {
-      this.doctors_list = [{"name":"Dr. Mihai Elena","specialization":"Neurolog"},
-        {"name":"Dr. Ana Azuga","specialization":"Psihiatru"},
-        {"name":"Dr. Maria Blandiana","specialization":"Neurolog"},
-        {"name":"Dr. Alin Mircea","specialization":"Psihiatru"}]
+    if (doctors === '') {
+      this.doctors_list = [
+        { name: 'Dr. Mihai Elena', specialization: 'Neurolog' },
+        { name: 'Dr. Ana Azuga', specialization: 'Psihiatru' },
+        { name: 'Dr. Maria Blandiana', specialization: 'Neurolog' },
+        { name: 'Dr. Alin Mircea', specialization: 'Psihiatru' },
+      ]
       localStorage.setItem('doctors', JSON.stringify(this.doctors_list))
-    } else if(doctors === null) {
-      this.doctors_list = [{"name":"Dr. Mihai Elena","specialization":"Neurolog"},
-        {"name":"Dr. Ana Azuga","specialization":"Psihiatru"},
-        {"name":"Dr. Maria Blandiana","specialization":"Neurolog"},
-        {"name":"Dr. Alin Mircea","specialization":"Psihiatru"}]
+    } else if (doctors === null) {
+      this.doctors_list = [
+        { name: 'Dr. Mihai Elena', specialization: 'Neurolog' },
+        { name: 'Dr. Ana Azuga', specialization: 'Psihiatru' },
+        { name: 'Dr. Maria Blandiana', specialization: 'Neurolog' },
+        { name: 'Dr. Alin Mircea', specialization: 'Psihiatru' },
+      ]
       localStorage.setItem('doctors', JSON.stringify(this.doctors_list))
-    } else{
+    } else {
       this.doctors_list = JSON.parse(doctors)
     }
-    if(patients === "") {
-      this.patients_list = [{"name":"Zora Chelici"},{"name":"Mirabela Jovic"},{"name":"Alin Mircea"},{"name":"Maria Popescu"}]
+    if (patients === '') {
+      this.patients_list = [
+        { name: 'Zora Chelici' },
+        { name: 'Mirabela Jovic' },
+        { name: 'Alin Mircea' },
+        { name: 'Maria Popescu' },
+      ]
       localStorage.setItem('patients', JSON.stringify(this.patients_list))
-    } else if(patients === null) {
-      this.patients_list = [{"name":"Zora Chelici"},{"name":"Mirabela Jovic"},{"name":"Alin Mircea"},{"name":"Maria Popescu"}]
+    } else if (patients === null) {
+      this.patients_list = [
+        { name: 'Zora Chelici' },
+        { name: 'Mirabela Jovic' },
+        { name: 'Alin Mircea' },
+        { name: 'Maria Popescu' },
+      ]
       localStorage.setItem('patients', JSON.stringify(this.patients_list))
-    } else{
+    } else {
       this.patients_list = JSON.parse(patients)
     }
-    if(recipe_duration === "") {
-      this.recipe_periods_list = ["1 lună","2 luni","3 luni"]
+    if (recipe_duration === '') {
+      this.recipe_periods_list = ['1 lună', '2 luni', '3 luni']
       localStorage.setItem('recipe_duration', JSON.stringify(this.recipe_periods_list))
-    } else if(recipe_duration === null) {
-      this.recipe_periods_list = ["1 lună","2 luni","3 luni"]
+    } else if (recipe_duration === null) {
+      this.recipe_periods_list = ['1 lună', '2 luni', '3 luni']
       localStorage.setItem('recipe_duration', JSON.stringify(this.recipe_periods_list))
-    } else{
+    } else {
       this.recipe_periods_list = JSON.parse(recipe_duration)
     }
 
-    this.recipes_list = (recipes === null) ? [] : JSON.parse(recipes)
+    this.recipes_list = recipes === null ? [] : JSON.parse(recipes)
   },
   data() {
     return {
       recipe: {
-        id:'',
+        id: '',
         patient: {
           name: '',
         },
@@ -69,19 +87,22 @@ export default {
     }
   },
   methods: {
-    checkIDGeneration(){
+    faXmark() {
+      return faXmark
+    },
+    checkIDGeneration() {
       for (let r in this.recipes_list) {
-        if (this.recipes_list[r].id === this.recipe.id){
+        if (this.recipes_list[r].id === this.recipe.id) {
           this.recipe.id = this.generateID()
-          console.log("credeam ca e imposibil sa genereze un ID identic")
+          console.log('credeam ca e imposibil sa genereze un ID identic')
         }
       }
     },
     goToRecipesView() {
       this.$router.push(`/recipes`)
     },
-    generateID(){
-      return new Date().getTime().toString();
+    generateID() {
+      return new Date().getTime().toString()
     },
     saveRecipe() {
       this.calculateFuturePrescriptionDate()
@@ -92,7 +113,7 @@ export default {
       for (let i = 0; i < this.doctors_list.length; i++) {
         if (this.recipe.doctor.name === this.doctors_list[i].name) {
           this.recipe.doctor.specialization = this.doctors_list[i].specialization
-          break;
+          break
         }
       }
       let new_recipe = this.recipe
@@ -112,19 +133,19 @@ export default {
     },
     calculateFuturePrescriptionDate() {
       // I want that format in the combo box with "1 luna", "2 luni", that's why I want to do this.
-      let recipe_period = [];
-      recipe_period = this.recipe.recipe_duration.split(" ")
+      let recipe_period = []
+      recipe_period = this.recipe.recipe_duration.split(' ')
 
       //The future prescription date is the current date in milliseconds + the recipe duration converted in milliseconds
-      this.recipe.future_prescription_date = (new Date(Date.parse(this.recipe.current_prescription_date)
-                                                        + recipe_period[0] * 30 * 24 * 60 * 60 * 1000))
-
+      this.recipe.future_prescription_date = new Date(
+        Date.parse(this.recipe.current_prescription_date) +
+          recipe_period[0] * 30 * 24 * 60 * 60 * 1000,
+      )
 
       // I could do it a lot simpler by multiplying 30 to the recipe_duration.
 
       // The current method will be more useful for RecipeView.vue where I have to calculate it each day.
-      if(Date.parse(this.recipe.future_prescription_date) > Date.now()) {
-
+      if (Date.parse(this.recipe.future_prescription_date) > Date.now()) {
         const dates_difference = Date.parse(this.recipe.future_prescription_date) - Date.now()
         const day = 8.64e7 // how many milliseconds in a day
 
@@ -132,55 +153,77 @@ export default {
         this.recipe.distance_between_prescriptions = Math.round(dates_difference / day)
         // the status should be always '3'
         // but if, idk, the recipe was prescribed 2-3 weeks ago, we check it, and put the status accordingly
-        if (this.recipe.distance_between_prescriptions >= 0 && this.recipe.distance_between_prescriptions <= 7) {
+        if (
+          this.recipe.distance_between_prescriptions >= 0 &&
+          this.recipe.distance_between_prescriptions <= 7
+        ) {
           //red
-          this.recipe.status = "1"
-        }
-        else if (this.recipe.distance_between_prescriptions >= 8 && this.recipe.distance_between_prescriptions <= 14) {
+          this.recipe.status = '1'
+        } else if (
+          this.recipe.distance_between_prescriptions >= 8 &&
+          this.recipe.distance_between_prescriptions <= 14
+        ) {
           //orange
-          this.recipe.status = "2"
-        } else{
+          this.recipe.status = '2'
+        } else {
           //green
-          this.recipe.status = "3"
+          this.recipe.status = '3'
         }
-        return true;
-      } else{
-        alert("Nu poți adăuga o rețetă unde data următoare de prescriere a rețetei este mai mică decât ziua curentă!")
-        return false;
+        return true
+      } else {
+        alert(
+          'Nu poți adăuga o rețetă unde data următoare de prescriere a rețetei este mai mică decât ziua curentă!',
+        )
+        return false
       }
     },
-    check_recipe_existence(){
+    check_recipe_existence() {
       for (let r in this.recipes_list) {
         if (this.recipe.patient.name === this.recipes_list[r].patient.name) {
-          if(this.recipe.doctor.name === this.recipes_list[r].doctor.name) {
-            alert("Nu poți să ai două rețete de același tip la același medic")
-            return false;
+          if (this.recipe.doctor.name === this.recipes_list[r].doctor.name) {
+            alert('Nu poți să ai două rețete de același tip la același medic')
+            return false
           }
         }
       }
-    }
+    },
   },
 }
 </script>
 
 <template>
   <div id="add_recipe_form" class="add_recipe_form">
-    <div>
-    <h3 class="form-header">Adaugă rețetă nouă</h3>
+    <div class="form-header">
+      <h3 style="color: white; font-weight: bold;">Adaugă rețetă nouă</h3>
+      <button class="button-cancel-x" @click="goToRecipesView">
+        <FontAwesomeIcon :icon="faXmark()" />
+      </button>
     </div>
-    <div style="padding: 5px 10px 10px 20px;">
+    <div style="padding: 5px 10px 10px 20px">
       <label for="patients_mock-ups">Selectează pacient:</label>
       <br />
-      <select name="patients" id="patients_mock-ups" v-model="this.recipe.patient.name" @change="check_submission">
+      <select
+        name="patients"
+        id="patients_mock-ups"
+        v-model="this.recipe.patient.name"
+        @change="check_submission"
+      >
         <option></option>
-        <option v-for="(patient, index) in this.patients_list" :key="index">{{ patient.name }}</option>
+        <option v-for="(patient, index) in this.patients_list" :key="index">
+          {{ patient.name }}
+        </option>
       </select>
 
       <br />
 
       <label for="doctors_mock-ups">Selectează doctor:</label>
       <br />
-      <select name="doctors" id="doctors_mock-ups" v-model="this.recipe.doctor.name" @change="check_submission">
+      <select
+        name="doctors"
+        id="doctors_mock-ups"
+        v-model="this.recipe.doctor.name"
+        @change="check_submission"
+      >
         <option></option>
         <option v-for="(doctor, index) in this.doctors_list" :key="index">{{ doctor.name }}</option>
       </select>
@@ -206,16 +249,16 @@ export default {
         @change="check_submission"
       >
         <option></option>
-        <option v-for="(duration, index) in this.recipe_periods_list" :key="index">{{ duration }}</option>
+        <option v-for="(duration, index) in this.recipe_periods_list" :key="index">
+          {{ duration }}
+        </option>
       </select>
 
       <br />
       <br />
 
       <button class="cancel-button" @click="goToRecipesView">Anulare</button>
-      <button class="save-button"
-              @click="saveRecipe"
-              :disabled="(this.submission_ok === false)">
+      <button class="save-button" @click="saveRecipe" :disabled="this.submission_ok === false">
         Salvare
       </button>
       <br />
@@ -231,6 +274,8 @@ export default {
   font-weight: bold;
   padding: 10px 10px 10px 20px;
   margin-bottom: 20px;
+  position: relative;
+  display: flex;
 }
 .add_recipe_form {
   width: 70%;
@@ -242,7 +287,8 @@ export default {
   color: black;
 }
 
-input, select {
+input,
+select {
   background: white;
   width: 60%;
   font-size: 14px;
@@ -260,14 +306,14 @@ button {
   margin-right: 20px;
   margin-bottom: 6px;
 
-  background-color:#cf2e2e;
+  background-color: #cf2e2e;
   color: white;
   font-weight: bolder;
   font-size: 13px;
   border-radius: 5px;
 }
 
-.cancel-button{
+.cancel-button {
   margin-right: 16px;
   background-color: white;
   border-color: #cf2e2e;
@@ -277,5 +323,14 @@ button {
 .save-button {
   margin-right: 16px;
   border: none;
+}
+
+.button-cancel-x{
+  background-color: transparent;
+  color: white;
+  border: none;
+  height: 20px;
+  text-align: right;
+  margin-left: auto;
 }
 </style>

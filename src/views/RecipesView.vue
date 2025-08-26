@@ -1,8 +1,12 @@
 <script>
 import RecipeCard from '@/components/RecipeCard.vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faPlus, faXmark } from '@fortawesome/free-solid-svg-icons'
 
 export default {
   name: 'RecipesView',
+  computed: {
+  },
   mounted() {
     let recipes = localStorage.getItem('recipes')
     this.recipes_list = recipes === null ? [] : JSON.parse(recipes)
@@ -10,6 +14,7 @@ export default {
     this.count_red_status_recipes()
   },
   components: {
+    FontAwesomeIcon,
     RecipeCard,
   },
 
@@ -24,6 +29,12 @@ export default {
     }
   },
   methods: {
+    faXmark() {
+      return faXmark
+    },
+    faPlus() {
+      return faPlus
+    },
     check_recipe(r) {
       return (
         r.patient.name.length > 0 &&
@@ -33,14 +44,14 @@ export default {
     change_filter_button_status() {
       this.status_btn++
       if (this.status_btn === 0) {
-        document.getElementById('status_filter_btn').style.backgroundColor = 'gray'
+        document.getElementById('status_filter_btn').style.backgroundColor = 'lightgrey'
         document.getElementById('status_filter_btn').style.color = 'black'
-        document.getElementById('status_filter_btn').textContent = 'Gri'
+        document.getElementById('status_filter_btn').textContent = 'Toate'
       }
       if (this.status_btn === 1) {
         document.getElementById('status_filter_btn').style.backgroundColor = 'red'
         document.getElementById('status_filter_btn').style.color = 'black'
-        document.getElementById('status_filter_btn').textContent = 'Rosu'
+        document.getElementById('status_filter_btn').textContent = 'Roșu'
       }
       if (this.status_btn === 2) {
         document.getElementById('status_filter_btn').style.backgroundColor = 'orange'
@@ -53,9 +64,9 @@ export default {
         document.getElementById('status_filter_btn').textContent = 'Verde'
       }
       if (this.status_btn === 4) {
-        document.getElementById('status_filter_btn').style.backgroundColor = 'gray'
+        document.getElementById('status_filter_btn').style.backgroundColor = 'lightgrey'
         document.getElementById('status_filter_btn').style.color = 'black'
-        document.getElementById('status_filter_btn').textContent = 'Gri'
+        document.getElementById('status_filter_btn').textContent = 'Toate'
         this.status_btn = 0
       }
     },
@@ -113,8 +124,8 @@ export default {
       }
     },
     showAlertModal() {
-      this.show_red_status_recipe_alert = false;
-      },
+      this.show_red_status_recipe_alert = false
+    },
   },
 }
 </script>
@@ -122,21 +133,18 @@ export default {
 <template>
   <div class="recipe-view-box">
     <div class="filter-options">
-      <input
-        type="text"
-        class="search-patient"
-        v-model="this.searched_name"
-        placeholder="Caută pacient sau doctor"
-      />
+      <input type="text" class="search-patient" v-model="this.searched_name" placeholder="Caută pacient sau doctor" />
       <button
         class="status-filter-button"
         id="status_filter_btn"
         @click="change_filter_button_status"
-        style="background-color: gray; color: black"
+        style="background-color: lightgrey; color: black; font-size: 12px"
       >
-        Gri
+        Toate
       </button>
-      <button class="add-recipe-button" @click="goToAddNewRecipeView">+</button>
+      <button class="add-recipe-button" @click="goToAddNewRecipeView">
+        <FontAwesomeIcon :icon="faPlus()" />
+      </button>
     </div>
     <div v-if="this.recipes_list.length > 0">
       <RecipeCard
@@ -167,7 +175,7 @@ export default {
     <div class="recipes-alert-modal-content">
       <div class="header">
         <h2 class="header-content">Alertă</h2>
-        <button class="button-cancel-x" @click="showAlertModal">X</button>
+        <button class="button-cancel-x" @click="showAlertModal"><FontAwesomeIcon :icon="faXmark()" /></button>
       </div>
       <p style="margin: 20px 2px 10px 2px; color: black; font-size: 20px">
         Aveți {{ this.red_recipes_counter }} {{ this.text_popUp_alert_recipe }} cu status roșu!
@@ -178,100 +186,102 @@ export default {
 </template>
 
 <style scoped>
-  .header {
-    background-color: firebrick;
-    position: relative;
-    display: flex;
-    width: 100%;
-    height: 38px;
-  }
-  .header-content {
-    width: 100%;
-    padding-left: 70px;
-    color: white;
-    font-weight: bold;
-  }
-  .button-cancel-x {
-    background-color: transparent;
-    color: white;
-    margin-right: 0;
-  }
-  #recipes-alert {
-    text-align: center;
-    /*display: none; Hidden by default*/
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    padding-top: 200px;
-  }
-  .recipes-alert-modal-content {
-    background-color: #fefefe;
-    margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
-    border: 1px solid black;
-    width: 80%; /* Could be more or less, depending on screen size */
-  }
-  .button-ok {
-    background-color: firebrick;
-    color: white;
-    margin-right: 10px;
-    margin-left: 10px;
-    margin-bottom: 20px;
-  }
-  button {
-    width: 80px;
-    height: 33px;
-    margin-top: 3px;
-    margin-right: 20px;
-    margin-bottom: 6px;
+.header {
+  background-color: #cf2e2e;
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 38px;
+}
+.header-content {
+  width: 100%;
+  padding-left: 70px;
+  color: white;
+  font-weight: bold;
+}
+.button-cancel-x {
+  background-color: transparent;
+  color: white;
+  margin-right: 0;
+}
+#recipes-alert {
+  text-align: center;
+  /*display: none; Hidden by default*/
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  padding-top: 200px;
+}
+.recipes-alert-modal-content {
+  background-color: #fefefe;
+  margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
+  border: 1px solid black;
+  width: 80%; /* Could be more or less, depending on screen size */
+}
+.button-ok {
+  background-color: #cf2e2e;
+  color: white;
+  margin-right: 10px;
+  margin-left: 10px;
+  margin-bottom: 20px;
+}
+button {
+  width: 80px;
+  height: 33px;
+  margin-top: 3px;
+  margin-right: 20px;
+  margin-bottom: 6px;
 
-    background-color: white;
-    color: black;
-    font-weight: bolder;
-    font-size: 19px;
-    border-radius: 3px;
-    border: none;
-    opacity: 0.85;
-  }
-  button:hover {
-    opacity: 1;
-  }
-  .filter-options {
-    display: flex;
-    position: relative;
-  }
-  .status-filter-button {
-    width: 75px;
-    height: 38px;
-    margin: 2px 4px 2px 2px;
-    float: right;
-    font-size: 12px;
-    font-weight: bold;
-    border-radius: 10px;
-    border: none;
-  }
-  .add-recipe-button {
-    width: 75px;
-    height: 38px;
-    margin: 2px;
-    float: right;
-    font-size: 20px;
-    font-weight: bold;
-    border-radius: 10px;
-    border: none;
-    padding: 3px 3px 3px 3px;
-  }
-  .search-patient {
-    background: white url('assets/search-icon.svg') no-repeat;
-    width: 70%;
-    font-size: 14px;
-    padding: 12px 20px 12px 40px;
-    border: 1px solid #ddd;
-    margin-bottom: 40px;
-    border-radius: 10px;
-    margin-right: 15px;
-  }
+  background-color: white;
+  color: black;
+  font-weight: bolder;
+  font-size: 19px;
+  border-radius: 3px;
+  border: none;
+  opacity: 0.85;
+}
+button:hover {
+  opacity: 1;
+}
+.filter-options {
+  display: flex;
+  position: relative;
+}
+.status-filter-button {
+  width: 75px;
+  height: 38px;
+  margin: 2px 4px 2px 2px;
+  float: right;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 10px;
+  border: none;
+}
+.add-recipe-button {
+  width: 75px;
+  height: 38px;
+  margin: 2px;
+  float: right;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 10px;
+  border: none;
+  padding: 3px 3px 3px 3px;
+}
+.search-patient {
+  background: white url('assets/search-icon.svg') no-repeat;
+  width: 70%;
+  font-size: 14px;
+  padding: 12px 20px 12px 40px;
+  border: 1px solid #ddd;
+  margin-bottom: 40px;
+  border-radius: 10px;
+  margin-right: 15px;
+}
+
+
 </style>

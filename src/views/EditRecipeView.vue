@@ -1,8 +1,10 @@
 <script>
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faXmark } from '@fortawesome/free-solid-svg-icons'
 
 export default {
   name: 'EditRecipe',
-  components: {},
+  components: { FontAwesomeIcon },
   mounted() {
     let patients = localStorage.getItem('patients')
     let doctors = localStorage.getItem('doctors')
@@ -86,9 +88,12 @@ export default {
     }
   },
   methods: {
-    initializeRecipe(){
+    faXmark() {
+      return faXmark
+    },
+    initializeRecipe() {
       for (let r in this.recipes_list) {
-        if (this.recipes_list[r].id === this.$route.params.id){
+        if (this.recipes_list[r].id === this.$route.params.id) {
           this.recipe.id = this.recipes_list[r].id
           this.recipe.patient.name = this.recipes_list[r].patient.name
           this.recipe.doctor.name = this.recipes_list[r].doctor.name
@@ -98,17 +103,16 @@ export default {
           this.recipe.future_prescription_date = this.recipes_list[r].future_prescription_date
           this.recipe.last_prescription_dates = this.recipes_list[r].last_prescription_dates
           this.recipe.status = this.recipes_list[r].status
-          this.recipe.distance_between_prescriptions = this.recipes_list[r].distance_between_prescriptions
+          this.recipe.distance_between_prescriptions =
+            this.recipes_list[r].distance_between_prescriptions
           this.edited_doctor_name = this.recipes_list[r].doctor.name
           this.edited_current_prescription_date = this.recipes_list[r].current_prescription_date
-          break;
+          break
         }
       }
     },
     goToDetails() {
-      this.$router.push(
-        `/more_details_recipe/${this.recipe.id}`,
-      )
+      this.$router.push(`/more_details_recipe/${this.recipe.id}`)
     },
     goToRecipesView() {
       this.$router.push(`/recipes`)
@@ -125,27 +129,31 @@ export default {
               this.edited_current_prescription_date
             ) {
               this.recipes_list[r].current_prescription_date = this.edited_current_prescription_date
-              this.recipes_list[r].future_prescription_date = this.calculateFuturePrescriptionDate(this.recipes_list[r].recipe_duration, this.recipes_list[r].current_prescription_date)
-              this.recipes_list[r].last_prescription_dates[this.recipes_list[r].last_prescription_dates.length - 1] = this.recipes_list[r].current_prescription_date
+              this.recipes_list[r].future_prescription_date = this.calculateFuturePrescriptionDate(
+                this.recipes_list[r].recipe_duration,
+                this.recipes_list[r].current_prescription_date,
+              )
+              this.recipes_list[r].last_prescription_dates[
+                this.recipes_list[r].last_prescription_dates.length - 1
+              ] = this.recipes_list[r].current_prescription_date
             }
             localStorage.setItem('recipes', JSON.stringify(this.recipes_list))
             this.goToRecipesView()
-            break;
+            break
           }
         }
-      }else{
-        alert("Vă rugăm să completați cel puțin un câmp.")
+      } else {
+        alert('Vă rugăm să completați cel puțin un câmp.')
       }
     },
-    calculateFuturePrescriptionDate(recipe_duration,current_prescription_date) {
+    calculateFuturePrescriptionDate(recipe_duration, current_prescription_date) {
       // I want that format in the combo box with "1 luna", "2 luni", that's why I want to do this.
       let recipe_period = []
       recipe_period = recipe_duration.split(' ')
 
       //The future prescription date is the current date in milliseconds + the recipe duration converted in milliseconds
       let future_prescription_date = new Date(
-        Date.parse(current_prescription_date) +
-          recipe_period[0] * 30 * 24 * 60 * 60 * 1000,
+        Date.parse(current_prescription_date) + recipe_period[0] * 30 * 24 * 60 * 60 * 1000,
       )
 
       return future_prescription_date
@@ -156,37 +164,71 @@ export default {
 
 <template>
   <div class="edit-recipe-form">
-    <h3>Date pacient:</h3>
-    <p>Pacient: {{ this.recipe.patient.name }}</p>
-    <p>Tip rețetă: {{ this.recipe.doctor.specialization }}</p>
-    <p>Doctor: {{ this.recipe.doctor.name }}</p>
-    <p>Ultima data: {{ this.recipe.current_prescription_date }}</p>
-    <br />
-    <h3>Editează:</h3>
-    <label for="edit-last-date">Schimbă ultima dată:</label><br />
-    <input type="date" id="edit-last-date" v-model="edited_current_prescription_date" /><br />
-    <label>Alege alt doctor:</label><br />
-    <select v-model="edited_doctor_name">
-      <option></option>
-      <option v-for="(doctor, index) in this.doctors_list" :key="index">
-        {{ doctor.name }}
-      </option></select
-    ><br />
-    <button class="cancel-edit-btn" @click="goToDetails">Anulează</button>
-    <button
-      class="save-edit-btn"
-      @click="saveEditedRecipe"
-    >
-      Salvează
-    </button>
+    <div class="edit-header">
+      <h3 style="font-size: 17px;font-weight: bold">Editare date pacient</h3>
+      <button class="button-cancel-x" @click="goToDetails">
+        <FontAwesomeIcon :icon="faXmark()" />
+      </button>
+    </div>
+    <div class="edit-form-content">
+      <div class="divs-paragraph-problem">
+        <p class="label-problem">Pacient:</p>
+        <p>{{ this.recipe.patient.name }}</p>
+      </div>
+      <div class="divs-paragraph-problem">
+        <p class="label-problem" style="margin-bottom: 10px">Tip rețetă:</p>
+        <p>{{ this.recipe.doctor.specialization }}</p>
+      </div>
+      <label style="font-weight: bold" for="edit-last-date">Schimbă ultima dată:</label><br />
+      <input type="date" id="edit-last-date" v-model="this.edited_current_prescription_date" /><br />
+      <label style="font-weight: bold">Alege alt doctor:</label><br />
+      <select v-model="this.edited_doctor_name">
+        <option></option>
+        <option v-for="(doctor, index) in this.doctors_list" :key="index">
+          {{ doctor.name }}
+        </option></select
+      ><br />
+      <button class="cancel-edit-btn" @click="goToDetails">Anulează</button>
+      <button class="save-edit-btn" @click="saveEditedRecipe">Salvează</button>
+    </div>
   </div>
 </template>
 
 <style scoped>
+.edit-header{
+  background-color: #cf2e2e;
+  padding-left: 15px;
+  color: white;
+  font-weight: bold;
+  position: relative;
+  display: flex;
+}
+.button-cancel-x{
+  background-color: transparent;
+  color: white;
+  border: none;
+  height: 20px;
+  text-align: right;
+  margin-left: auto;
+}
+
+.edit-form-content{
+  padding: 5px 15px;
+}
+/*It didn't let me to do just a part of the paragraph bold, so I did this:*/
+/*-----------------------*/
+.divs-paragraph-problem {
+  display: flex;
+  position: relative;
+}
+.label-problem {
+  margin-right: 7px;
+  font-weight: bold;
+}
+/*----------------------*/
 .edit-recipe-form {
   width: 300px;
   margin: 100px auto;
-  padding: 5px 10px;
   border: 2px solid black;
   background-color: white;
   color: black;
@@ -203,20 +245,33 @@ button {
   font-weight: bolder;
   font-size: 13px;
   border-radius: 3px;
-  border: none;
   opacity: 0.9;
 }
 
 .cancel-edit-btn {
   margin-top: 20px;
-  background-color: darkgray;
+  background-color: white;
+  border-color: #cf2e2e;
+  color: #cf2e2e;
 }
 
 .save-edit-btn {
-  background-color: dodgerblue;
+  background-color: #cf2e2e;
+  border: none;
 }
 
 button:hover {
   opacity: 1;
+}
+
+input, select {
+  background: white;
+  width: 70%;
+  font-size: 14px;
+  padding: 12px 20px 12px 10px;
+  border: 1px solid #ddd;
+  margin-bottom: 7px;
+  border-radius: 10px;
+  margin-right: 15px;
 }
 </style>

@@ -1,10 +1,14 @@
 <script>
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faRotate } from '@fortawesome/free-solid-svg-icons'
+
 export default {
   name: 'RecipeCard',
+  components: { FontAwesomeIcon },
   mounted() {
-    let recipes = localStorage.getItem("recipes");
-    this.recipes_list = (recipes === null) ? [] : JSON.parse(recipes);
-    this.initializeRecipe();
+    let recipes = localStorage.getItem('recipes')
+    this.recipes_list = recipes === null ? [] : JSON.parse(recipes)
+    this.initializeRecipe()
     this.change_recipe_status()
   },
   props: {
@@ -29,13 +33,16 @@ export default {
         status: '',
       },
       status_color: '',
-      recipes_list:[],
+      recipes_list: [],
     }
   },
   methods: {
-    initializeRecipe(){
+    faRotate() {
+      return faRotate
+    },
+    initializeRecipe() {
       for (let r in this.recipes_list) {
-        if (this.recipes_list[r].id === this.id){
+        if (this.recipes_list[r].id === this.id) {
           this.recipe.id = this.recipes_list[r].id
           this.recipe.patient.name = this.recipes_list[r].patient.name
           this.recipe.doctor.name = this.recipes_list[r].doctor.name
@@ -45,15 +52,14 @@ export default {
           this.recipe.future_prescription_date = this.recipes_list[r].future_prescription_date
           this.recipe.last_prescription_dates = this.recipes_list[r].last_prescription_dates
           this.recipe.status = this.recipes_list[r].status
-          this.recipe.distance_between_prescriptions = this.recipes_list[r].distance_between_prescriptions
-          break;
+          this.recipe.distance_between_prescriptions =
+            this.recipes_list[r].distance_between_prescriptions
+          break
         }
       }
     },
     goToDetails() {
-      this.$router.push(
-        `/more_details_recipe/${this.id}`,
-      )
+      this.$router.push(`/more_details_recipe/${this.id}`)
     },
     change_recipe_status() {
       switch (this.recipe.status) {
@@ -82,9 +88,15 @@ export default {
       <p>{{ this.recipe.doctor.name }} ({{ this.recipe.recipe_duration }})</p>
     </div>
     <div class="div-update-button">
-      <button class="update-button" v-show="this.recipe.status === '1'">Actualizează</button>
+      <button class="update-button" v-show="this.recipe.status === '1'">
+        <FontAwesomeIcon :icon="faRotate()"></FontAwesomeIcon>Actualizează
+      </button>
     </div>
-    <div class="days-left-square" id="days_left_square" :style="{ backgroundColor: this.status_color }">
+    <div
+      class="days-left-square"
+      id="days_left_square"
+      :style="{ backgroundColor: this.status_color }"
+    >
       <p style="font-size: 30px">{{ this.recipe.distance_between_prescriptions }}</p>
       <p>zile</p>
     </div>
@@ -92,56 +104,57 @@ export default {
 </template>
 
 <style scoped>
-  .recipe-card {
-    /* Add shadows to create the "card" effect */
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-    transition: 0.3s;
-    background: #fff;
-    color: #181818;
-    padding: 8px 12px;
-    border-radius: 10px;
-    display: flex;
-    position: relative;
-  }
-  .recipe-card:hover {
-    background-color: #dfe2ec;
-  }
-  .recipe-details {
-    flex: 1;
-    text-align: left;
-    flex-wrap: wrap;
-    padding: 8px 0 8px 8px;
-  }
-  .days-left-square {
-    align-self: center;
-    display: inline-flex;
-    background: greenyellow;
-    padding: 10px;
-    border-radius: 10px;
-    width: 76px;
-    margin-left: 24px;
-  }
-  /* On mouse-over, add a deeper shadow */
-  .recipe-card:hover {
-    box-shadow: 0 8px 16px 0 rgba(255, 255, 255, 0.89);
-  }
-  .update-button {
-    background-color: dodgerblue;
-    color: white;
-    font-weight: bolder;
-    font-size: 13px;
-    border-radius: 10px;
-    border: none;
+.recipe-card {
+  /* Add shadows to create the "card" effect */
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  transition: 0.3s;
+  background: #fff;
+  color: #181818;
+  padding: 8px 12px;
+  border-radius: 10px;
+  display: flex;
+  position: relative;
+}
+.recipe-card:hover {
+  background-color: #dfe2ec;
+}
+.recipe-details {
+  flex: 1;
+  text-align: left;
+  flex-wrap: wrap;
+  padding: 8px 0 8px 8px;
+}
+.days-left-square {
+  align-self: center;
+  display: inline-flex;
+  background: greenyellow;
+  padding: 10px;
+  border-radius: 10px;
+  width: 76px;
+  margin-left: 40px;
+}
+/* On mouse-over, add a deeper shadow */
+.recipe-card:hover {
+  box-shadow: 0 8px 16px 0 rgba(255, 255, 255, 0.89);
+}
+.update-button {
+  background-color: dodgerblue;
+  color: white;
+  font-weight: bolder;
+  font-size: 13px;
+  border-radius: 10px;
+  border: none;
 
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    width:90px;
-    padding: 2px;
-  }
-  .div-update-button{
-    width:58px;
-    height: 100%;
-    margin-right: 15px;
-  }
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 105px;
+  height: 22px;
+  padding: 2px;
+}
+.div-update-button {
+  width: 58px;
+  height: 100%;
+  margin-right: 15px;
+}
 </style>
