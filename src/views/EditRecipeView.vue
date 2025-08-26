@@ -1,5 +1,4 @@
 <script>
-import { isDisabled } from 'jsdom/lib/jsdom/living/helpers/form-controls.js'
 
 export default {
   name: 'EditRecipe',
@@ -59,6 +58,7 @@ export default {
 
     let recipes = localStorage.getItem('recipes')
     this.recipes_list = recipes === null ? [] : JSON.parse(recipes)
+    this.initializeRecipe()
   },
 
   data() {
@@ -66,29 +66,48 @@ export default {
       recipe: {
         id: this.$route.params.id,
         patient: {
-          name: this.$route.params.patient_name,
+          name: '',
         },
         doctor: {
-          name: this.$route.params.doctor_name,
-          specialization: this.$route.params.doctor_specialization,
+          name: '',
+          specialization: '',
         },
-        recipe_duration: this.$route.params.recipe_duration,
-        current_prescription_date: this.$route.params.current_prescription_date,
-        future_prescription_date: this.$route.params.future_prescription_date,
-        last_prescription_dates: this.$route.params.last_prescription_dates,
-        status: this.$route.params.status,
-        distance_between_recipes: this.$route.params.distance_between_recipes,
+        recipe_duration: '',
+        current_prescription_date: '',
+        future_prescription_date: '',
+        last_prescription_dates: [],
+        status: '',
+        distance_between_prescriptions: '',
       },
       recipes_list: [],
       doctors_list: [],
-      edited_doctor_name: this.$route.params.doctor_name,
-      edited_current_prescription_date: this.$route.params.current_prescription_date,
+      edited_doctor_name: '',
+      edited_current_prescription_date: '',
     }
   },
   methods: {
+    initializeRecipe(){
+      for (let r in this.recipes_list) {
+        if (this.recipes_list[r].id === this.$route.params.id){
+          this.recipe.id = this.recipes_list[r].id
+          this.recipe.patient.name = this.recipes_list[r].patient.name
+          this.recipe.doctor.name = this.recipes_list[r].doctor.name
+          this.recipe.doctor.specialization = this.recipes_list[r].doctor.specialization
+          this.recipe.recipe_duration = this.recipes_list[r].recipe_duration
+          this.recipe.current_prescription_date = this.recipes_list[r].current_prescription_date
+          this.recipe.future_prescription_date = this.recipes_list[r].future_prescription_date
+          this.recipe.last_prescription_dates = this.recipes_list[r].last_prescription_dates
+          this.recipe.status = this.recipes_list[r].status
+          this.recipe.distance_between_prescriptions = this.recipes_list[r].distance_between_prescriptions
+          this.edited_doctor_name = this.recipes_list[r].doctor.name
+          this.edited_current_prescription_date = this.recipes_list[r].current_prescription_date
+          break;
+        }
+      }
+    },
     goToDetails() {
       this.$router.push(
-        `/more_details_recipe/${this.recipe.id}/${this.recipe.patient.name}/${this.recipe.doctor.name}/${this.recipe.doctor.specialization}/${this.recipe.recipe_duration}/${this.recipe.distance_between_recipes}/${this.recipe.last_prescription_dates}/${this.recipe.current_prescription_date}/${this.recipe.future_prescription_date}/${this.recipe.status}`,
+        `/more_details_recipe/${this.recipe.id}`,
       )
     },
     goToRecipesView() {
@@ -107,6 +126,7 @@ export default {
             ) {
               this.recipes_list[r].current_prescription_date = this.edited_current_prescription_date
               this.recipes_list[r].future_prescription_date = this.calculateFuturePrescriptionDate(this.recipes_list[r].recipe_duration, this.recipes_list[r].current_prescription_date)
+              this.recipes_list[r].last_prescription_dates[this.recipes_list[r].last_prescription_dates.length - 1] = this.recipes_list[r].current_prescription_date
             }
             localStorage.setItem('recipes', JSON.stringify(this.recipes_list))
             this.goToRecipesView()
@@ -127,7 +147,6 @@ export default {
         Date.parse(current_prescription_date) +
           recipe_period[0] * 30 * 24 * 60 * 60 * 1000,
       )
-      console.log(future_prescription_date)
 
       return future_prescription_date
     },

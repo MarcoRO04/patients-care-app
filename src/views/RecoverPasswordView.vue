@@ -3,7 +3,6 @@ export default {
   name: 'ForgotPasswordView',
   mounted() {
     this.userList = (this.userList === null) ? [] : JSON.parse(localStorage.getItem('users'))
-    console.log(this.userList);
   },
   data() {
     return {

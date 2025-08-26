@@ -15,22 +15,6 @@ export default {
 
   data() {
     return {
-      recipe: {
-        id:'',
-        patient: {
-          name: '',
-        },
-        doctor: {
-          name: '',
-          specialization: '',
-        },
-        future_prescription_date: '',
-        current_prescription_date: '',
-        recipe_duration: '',
-        last_prescription_dates: [],
-        status: '',
-        distance_between_prescriptions: '',
-      },
       recipes_list: [],
       status_btn: 0,
       searched_name: '',
@@ -165,15 +149,6 @@ export default {
         )"
         :key="recipe"
         :id="recipe.id"
-        :patient_name="recipe.patient.name"
-        :doctor_name="recipe.doctor.name"
-        :doctor_specialization="recipe.doctor.specialization"
-        :recipe_duration="recipe.recipe_duration"
-        :distance_between_recipes="recipe.distance_between_prescriptions"
-        :current_prescription_date="recipe.current_prescription_date"
-        :future_prescription_date="recipe.future_prescription_date"
-        :status="recipe.status"
-        :last_prescription_dates="recipe.last_prescription_dates"
       ></RecipeCard>
     </div>
     <p v-else-if="status_btn === 1 && this.recipes_list.length === 0" style="font-size: 18px">

@@ -5,30 +5,48 @@ export default {
   mounted() {
     let recipes = localStorage.getItem('recipes')
     this.recipes_list = (recipes === null) ? [] : JSON.parse(recipes)
+    this.initializeRecipe()
   },
   data() {
     return {
       recipe: {
         id: this.$route.params.id,
         patient: {
-          name: this.$route.params.patient_name,
+          name: '',
         },
         doctor: {
-          name: this.$route.params.doctor_name,
-          specialization: this.$route.params.doctor_specialization,
+          name: '',
+          specialization: '',
         },
-        future_prescription_date: this.$route.params.future_prescription_date,
-        current_prescription_date: this.$route.params.current_prescription_date,
-        recipe_duration: this.$route.params.recipe_duration,
-        last_prescription_dates: this.$route.params.last_prescription_dates.split(','),
-        status: this.$route.params.status,
-        distance_between_prescriptions: this.$route.params.distance_between_recipes,
+        future_prescription_date: '',
+        current_prescription_date: '',
+        recipe_duration: '',
+        last_prescription_dates: [],
+        status: '',
+        distance_between_prescriptions: '',
       },
       recipes_list: [],
       showModal: false,
     }
   },
   methods: {
+    initializeRecipe(){
+      for (let r in this.recipes_list) {
+        if (this.recipes_list[r].id === this.$route.params.id){
+          this.recipe.id = this.recipes_list[r].id
+          this.recipe.patient.name = this.recipes_list[r].patient.name
+          this.recipe.doctor.name = this.recipes_list[r].doctor.name
+          this.recipe.doctor.specialization = this.recipes_list[r].doctor.specialization
+          this.recipe.recipe_duration = this.recipes_list[r].recipe_duration
+          this.recipe.current_prescription_date = this.recipes_list[r].current_prescription_date
+          this.recipe.future_prescription_date = this.recipes_list[r].future_prescription_date
+          this.recipe.last_prescription_dates = this.recipes_list[r].last_prescription_dates
+          this.recipe.status = this.recipes_list[r].status
+          this.recipe.distance_between_prescriptions = this.recipes_list[r].distance_between_prescriptions
+          break;
+        }
+      }
+    },
     formatDate(date_string) {
       let date = new Date(date_string)
       let formatted_date = ''
@@ -87,7 +105,7 @@ export default {
     },
     goToEditRecipe() {
       this.$router.push(
-        `/edit_recipe/${this.recipe.id}/${this.recipe.patient.name}/${this.recipe.doctor.name}/${this.recipe.doctor.specialization}/${this.recipe.recipe_duration}/${this.recipe.distance_between_prescriptions}/${this.recipe.last_prescription_dates}/${this.recipe.current_prescription_date}/${this.recipe.future_prescription_date}/${this.recipe.status}`,
+        `/edit_recipe/${this.recipe.id}`,
       )
     },
   },
@@ -95,12 +113,21 @@ export default {
 </script>
 <template>
   <div class="more-details-recipe">
+    <h3 class="more-details-header">Detalii rețetă</h3>
     <div class="upper-zone">
       <div class="upper-zone-left">
-        <p>Pacient: {{ this.recipe.patient.name }}</p>
-        <p>Tip rețetă: {{ this.recipe.doctor.specialization }}</p>
-        <p>Doctor: {{ this.recipe.doctor.name }}</p>
-        <p>Durata: {{ this.recipe.recipe_duration }}</p>
+        <div class="paragraph-divs-problem">
+          <p class="label-problem">Pacient: </p> <p> {{ this.recipe.patient.name }}</p>
+        </div>
+        <div class="paragraph-divs-problem">
+          <p class="label-problem">Tip rețetă:</p> <p>{{ this.recipe.doctor.specialization }}</p>
+        </div>
+        <div class="paragraph-divs-problem">
+          <p class="label-problem">Doctor:</p> <p>{{ this.recipe.doctor.name }}</p>
+        </div>
+        <div class="paragraph-divs-problem">
+          <p class="label-problem">Durata:</p> <p>{{ this.recipe.recipe_duration }}</p>
+        </div>
       </div>
       <div class="upper-zone-right">
         <button
@@ -115,18 +142,20 @@ export default {
       </div>
     </div>
     <div class="middle-zone">
-      <p>Data ultimei rețete prescrise: {{ this.$route.params.current_prescription_date }}</p>
-      <p>
-        Data următoarei prescrieri: {{ this.formatDate(this.$route.params.future_prescription_date) }}
-      </p>
-      <p>Rețetele prescrise anterior:</p>
+      <div class="paragraph-divs-problem">
+        <p class="label-problem">Data ultimei rețete prescrise:</p> <p>{{ this.recipe.current_prescription_date }}</p>
+      </div>
+      <div class="paragraph-divs-problem">
+        <p class="label-problem" style="margin-bottom: 15px">Data următoarei prescrieri:</p><p>{{ this.formatDate(this.recipe.future_prescription_date) }}</p>
+      </div>
+      <p class="table-header">Rețetele prescrise anterior:</p>
+      <div class="table-last-dates">
+        <p style="padding: 0 0 0 10px;" v-for="(index, counter) in this.recipe.last_prescription_dates" :key="index">
+          {{ counter + 1 }}. {{ index }}
+        </p>
+      </div>
+      <button class="back-button" @click="goToRecipesView">Înapoi</button>
     </div>
-    <div class="table-last-dates">
-      <p v-for="(index, counter) in this.recipe.last_prescription_dates" :key="index">
-        {{ counter + 1 }}. {{ index }}
-      </p>
-    </div>
-    <button @click="goToRecipesView">Back</button>
   </div>
 
   <div id="delete-confirmation-popUp" class="delete-recipe-modal" v-show="showModal === true">
@@ -149,22 +178,59 @@ export default {
 * {
   box-sizing: border-box;
 }
+
+/*It didn't let me to do just a part of the paragraph bold, so I did this:*/
+/*-----------------------*/
+.paragraph-divs-problem{
+  display: flex;
+  position: relative;
+}
+.label-problem{
+  margin-right: 7px;
+  font-weight: bold;
+}
+/*----------------------*/
 .more-details-recipe {
   background-color: #fff;
   color: #181818;
-  padding: 10px 15px;
   width: 100%;
   height: 100%;
 }
+
+.more-details-header{
+  background-color: #cf2e2e;
+  padding-left: 15px;
+  color: white;
+  font-weight: bold;
+}
 .table-last-dates {
-  height: 100px;
-  width: 80%;
+  height: 120px;
+  width: 100%;
   overflow: auto;
+  border: 1px solid #181818;
+  margin-bottom: 30px;
+  padding-top: 5px;
+}
+
+.table-header{
+  height: 30px;
+  width: 100%;
+  background-color: #cf2e2e;
+  color: white;
+  padding-left: 10px;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  font-weight: bold;
+  border-bottom: none;
+  border-left: 1px solid #181818;
+  border-right: 1px solid #181818;
+  border-top: 1px solid #181818;
 }
 
 .upper-zone {
   display: flex;
   position: relative;
+  padding: 10px 15px;
 }
 .upper-zone-left {
   position: relative;
@@ -175,9 +241,13 @@ export default {
   text-align: right;
 }
 
+.middle-zone{
+  padding: 10px 15px;
+}
+
 button {
-  width: 90px;
-  height: 33px;
+  width: 117px;
+  height: 37px;
   margin-top: 3px;
   margin-right: 20px;
   margin-bottom: 6px;
@@ -185,9 +255,8 @@ button {
   background-color: dodgerblue;
   color: white;
   font-weight: bolder;
-  font-size: 13px;
-  border-radius: 3px;
-  border: none;
+  font-size: 14px;
+  border-radius: 5px;
   opacity: 0.85;
 }
 
@@ -196,25 +265,36 @@ button:hover {
 }
 
 .button-edit {
+  background: forestgreen url('assets/edit-icon.svg') no-repeat;
   display: block;
-  background-color: forestgreen;
+  border: none;
 }
 
 .button-delete {
   display: block;
-  background-color: firebrick;
+  background: #cf2e2e url('assets/delete-icon.svg') no-repeat;
+  border: none;
 }
 
 .button-cancel {
-  background-color: darkgray;
+  background-color: white;
+  border-color: #cf2e2e;
+  color: #cf2e2e;
   margin-right: 10px;
   margin-left: 10px;
   margin-bottom: 20px;
 }
 
 .button-confirm-deletion {
-  background-color: firebrick;
+  background-color: #cf2e2e;
   margin-bottom: 20px;
+  border: none;
+}
+
+.back-button {
+  background: white url('assets/back-icon.svg') no-repeat;
+  border-color: #cf2e2e;
+  color: #cf2e2e;
 }
 
 #delete-confirmation-popUp {
@@ -236,4 +316,5 @@ button:hover {
   border: 1px solid black;
   width: 80%; /* Could be more or less, depending on screen size */
 }
+
 </style>
