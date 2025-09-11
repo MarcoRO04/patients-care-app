@@ -52,8 +52,7 @@ export default {
           this.recipe.future_prescription_date = this.recipes_list[r].future_prescription_date
           this.recipe.last_prescription_dates = this.recipes_list[r].last_prescription_dates
           this.recipe.status = this.recipes_list[r].status
-          this.recipe.distance_between_prescriptions =
-            this.recipes_list[r].distance_between_prescriptions
+          this.recipe.distance_between_prescriptions = this.recipes_list[r].distance_between_prescriptions
           break
         }
       }
@@ -88,7 +87,7 @@ export default {
       <p>{{ this.recipe.doctor.name }} ({{ this.recipe.recipe_duration }})</p>
     </div>
     <div class="div-update-button">
-      <button class="update-button" v-show="this.recipe.status === '1'">
+      <button class="update-button" v-show="this.recipe.distance_between_prescriptions <= '0'">
         <FontAwesomeIcon :icon="faRotate()"></FontAwesomeIcon>Actualizează
       </button>
     </div>

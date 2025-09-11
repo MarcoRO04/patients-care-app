@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
 import LoginView from '@/views/LoginView.vue'
 
 const router = createRouter({
@@ -7,8 +6,8 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomeView,
+      name: 'recipes',
+      component: () => import('../views/RecipesView.vue'),
     },
     {
       path: '/about',
@@ -27,11 +26,6 @@ const router = createRouter({
       path: '/recover_password',
       name: 'recover_password',
       component: () => import('../views/RecoverPasswordView.vue'),
-    },
-    {
-      path: '/recipes',
-      name: 'recipes',
-      component: () => import('../views/RecipesView.vue'),
     },
     {
       path: '/add_new_recipe',

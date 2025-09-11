@@ -1,12 +1,11 @@
 <script>
 import RecipeCard from '@/components/RecipeCard.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faPlus, faXmark } from '@fortawesome/free-solid-svg-icons'
+import { faBell, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons'
 
 export default {
   name: 'RecipesView',
-  computed: {
-  },
+
   mounted() {
     let recipes = localStorage.getItem('recipes')
     this.recipes_list = recipes === null ? [] : JSON.parse(recipes)
@@ -23,12 +22,15 @@ export default {
       recipes_list: [],
       status_btn: 0,
       searched_name: '',
-      show_red_status_recipe_alert: true,
+      show_red_status_recipe_alert: false,
       red_recipes_counter: 0,
       text_popUp_alert_recipe: '',
     }
   },
   methods: {
+    faBell() {
+      return faBell
+    },
     faXmark() {
       return faXmark
     },
@@ -124,7 +126,7 @@ export default {
       }
     },
     showAlertModal() {
-      this.show_red_status_recipe_alert = false
+      this.show_red_status_recipe_alert = !this.show_red_status_recipe_alert;
     },
   },
 }
@@ -142,9 +144,10 @@ export default {
       >
         Toate
       </button>
-      <button class="add-recipe-button" @click="goToAddNewRecipeView">
+      <button class="add-recipe-button" @click="goToAddNewRecipeView" >
         <FontAwesomeIcon :icon="faPlus()" />
       </button>
+      <button v-show="red_recipes_counter > 0" style="border: none;background-color: transparent;color: red" @click="showAlertModal"><FontAwesomeIcon :icon="faBell()" />{{red_recipes_counter}}</button>
     </div>
     <div v-if="this.recipes_list.length > 0">
       <RecipeCard

@@ -94,12 +94,12 @@ export default {
       for (let r in this.recipes_list) {
         if (this.recipes_list[r].id === this.recipe.id) {
           this.recipe.id = this.generateID()
-          console.log('credeam ca e imposibil sa genereze un ID identic')
+          console.log('I thought it was impossible to generate the same ID.')
         }
       }
     },
     goToRecipesView() {
-      this.$router.push(`/recipes`)
+      this.$router.push(`/`)
     },
     generateID() {
       return new Date().getTime().toString()
@@ -137,10 +137,8 @@ export default {
       recipe_period = this.recipe.recipe_duration.split(' ')
 
       //The future prescription date is the current date in milliseconds + the recipe duration converted in milliseconds
-      this.recipe.future_prescription_date = new Date(
-        Date.parse(this.recipe.current_prescription_date) +
-          recipe_period[0] * 30 * 24 * 60 * 60 * 1000,
-      )
+      this.recipe.future_prescription_date = new Date(Date.parse(this.recipe.current_prescription_date) + recipe_period[0] * 30 * 24 * 60 * 60 * 1000)
+      console.log(this.recipe.future_prescription_date)
 
       // I could do it a lot simpler by multiplying 30 to the recipe_duration.
 

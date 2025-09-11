@@ -22,7 +22,7 @@ defineProps({
 
 <style>
 body {
-  --color-background: #0d0c0c;
+  --color-background: #ffffff;
 }
 h1 {
   font-weight: 500;

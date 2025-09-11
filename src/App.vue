@@ -1,23 +1,12 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import { RouterView } from 'vue-router'
 </script>
 
 <template>
+  <!--
   <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-        <RouterLink to="/login">Login</RouterLink>
-        <RouterLink to="/recover_password">Recover Password</RouterLink>
-        <RouterLink to="/recipes">Retete</RouterLink>
-        <RouterLink to="/add_new_recipe">Reteta Noua</RouterLink>
-      </nav>
-    </div>
-  </header>
+
+  </header>-->
   <RouterView />
 </template>
 
@@ -56,8 +45,8 @@ nav a {
 nav a:first-of-type {
   border: 0;
 }
-
-@media (min-width: 1024px) {
+/*
+@media (max-width: 400px) {
   header {
     display: flex;
     place-items: center;
@@ -82,5 +71,5 @@ nav a:first-of-type {
     padding: 1rem 0;
     margin-top: 1rem;
   }
-}
+}*/
 </style>

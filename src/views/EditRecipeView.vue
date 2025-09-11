@@ -115,7 +115,7 @@ export default {
       this.$router.push(`/more_details_recipe/${this.recipe.id}`)
     },
     goToRecipesView() {
-      this.$router.push(`/recipes`)
+      this.$router.push(`/`)
     },
     saveEditedRecipe() {
       if (this.edited_doctor_name !== '' || this.edited_current_prescription_date !== '') {
