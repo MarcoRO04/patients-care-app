@@ -150,25 +150,22 @@ export default {
     </div>
     <div class="upper-zone">
       <div class="upper-zone-left">
-        <div class="divs-paragraph-problem">
-          <p><span style="font-weight: bold">Pacient</span>: {{ this.recipe.patient.name }}</p>
+        <div>
+          <p><span style="font-weight: bold">Pacient: </span> {{ this.recipe.patient.name }}</p>
         </div>
-        <div class="divs-paragraph-problem">
-          <p class="label-problem">Tip rețetă:</p>
-          <p>{{ this.recipe.doctor.specialization }}</p>
+        <div>
+          <p><span style="font-weight: bold">Tip rețetă: </span> {{ this.recipe.doctor.specialization }}</p>
         </div>
-        <div class="divs-paragraph-problem">
-          <p class="label-problem">Doctor:</p>
-          <p>{{ this.recipe.doctor.name }}</p>
+        <div>
+          <p><span style="font-weight: bold">Doctor: </span>{{ this.recipe.doctor.name }}</p>
         </div>
-        <div class="divs-paragraph-problem">
-          <p class="label-problem">Durata:</p>
-          <p>{{ this.recipe.recipe_duration }}</p>
+        <div>
+          <p><span style="font-weight: bold">Durata: </span>{{ this.recipe.recipe_duration }}</p>
         </div>
       </div>
       <div class="upper-zone-right">
         <button
-          class="button-update"
+          class="button-renew-recipe"
           @click="calculateFuturePrescriptionDate"
           v-show="this.recipe.distance_between_prescriptions <= '0'"
         >
@@ -184,13 +181,12 @@ export default {
       </div>
     </div>
     <div class="middle-zone">
-      <div class="divs-paragraph-problem">
-        <p class="label-problem">Data ultimei rețete prescrise:</p>
-        <p>{{ this.formatDate(this.recipe.current_prescription_date) }}</p>
+      <div>
+        <p><span style="font-weight: bold">Data ultimei rețete prescrise: </span>{{ this.formatDate(this.recipe.current_prescription_date) }}</p>
       </div>
-      <div class="divs-paragraph-problem">
-        <p class="label-problem" style="margin-bottom: 15px">Data următoarei prescrieri:</p>
-        <p>{{ this.formatDate(this.recipe.future_prescription_date) }}</p>
+      <div>
+        <p style="margin-bottom: 15px">
+          <span style="font-weight: bold">Data următoarei prescrieri: </span>{{ this.formatDate(this.recipe.future_prescription_date) }}</p>
       </div>
       <p class="table-header">Rețetele prescrise anterior:</p>
       <div class="table-last-dates">
@@ -228,17 +224,6 @@ export default {
   box-sizing: border-box;
 }
 
-/*It didn't let me to do just a part of the paragraph bold, so I did this:*/
-/*-----------------------*/
-.divs-paragraph-problem {
-  display: flex;
-  position: relative;
-}
-.label-problem {
-  margin-right: 7px;
-  font-weight: bold;
-}
-/*----------------------*/
 .more-details-recipe {
   background-color: #fff;
   color: #181818;
@@ -263,6 +248,7 @@ export default {
   text-align: right;
   margin-left: auto;
 }
+
 .table-last-dates {
   height: 120px;
   width: 100%;
@@ -292,13 +278,14 @@ export default {
   position: relative;
   padding: 10px 15px;
 }
+
+
 .upper-zone-left {
   position: relative;
   flex: 1;
 }
 .upper-zone-right {
   position: relative;
-  text-align: right;
 }
 
 .middle-zone {
@@ -306,12 +293,8 @@ export default {
 }
 
 button {
-  width: 115px;
-  height: 36px;
-  margin-top: 3px;
-  margin-right: 20px;
-  margin-bottom: 6px;
-
+  width: 92px; /*92px*/
+  height: 38px; /*38px*/
   background-color: dodgerblue;
   color: white;
   font-weight: bolder;
@@ -324,7 +307,7 @@ button:hover {
   opacity: 1;
 }
 
-.button-update {
+.button-renew-recipe {
   border: none;
   display: block;
 }
@@ -339,6 +322,7 @@ button:hover {
   background-color: #cf2e2e;
   display: block;
   border: none;
+  margin-bottom: 7px;
 }
 
 .button-cancel {
@@ -357,6 +341,8 @@ button:hover {
 }
 
 .back-button {
+  width: 90px; /* 90px*/
+  height: 36px; /* 36px*/
   background-color: white;
   border-color: #cf2e2e;
   color: #cf2e2e;
