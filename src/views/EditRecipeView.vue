@@ -61,6 +61,7 @@ export default {
     let recipes = localStorage.getItem('recipes')
     this.recipes_list = recipes === null ? [] : JSON.parse(recipes)
     this.initializeRecipe()
+    console.log(this.recipe.current_prescription_date)
   },
 
   data() {
@@ -80,6 +81,7 @@ export default {
         last_prescription_dates: [],
         status: '',
         distance_between_prescriptions: '',
+        renewed_today:'',
       },
       recipes_list: [],
       doctors_list: [],
@@ -103,10 +105,10 @@ export default {
           this.recipe.future_prescription_date = this.recipes_list[r].future_prescription_date
           this.recipe.last_prescription_dates = this.recipes_list[r].last_prescription_dates
           this.recipe.status = this.recipes_list[r].status
-          this.recipe.distance_between_prescriptions =
-            this.recipes_list[r].distance_between_prescriptions
+          this.recipe.distance_between_prescriptions = this.recipes_list[r].distance_between_prescriptions
+          this.recipe.renewed_today = this.recipes_list[r].renewed_today
           this.edited_doctor_name = this.recipes_list[r].doctor.name
-          this.edited_current_prescription_date = this.recipes_list[r].current_prescription_date
+          this.edited_current_prescription_date = this.formatDate(this.recipes_list[r].current_prescription_date)
           break
         }
       }
@@ -156,7 +158,21 @@ export default {
         Date.parse(current_prescription_date) + recipe_period[0] * 30 * 24 * 60 * 60 * 1000,
       )
 
-      return future_prescription_date
+      return this.formatDate(future_prescription_date)
+    },
+    formatDate(date_string) {
+      let date = new Date(date_string)
+      let formatted_date = ''
+      if (((date.getMonth() + 1) < 10) && (date.getDate() >= 10)) {
+        formatted_date = `${date.getFullYear()}-0${date.getMonth() + 1}-${date.getDate()}`
+      } else if (date.getDate() < 10 && date.getMonth() + 1 >= 10) {
+        formatted_date = `${date.getFullYear()}-${date.getMonth() + 1}-0${date.getDate()}`
+      } else if ((date.getDate() < 10 && date.getMonth() + 1 < 10)){
+        formatted_date = `${date.getFullYear()}-0${date.getMonth() + 1}-0${date.getDate()}`
+      }else{
+        formatted_date = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
+      }
+      return formatted_date
     },
   },
 }

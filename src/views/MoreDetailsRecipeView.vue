@@ -43,6 +43,7 @@ export default {
         last_prescription_dates: [],
         status: '',
         distance_between_prescriptions: '',
+        renewed_today: '',
       },
       recipes_list: [],
       showModal: false,
@@ -76,8 +77,8 @@ export default {
           this.recipe.future_prescription_date = this.recipes_list[r].future_prescription_date
           this.recipe.last_prescription_dates = this.recipes_list[r].last_prescription_dates
           this.recipe.status = this.recipes_list[r].status
-          this.recipe.distance_between_prescriptions =
-            this.recipes_list[r].distance_between_prescriptions
+          this.recipe.distance_between_prescriptions = this.recipes_list[r].distance_between_prescriptions
+          this.recipe.renewed_today = this.recipes_list[r].renewed_today
           break
         }
       }
@@ -89,7 +90,9 @@ export default {
         formatted_date = `${date.getDate()}/0${date.getMonth() + 1}/${date.getFullYear()}`
       } else if (date.getDate() < 10 && date.getMonth() + 1 >= 10) {
         formatted_date = `0${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
-      } else {
+      } else if ((date.getDate() < 10 && date.getMonth() + 1 < 10)){
+        formatted_date = `0${date.getDate()}/0${date.getMonth() + 1}/${date.getFullYear()}`
+      }else{
         formatted_date = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
       }
       return formatted_date
@@ -100,13 +103,12 @@ export default {
         if (this.recipes_list[r].id === this.$route.params.id) {
           this.recipes_list[r].recipe_duration.split(' ')
           this.recipes_list[r].current_prescription_date = new Date(Date.now())
-          this.recipes_list[r].future_prescription_date = new Date(
-            Date.now() + this.recipes_list[r].recipe_duration[0] * 1000 * 60 * 60 * 24 * 30,
-          )
-          this.recipes_list[r].last_prescription_dates.push(
-            this.recipes_list[r].current_prescription_date,
-          )
-          this.recipe = this.recipes_list[r]
+          this.recipes_list[r].future_prescription_date = new Date(Date.now() + this.recipes_list[r].recipe_duration[0] * 1000 * 60 * 60 * 24 * 30,)
+          this.recipes_list[r].last_prescription_dates.push(this.recipes_list[r].current_prescription_date)
+          if (this.recipes_list[r].last_prescription_dates.length === 2) {
+            this.recipes_list[r].renewed_today = 1 /*it's enough to set this property just once, when the prescription is renewed for the first time. It will be the same after.*/
+          }
+          //this.recipe = this.recipes_list[r] /*I save the updated list of recipes, so I don't need this line. Next time I will access this view, the dates will be updated*/
           localStorage.setItem('recipes', JSON.stringify(this.recipes_list))
           this.goToRecipesView()
           break
@@ -167,9 +169,9 @@ export default {
         <button
           class="button-renew-recipe"
           @click="calculateFuturePrescriptionDate"
-          v-show="this.recipe.distance_between_prescriptions <= '0'"
+          v-show="this.recipe.distance_between_prescriptions <= '1'"
         >
-          <FontAwesomeIcon :icon="faRotate()"></FontAwesomeIcon>Actualizează
+          <FontAwesomeIcon :icon="faRotate()"></FontAwesomeIcon>Reînnoiește
         </button>
         <!-- Trebuie schimbat la loc <= '0'-->
         <button class="button-delete" @click="showConfirmDeletePopUp">
@@ -293,23 +295,23 @@ export default {
 }
 
 button {
-  width: 92px; /*92px*/
-  height: 38px; /*38px*/
+  width: 115px;
+  height: 40px;
   background-color: dodgerblue;
   color: white;
   font-weight: bolder;
   font-size: 14px;
   border-radius: 5px;
-  opacity: 0.85;
 }
 
 button:hover {
-  opacity: 1;
+  opacity: 0.7;
 }
 
 .button-renew-recipe {
   border: none;
   display: block;
+  margin-bottom: 7px;
 }
 
 .button-edit {
@@ -358,7 +360,7 @@ button:hover {
   width: 100%; /* Full width */
   height: 100%; /* Full height */
   overflow: auto; /* Enable scroll if needed */
-  padding-top: 200px;
+  padding-top: 150px;
 }
 
 .modal-content {

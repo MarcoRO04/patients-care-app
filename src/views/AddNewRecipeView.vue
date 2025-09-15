@@ -78,6 +78,7 @@ export default {
         last_prescription_dates: [],
         status: '',
         distance_between_prescriptions: '',
+        renewed_today: '',
       },
       recipes_list: [],
       doctors_list: [],
@@ -109,6 +110,7 @@ export default {
       this.recipe.last_prescription_dates.push(this.recipe.current_prescription_date)
       this.recipe.id = this.generateID()
       this.checkIDGeneration()
+      this.recipe.renewed_today = 0;
       //saving also the doctor's specialization
       for (let i = 0; i < this.doctors_list.length; i++) {
         if (this.recipe.doctor.name === this.doctors_list[i].name) {
