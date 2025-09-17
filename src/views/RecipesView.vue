@@ -7,11 +7,13 @@ export default {
   name: 'RecipesView',
 
   mounted() {
+    // this.status_btn = Math.floor(Math.random() * 3);
     let recipes = localStorage.getItem('recipes')
     this.recipes_list = recipes === null ? [] : JSON.parse(recipes)
     this.recalculate_distance_between_prescriptions()
     this.count_red_status_recipes()
     this.check_renewed_today()
+    this.count_renewed_recipes()
   },
   components: {
     FontAwesomeIcon,
@@ -22,11 +24,18 @@ export default {
     return {
       recipes_list: [],
       status_btn: 0,
-      renewed_recipes_list_button: 0,
       searched_name: '',
       show_red_status_recipe_alert: false,
       red_recipes_counter: 0,
       text_popUp_alert_recipe: '',
+      renewed_recipes_button: false,
+      renewed_recipes_counter: 0,
+    }
+  },
+  computed: {
+    compute_distanceBP: function () {
+      //let current_date = new Date()
+      return this.status_btn === 0
     }
   },
   methods: {
@@ -134,17 +143,8 @@ export default {
       this.show_red_status_recipe_alert = !this.show_red_status_recipe_alert;
     },
     show_renewed_recipes_list(){
-      this.renewed_recipes_list_button++
-      if (this.renewed_recipes_list_button === 0) {
-        document.getElementById('renewed_recipes_list_btn').style.backgroundColor = 'red'
-      }
-      if (this.renewed_recipes_list_button === 1) {
-        document.getElementById('renewed_recipes_list_btn').style.backgroundColor = 'green'
-      }
-      if (this.renewed_recipes_list_button === 2) {
-        document.getElementById('renewed_recipes_list_btn').style.backgroundColor = 'red'
-        this.renewed_recipes_list_button = 0;
-      }
+      // console.log(this.renewed_recipes_button)
+      this.renewed_recipes_button = !this.renewed_recipes_button
     },
     formatDate(date_string) {
       let date = new Date(date_string)
@@ -160,17 +160,34 @@ export default {
       }
       return formatted_date
     },
+    filter_renewed_today(r) {
+      let unformatted_current_date = Date.now();
+        if (r.last_prescription_dates.length > 1){
+          if (this.formatDate(r.last_prescription_dates[r.last_prescription_dates.length - 1]) !== this.formatDate(unformatted_current_date)) {
+            // console.log(r.patient.name + " " + r.doctor.name)
+            r.renewed_today = false
+          }
+        }
+        return r.renewed_today === true
+    },
     check_renewed_today() {
       let unformatted_current_date = Date.now();
       for (let r in this.recipes_list) {
         if (this.recipes_list[r].last_prescription_dates.length > 1){
           if (this.formatDate(this.recipes_list[r].last_prescription_dates[this.recipes_list[r].last_prescription_dates.length - 1]) !== this.formatDate(unformatted_current_date)) {
-            console.log(this.recipes_list[r].patient.name + " " + this.recipes_list[r].doctor.name)
-            this.recipes_list[r].renewed_today = 0
+            // console.log(this.recipes_list[r].patient.name + " " + this.recipes_list[r].doctor.name)
+            this.recipes_list[r].renewed_today = false
           }
         }
       }
       localStorage.setItem('recipes', JSON.stringify(this.recipes_list))
+    },
+    count_renewed_recipes() {
+      for (let r in this.recipes_list) {
+        if (this.recipes_list[r].renewed_today === true) {
+          this.renewed_recipes_counter++
+        }
+      }
     },
   },
 }
@@ -178,16 +195,16 @@ export default {
 
 <template>
   <div class="recipes-view-box">
+<!--    {{ compute_distanceBP }}-->
     <div class="filter-options">
       <input type="text" class="search-patient" v-model="this.searched_name" placeholder="Caută pacient sau doctor" />
       <div class="buttons">
         <button class="status-filter-button" id="status_filter_btn" @click="change_filter_button_status" style="background-color: #95aac3; color: black; font-size: 12px">Toate</button>
         <button class="add-recipe-button" @click="goToAddNewRecipeView" ><FontAwesomeIcon :icon="faPlus()" /></button>
         <button v-show="red_recipes_counter > 0" style="border: none; background-color: transparent; color: red" @click="showAlertModal"><FontAwesomeIcon :icon="faBell()" />{{red_recipes_counter}}</button>
-        <button id="renewed_recipes_list_btn" @click="this.show_renewed_recipes_list()" style="background-color: red; border-radius: 50px; height: 80px"><FontAwesomeIcon :icon="faPersonCircleCheck()" style="font-size: 30px; color: limegreen;"/></button>
+        <button id="renewed_recipes_list_btn" @click="this.show_renewed_recipes_list()" style="background-color: white; border-radius: 10px; height: 38px;width: 75px; margin-left: 8px"><FontAwesomeIcon :icon="faPersonCircleCheck()" style="font-size: 30px; color: limegreen;"/></button>
       </div>
     </div>
-
 
     <div v-if="this.recipes_list.length > 0" class="recipes-list">
       <RecipeCard
@@ -203,7 +220,7 @@ export default {
       ></RecipeCard>
     </div>
 
-    <p v-else-if="status_btn === 1 && this.recipes_list.length === 0" style="font-size: 18px">
+    <p v-else-if="status_btn === 1 && this.red_recipes_counter === 0" style="font-size: 18px">
       Momentan nu aveți nicio rețetă cu status roșu.
     </p>
     <p v-else-if="status_btn === 2 && this.recipes_list.length === 0" style="font-size: 18px">
@@ -213,6 +230,24 @@ export default {
       Momentan nu aveți nicio rețetă cu status verde.
     </p>
     <p v-else style="font-size: 18px">Momentan nu aveți nicio rețetă salvată.</p>
+  </div>
+
+  <div id="renewed-recipes-popUp"  v-show="renewed_recipes_counter > 0 && renewed_recipes_button === true" >
+    <div class="renewed-recipes-modal-content">
+      <div class="renewed-recipes-header">
+        <h2 class="renewed-recipes-header-content">Rețete reînnoite azi</h2>
+        <button class="button-cancel-x" @click="show_renewed_recipes_list"><FontAwesomeIcon :icon="faXmark()" /></button>
+      </div>
+      <div style="overflow: auto;padding: 10px">
+      <RecipeCard
+                  v-show="filter_renewed_today(recipe)"
+                  v-for="recipe in
+                  recipes_list.sort((recipe1, recipe2) =>
+                  Number(recipe1.distance_between_prescriptions) - Number(recipe2.distance_between_prescriptions))"
+                  :key="recipe"
+                  :id="recipe.id"></RecipeCard>
+      </div>
+    </div>
   </div>
 
   <div id="recipes-alert" v-show="red_recipes_counter > 0 && show_red_status_recipe_alert === true">
@@ -230,6 +265,76 @@ export default {
 </template>
 
 <style scoped>
+#renewed-recipes-popUp {
+  text-align: center;
+  /*display: none; Hidden by default*/
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  /*overflow: auto;*/ /* Enable scroll if needed */
+  -webkit-animation-name: fadeIn; /* Fade in the background */
+  -webkit-animation-duration: 0.4s;
+  animation-name: fadeIn;
+  animation-duration: 0.4s;
+}
+
+.renewed-recipes-modal-content {
+  position: fixed;
+  bottom: 0;
+  background-color: #ddd;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  width: 100%; /* Could be more or less, depending on screen size */
+  height: 90%;
+  -webkit-animation-name: slideIn;
+  -webkit-animation-duration: 0.4s;
+  animation-name: slideIn;
+  animation-duration: 0.4s
+}
+
+.renewed-recipes-header{
+  background-color: forestgreen;
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 38px;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+}
+
+.renewed-recipes-header-content{
+  width: 100%;
+  padding-left: 55px;
+  color: white;
+  font-weight: bold;
+}
+
+@-webkit-keyframes slideIn {
+  from {bottom: -500px; opacity: 0}
+  to {bottom: 0; opacity: 1}
+}
+
+@keyframes slideIn {
+  from {bottom: -500px; opacity: 0}
+  to {bottom: 0; opacity: 1}
+}
+
+@-webkit-keyframes fadeIn {
+  from {opacity: 0}
+  to {opacity: 1}
+}
+
+@keyframes fadeIn {
+  from {opacity: 0}
+  to {opacity: 1}
+}
+
+/*----------------------------------*/
 .alert-header {
   background-color: #cf2e2e;
   position: relative;
@@ -259,6 +364,8 @@ export default {
   height: 100%; /* Full height */
   overflow: auto; /* Enable scroll if needed */
   padding-top: 200px;
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
 .recipes-alert-modal-content {
   background-color: #fefefe;

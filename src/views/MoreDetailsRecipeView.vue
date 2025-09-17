@@ -97,7 +97,6 @@ export default {
       }
       return formatted_date
     },
-
     calculateFuturePrescriptionDate() {
       for (let r in this.recipes_list) {
         if (this.recipes_list[r].id === this.$route.params.id) {
@@ -106,7 +105,7 @@ export default {
           this.recipes_list[r].future_prescription_date = new Date(Date.now() + this.recipes_list[r].recipe_duration[0] * 1000 * 60 * 60 * 24 * 30,)
           this.recipes_list[r].last_prescription_dates.push(this.recipes_list[r].current_prescription_date)
           if (this.recipes_list[r].last_prescription_dates.length === 2) {
-            this.recipes_list[r].renewed_today = 1 /*it's enough to set this property just once, when the prescription is renewed for the first time. It will be the same after.*/
+            this.recipes_list[r].renewed_today = true /*it's enough to set this property just once, when the prescription is renewed for the first time. It will be the same after.*/
           }
           //this.recipe = this.recipes_list[r] /*I save the updated list of recipes, so I don't need this line. Next time I will access this view, the dates will be updated*/
           localStorage.setItem('recipes', JSON.stringify(this.recipes_list))
@@ -152,18 +151,10 @@ export default {
     </div>
     <div class="upper-zone">
       <div class="upper-zone-left">
-        <div>
-          <p><span style="font-weight: bold">Pacient: </span> {{ this.recipe.patient.name }}</p>
-        </div>
-        <div>
-          <p><span style="font-weight: bold">Tip rețetă: </span> {{ this.recipe.doctor.specialization }}</p>
-        </div>
-        <div>
-          <p><span style="font-weight: bold">Doctor: </span>{{ this.recipe.doctor.name }}</p>
-        </div>
-        <div>
-          <p><span style="font-weight: bold">Durata: </span>{{ this.recipe.recipe_duration }}</p>
-        </div>
+        <p><span style="font-weight: bold">Pacient: </span> {{ this.recipe.patient.name }}</p>
+        <p><span style="font-weight: bold">Tip rețetă: </span> {{ this.recipe.doctor.specialization }}</p>
+        <p><span style="font-weight: bold">Doctor: </span>{{ this.recipe.doctor.name }}</p>
+        <p><span style="font-weight: bold">Durata: </span>{{ this.recipe.recipe_duration }}</p>
       </div>
       <div class="upper-zone-right">
         <button
@@ -183,13 +174,8 @@ export default {
       </div>
     </div>
     <div class="middle-zone">
-      <div>
         <p><span style="font-weight: bold">Data ultimei rețete prescrise: </span>{{ this.formatDate(this.recipe.current_prescription_date) }}</p>
-      </div>
-      <div>
-        <p style="margin-bottom: 15px">
-          <span style="font-weight: bold">Data următoarei prescrieri: </span>{{ this.formatDate(this.recipe.future_prescription_date) }}</p>
-      </div>
+        <p style="margin-bottom: 15px"><span style="font-weight: bold">Data următoarei prescrieri: </span>{{ this.formatDate(this.recipe.future_prescription_date) }}</p>
       <p class="table-header">Rețetele prescrise anterior:</p>
       <div class="table-last-dates">
         <p

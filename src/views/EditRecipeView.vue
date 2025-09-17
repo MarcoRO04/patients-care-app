@@ -187,16 +187,11 @@ export default {
       </button>
     </div>
     <div class="edit-form-content">
-      <div class="divs-paragraph-problem">
-        <p class="label-problem">Pacient:</p>
-        <p>{{ this.recipe.patient.name }}</p>
-      </div>
-      <div class="divs-paragraph-problem">
-        <p class="label-problem" style="margin-bottom: 10px">Tip rețetă:</p>
-        <p>{{ this.recipe.doctor.specialization }}</p>
-      </div>
+      <p><span style="font-weight: bold">Pacient: </span> {{ this.recipe.patient.name }}</p>
+      <p><span style="font-weight: bold">Tip rețetă: </span> {{ this.recipe.doctor.specialization }}</p><br>
+
       <label style="font-weight: bold" for="edit-last-date">Schimbă ultima dată:</label><br />
-      <input type="date" id="edit-last-date" v-model="this.edited_current_prescription_date" /><br />
+      <input type="date" id="edit-last-date" v-model="this.edited_current_prescription_date"/><br />
       <label style="font-weight: bold">Alege alt doctor:</label><br />
       <select v-model="this.edited_doctor_name">
         <option></option>
@@ -231,21 +226,11 @@ export default {
 .edit-form-content{
   padding: 5px 15px;
 }
-/*It didn't let me to do just a part of the paragraph bold, so I did this:*/
-/*-----------------------*/
-.divs-paragraph-problem {
-  display: flex;
-  position: relative;
-}
-.label-problem {
-  margin-right: 7px;
-  font-weight: bold;
-}
-/*----------------------*/
+
 .edit-recipe-form {
-  width: 300px;
-  margin: 100px auto;
-  border: 2px solid black;
+  width: 100%;
+  height: 100%;
+  margin: auto;
   background-color: white;
   color: black;
 }

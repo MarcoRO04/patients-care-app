@@ -60,6 +60,11 @@ export default {
     }
 
     this.recipes_list = recipes === null ? [] : JSON.parse(recipes)
+    let d = new Date()
+    console.log(d.toISOString())
+    let mydate = d.toISOString().split('T')[0]
+    console.log(mydate)
+    this.min_c =mydate
   },
   data() {
     return {
@@ -85,6 +90,7 @@ export default {
       patients_list: [],
       recipe_periods_list: [],
       submission_ok: false,
+      min_c:"2025-09-10",
     }
   },
   methods: {
@@ -110,7 +116,7 @@ export default {
       this.recipe.last_prescription_dates.push(this.recipe.current_prescription_date)
       this.recipe.id = this.generateID()
       this.checkIDGeneration()
-      this.recipe.renewed_today = 0;
+      this.recipe.renewed_today = false;
       //saving also the doctor's specialization
       for (let i = 0; i < this.doctors_list.length; i++) {
         if (this.recipe.doctor.name === this.doctors_list[i].name) {
@@ -187,6 +193,12 @@ export default {
         }
       }
     },
+
+  },
+  computed: {
+    computeMinim(){
+      return "2025-09-10"
+    },
   },
 }
 </script>
@@ -237,6 +249,8 @@ export default {
         id="prescription_date"
         v-model="this.recipe.current_prescription_date"
         @change="check_submission"
+        v-bind:min="min_c"
+        max="2025-09-30"
       />
       <br />
 
@@ -285,6 +299,9 @@ export default {
   border: 2px solid black;
   background-color: white;
   color: black;
+}
+label{
+  font-weight: bold;
 }
 
 input,

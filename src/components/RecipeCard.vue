@@ -36,6 +36,7 @@ export default {
       recipes_list: [],
     }
   },
+
   methods: {
     faRotate() {
       return faRotate
