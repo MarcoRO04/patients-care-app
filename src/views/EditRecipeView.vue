@@ -61,7 +61,8 @@ export default {
     let recipes = localStorage.getItem('recipes')
     this.recipes_list = recipes === null ? [] : JSON.parse(recipes)
     this.initializeRecipe()
-    console.log(this.recipe.current_prescription_date)
+    this.calculate_min_date()
+    this.calculate_max_date()
   },
 
   data() {
@@ -87,9 +88,23 @@ export default {
       doctors_list: [],
       edited_doctor_name: '',
       edited_current_prescription_date: '',
+      min_d: '',
+      max_d: '',
     }
   },
+  computed: {
+  },
   methods: {
+    // these functions for calculating the min and max values should work as
+    // computed properties cause they have a reactive variable, current_prescription_date
+    calculate_min_date() {
+      let date_difference = Date.parse(this.recipe.current_prescription_date) - (30 * 24 * 60 * 60 * 1000)
+      this.min_d = (new Date(date_difference)).toISOString().split('T')[0] // current date - 30 days
+    },
+    calculate_max_date() {
+      let date_difference = Date.parse(this.recipe.current_prescription_date) + (30 * 24 * 60 * 60 * 1000)
+      this.max_d = (new Date(date_difference)).toISOString().split('T')[0] // current date + 30 days
+    },
     faXmark() {
       return faXmark
     },
@@ -126,18 +141,10 @@ export default {
             if (this.recipes_list[r].doctor.name !== this.edited_doctor_name) {
               this.recipes_list[r].doctor.name = this.edited_doctor_name
             }
-            if (
-              this.recipes_list[r].current_prescription_date !==
-              this.edited_current_prescription_date
-            ) {
+            if (this.recipes_list[r].current_prescription_date !== this.edited_current_prescription_date) {
               this.recipes_list[r].current_prescription_date = this.edited_current_prescription_date
-              this.recipes_list[r].future_prescription_date = this.calculateFuturePrescriptionDate(
-                this.recipes_list[r].recipe_duration,
-                this.recipes_list[r].current_prescription_date,
-              )
-              this.recipes_list[r].last_prescription_dates[
-                this.recipes_list[r].last_prescription_dates.length - 1
-              ] = this.recipes_list[r].current_prescription_date
+              this.recipes_list[r].future_prescription_date = this.calculateFuturePrescriptionDate(this.recipes_list[r].recipe_duration, this.recipes_list[r].current_prescription_date)
+              this.recipes_list[r].last_prescription_dates[this.recipes_list[r].last_prescription_dates.length - 1] = this.recipes_list[r].current_prescription_date
             }
             localStorage.setItem('recipes', JSON.stringify(this.recipes_list))
             this.goToRecipesView()
@@ -191,7 +198,10 @@ export default {
       <p><span style="font-weight: bold">Tip rețetă: </span> {{ this.recipe.doctor.specialization }}</p><br>
 
       <label style="font-weight: bold" for="edit-last-date">Schimbă ultima dată:</label><br />
-      <input type="date" id="edit-last-date" v-model="this.edited_current_prescription_date"/><br />
+      <input type="date" id="edit-last-date"
+             :min="min_d"
+             :max="max_d"
+             v-model="this.edited_current_prescription_date"/><br />
       <label style="font-weight: bold">Alege alt doctor:</label><br />
       <select v-model="this.edited_doctor_name">
         <option></option>
@@ -200,7 +210,7 @@ export default {
         </option></select
       ><br />
       <button class="cancel-edit-btn" @click="goToDetails">Anulează</button>
-      <button class="save-edit-btn" @click="saveEditedRecipe">Salvează</button>
+      <button class="save-edit-btn"  @click="saveEditedRecipe">Salvează</button>
     </div>
   </div>
 </template>

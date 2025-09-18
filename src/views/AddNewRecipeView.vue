@@ -60,11 +60,13 @@ export default {
     }
 
     this.recipes_list = recipes === null ? [] : JSON.parse(recipes)
-    let d = new Date()
-    console.log(d.toISOString())
-    let mydate = d.toISOString().split('T')[0]
-    console.log(mydate)
-    this.min_c =mydate
+    // let d = new Date()
+    // console.log(d.toISOString())
+    // let mydate = d.toISOString().split('T')[0]
+    // console.log(mydate)
+    // this.min_c =mydate
+    console.log(this.calculate_min_date)
+    console.log(this.calculate_max_date)
   },
   data() {
     return {
@@ -90,8 +92,18 @@ export default {
       patients_list: [],
       recipe_periods_list: [],
       submission_ok: false,
-      min_c:"2025-09-10",
     }
+  },
+  computed: {
+    //these "computed properties functions" act as normal functions because Date.now() is not a reactive dependency
+    calculate_min_date() {
+      let current_date = Date.now()
+      return new Date(current_date - (30 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0] // current date - 30 days
+    },
+    calculate_max_date() {
+      let current_date = Date.now()
+      return new Date(current_date + (30 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0] // current date + 30 days
+    },
   },
   methods: {
     faXmark() {
@@ -116,7 +128,7 @@ export default {
       this.recipe.last_prescription_dates.push(this.recipe.current_prescription_date)
       this.recipe.id = this.generateID()
       this.checkIDGeneration()
-      this.recipe.renewed_today = false;
+      this.recipe.renewed_today = false
       //saving also the doctor's specialization
       for (let i = 0; i < this.doctors_list.length; i++) {
         if (this.recipe.doctor.name === this.doctors_list[i].name) {
@@ -145,7 +157,10 @@ export default {
       recipe_period = this.recipe.recipe_duration.split(' ')
 
       //The future prescription date is the current date in milliseconds + the recipe duration converted in milliseconds
-      this.recipe.future_prescription_date = new Date(Date.parse(this.recipe.current_prescription_date) + recipe_period[0] * 30 * 24 * 60 * 60 * 1000)
+      this.recipe.future_prescription_date = new Date(
+        Date.parse(this.recipe.current_prescription_date) +
+          recipe_period[0] * 30 * 24 * 60 * 60 * 1000,
+      )
       console.log(this.recipe.future_prescription_date)
 
       // I could do it a lot simpler by multiplying 30 to the recipe_duration.
@@ -193,12 +208,6 @@ export default {
         }
       }
     },
-
-  },
-  computed: {
-    computeMinim(){
-      return "2025-09-10"
-    },
   },
 }
 </script>
@@ -206,7 +215,7 @@ export default {
 <template>
   <div id="add_recipe_form" class="add_recipe_form">
     <div class="form-header">
-      <h3 style="color: white; font-weight: bold;">Adaugă rețetă nouă</h3>
+      <h3 style="color: white; font-weight: bold">Adaugă rețetă nouă</h3>
       <button class="button-cancel-x" @click="goToRecipesView">
         <FontAwesomeIcon :icon="faXmark()" />
       </button>
@@ -241,19 +250,6 @@ export default {
       </select>
 
       <br />
-
-      <label for="prescription_date">Alege data prescrierii rețetei:</label>
-      <br />
-      <input
-        type="date"
-        id="prescription_date"
-        v-model="this.recipe.current_prescription_date"
-        @change="check_submission"
-        v-bind:min="min_c"
-        max="2025-09-30"
-      />
-      <br />
-
       <label for="recipe_duration">Selectează durata rețetei:</label>
       <br />
       <select
@@ -267,6 +263,18 @@ export default {
           {{ duration }}
         </option>
       </select>
+
+      <br />
+      <label for="prescription_date">Alege data prescrierii rețetei:</label>
+      <br />
+      <input
+        type="date"
+        id="prescription_date"
+        v-model="this.recipe.current_prescription_date"
+        @change="check_submission"
+        v-bind:min="calculate_min_date"
+        v-bind:max="calculate_max_date"
+      />
 
       <br />
       <br />
@@ -300,7 +308,7 @@ export default {
   background-color: white;
   color: black;
 }
-label{
+label {
   font-weight: bold;
 }
 
@@ -342,7 +350,7 @@ button {
   border: none;
 }
 
-.button-cancel-x{
+.button-cancel-x {
   background-color: transparent;
   color: white;
   border: none;
