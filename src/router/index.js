@@ -1,18 +1,30 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import LoginView from '@/views/LoginView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+
   routes: [
     {
       path: '/',
-      name: 'recipes',
-      component: () => import('../views/RecipesView.vue'),
+      name: 'login',
+      component: () => import('../views/LoginView.vue'),
     },
     {
-      path: '/login',
-      name: 'login',
-      component: LoginView,
+      path: '/error',
+      name: 'error',
+      component: () => import('../views/ErrorView.vue'),
+    },
+    {
+      path: '/recipes',
+      name: 'recipes',
+      component: () => import('../views/RecipesView.vue'),
+      beforeEnter: (to, from, next) => {
+        if (localStorage.getItem('context') === '123') {
+          next()
+        }else{
+          next('/error')
+        }
+      }
     },
     {
       path: '/recover_password',
@@ -23,18 +35,46 @@ const router = createRouter({
       path: '/add_new_recipe',
       name: 'add_new_recipe',
       component: () => import('../views/AddNewRecipeView.vue'),
+      beforeEnter: (to, from, next) => {
+        if (localStorage.getItem('context') === '123') {
+          next()
+        }else{
+          next('/error')
+        }
+      }
     },
     {
       path: '/more_details_recipe/:id',
       name: 'more_details_recipe',
       component: () => import('../views/MoreDetailsRecipeView.vue'),
+      beforeEnter: (to, from, next) => {
+        if (localStorage.getItem('context') === '123') {
+          next()
+        }else{
+          next('/error')
+        }
+      }
     },
     {
       path: '/edit_recipe/:id',
       name: 'edit_recipe',
       component: () => import('../views/EditRecipeView.vue'),
+      beforeEnter: (to, from, next) => {
+        if (localStorage.getItem('context') === '123') {
+          next()
+        }else{
+          next('/error')
+        }
+      }
     }
   ],
 })
 
+// router.beforeEach((to, from, next) => {
+//   if (localStorage.getItem('login') === undefined) {
+//     next('/error')
+//   } else {
+//     next()
+//   }
+// })
 export default router

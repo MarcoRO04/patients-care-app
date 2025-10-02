@@ -1,5 +1,31 @@
-<script setup>
-import { RouterView } from 'vue-router'
+<script>
+
+export default{
+  name: 'App',
+  data(){
+    return {
+      login: false,
+    }
+  },
+  methods: {
+    handleLogin(login_status) {
+      this.login = login_status;
+      if (this.login === true) {
+        localStorage.setItem('context',"123")
+        this.$router.push('/recipes');
+      }else{
+        localStorage.removeItem('context');
+        this.$router.push('/');
+      }
+    },
+    testPromise(){
+      let p = new Promise((resolve, reject) => {})
+    },
+  },
+  created () {
+    this.emitter.on('login_process',(event)=>this.handleLogin(event.my_login));
+  }
+}
 </script>
 
 <template>
@@ -7,6 +33,11 @@ import { RouterView } from 'vue-router'
   <header>
 
   </header>-->
+
+  <p>Bun venit! Status login: {{this.login}}</p>
+  <button v-show="login">Retete</button>
+  <button>Meniu</button>
+  <button>Pacienti</button>
   <RouterView />
 </template>
 

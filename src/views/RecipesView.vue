@@ -1,13 +1,18 @@
 <script>
 import RecipeCard from '@/components/RecipeCard.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faBell, faPersonCircleCheck, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons'
+import {
+  faBell,
+  faCircleUser,
+  faPersonCircleCheck,
+  faPlus,
+  faRightFromBracket,
+  faXmark
+} from '@fortawesome/free-solid-svg-icons'
 
 export default {
   name: 'RecipesView',
-
   mounted() {
-    // this.status_btn = Math.floor(Math.random() * 3);
     let recipes = localStorage.getItem('recipes')
     this.recipes_list = recipes === null ? [] : JSON.parse(recipes)
     this.recalculate_distance_between_prescriptions()
@@ -33,12 +38,14 @@ export default {
     }
   },
   computed: {
-    compute_distanceBP: function () {
-      //let current_date = new Date()
-      return this.status_btn === 0
-    }
   },
   methods: {
+    faRightFromBracket() {
+      return faRightFromBracket
+    },
+    faCircleUser() {
+      return faCircleUser
+    },
     faPersonCircleCheck() {
       return faPersonCircleCheck
     },
@@ -124,9 +131,6 @@ export default {
         recipe.doctor.name.includes(this.searched_name)
       )
     },
-    goToAddNewRecipeView() {
-      this.$router.push(`/add_new_recipe`)
-    },
     count_red_status_recipes() {
       for (let r in this.recipes_list) {
         if (this.recipes_list[r].status === '1') {
@@ -189,20 +193,66 @@ export default {
         }
       }
     },
+    goToAddNewRecipeView() {
+      this.$router.push(`/add_new_recipe`)
+    },
+    logout(){
+      this.emitter.emit("login_process",{my_login : false})
+    },
   },
 }
 </script>
 
 <template>
   <div class="recipes-view-box">
-<!--    {{ compute_distanceBP }}-->
+    <div class="user-div">
+      <button class="user-profile-btn"><FontAwesomeIcon :icon="faCircleUser()" /> Profil</button>
+      <button class="logout-btn" @click="logout">
+        <FontAwesomeIcon :icon="faRightFromBracket()" />Logout
+      </button>
+    </div>
     <div class="filter-options">
-      <input type="text" class="search-patient" v-model="this.searched_name" placeholder="Caută pacient sau doctor" />
+      <input
+        type="text"
+        class="search-patient"
+        v-model="this.searched_name"
+        placeholder="Caută pacient sau doctor"
+      />
       <div class="buttons">
-        <button class="status-filter-button" id="status_filter_btn" @click="change_filter_button_status" style="background-color: #95aac3; color: black; font-size: 12px">Toate</button>
-        <button class="add-recipe-button" @click="goToAddNewRecipeView" ><FontAwesomeIcon :icon="faPlus()" /></button>
-        <button v-show="red_recipes_counter > 0" style="border: none; background-color: transparent; color: red" @click="showAlertModal"><FontAwesomeIcon :icon="faBell()" />{{red_recipes_counter}}</button>
-        <button id="renewed_recipes_list_btn" @click="this.show_renewed_recipes_list()" style="background-color: white; border-radius: 10px; height: 38px;width: 75px; margin-left: 8px"><FontAwesomeIcon :icon="faPersonCircleCheck()" style="font-size: 30px; color: limegreen;"/></button>
+        <button
+          class="status-filter-button"
+          id="status_filter_btn"
+          @click="change_filter_button_status"
+          style="background-color: #95aac3; color: black; font-size: 12px"
+        >
+          Toate
+        </button>
+        <button class="add-recipe-button" @click="goToAddNewRecipeView">
+          <FontAwesomeIcon :icon="faPlus()" />
+        </button>
+        <button
+          v-show="red_recipes_counter > 0"
+          style="border: none; background-color: transparent; color: red"
+          @click="showAlertModal"
+        >
+          <FontAwesomeIcon :icon="faBell()" />{{ red_recipes_counter }}
+        </button>
+        <button
+          id="renewed_recipes_list_btn"
+          @click="this.show_renewed_recipes_list()"
+          style="
+            background-color: white;
+            border-radius: 10px;
+            height: 38px;
+            width: 75px;
+            margin-left: 8px;
+          "
+        >
+          <FontAwesomeIcon
+            :icon="faPersonCircleCheck()"
+            style="font-size: 30px; color: limegreen"
+          />
+        </button>
       </div>
     </div>
 
@@ -232,20 +282,26 @@ export default {
     <p v-else style="font-size: 18px">Momentan nu aveți nicio rețetă salvată.</p>
   </div>
 
-  <div id="renewed-recipes-popUp"  v-show="renewed_recipes_counter > 0 && renewed_recipes_button === true" >
+  <div id="renewed-recipes-popUp" v-show="renewed_recipes_button === true">
     <div class="renewed-recipes-modal-content">
       <div class="renewed-recipes-header">
         <h2 class="renewed-recipes-header-content">Rețete reînnoite azi</h2>
-        <button class="button-cancel-x" @click="show_renewed_recipes_list"><FontAwesomeIcon :icon="faXmark()" /></button>
+        <button class="button-cancel-x" @click="show_renewed_recipes_list">
+          <FontAwesomeIcon :icon="faXmark()" />
+        </button>
       </div>
-      <div style="overflow: auto;padding: 10px">
-      <RecipeCard
-                  v-show="filter_renewed_today(recipe)"
-                  v-for="recipe in
-                  recipes_list.sort((recipe1, recipe2) =>
-                  Number(recipe1.distance_between_prescriptions) - Number(recipe2.distance_between_prescriptions))"
-                  :key="recipe"
-                  :id="recipe.id"></RecipeCard>
+      <div style="overflow: auto; padding: 10px">
+        <p v-if="renewed_recipes_counter === 0">Momentan nu ați reînnoit nicio rețetă...</p>
+        <RecipeCard
+          v-show="filter_renewed_today(recipe)"
+          v-for="recipe in recipes_list.sort(
+            (recipe1, recipe2) =>
+              Number(recipe1.distance_between_prescriptions) -
+              Number(recipe2.distance_between_prescriptions),
+          )"
+          :key="recipe"
+          :id="recipe.id"
+        ></RecipeCard>
       </div>
     </div>
   </div>
@@ -254,7 +310,9 @@ export default {
     <div class="recipes-alert-modal-content">
       <div class="alert-header">
         <h2 class="alert-header-content">Alertă</h2>
-        <button class="button-cancel-x" @click="showAlertModal"><FontAwesomeIcon :icon="faXmark()" /></button>
+        <button class="button-cancel-x" @click="showAlertModal">
+          <FontAwesomeIcon :icon="faXmark()" />
+        </button>
       </div>
       <p style="margin: 20px 2px 10px 2px; color: black; font-size: 20px">
         Aveți {{ this.red_recipes_counter }} {{ this.text_popUp_alert_recipe }} cu status roșu!
@@ -265,6 +323,28 @@ export default {
 </template>
 
 <style scoped>
+.user-div {
+  background-color: transparent;
+  padding-bottom: 25px;
+}
+
+.user-profile-btn {
+  background-color: white;
+  font-size: 16px;
+  border-radius: 10px;
+  height: 40px;
+  width: 85px;
+}
+
+.logout-btn {
+  background-color: white;
+  font-size: 15px;
+  border-radius: 10px;
+  height: 40px;
+  width: 85px;
+  /*right: 0;*/
+  position: absolute;
+}
 #renewed-recipes-popUp {
   text-align: center;
   /*display: none; Hidden by default*/
@@ -274,8 +354,8 @@ export default {
   top: 0;
   width: 100%; /* Full width */
   height: 100%; /* Full height */
-  background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
   /*overflow: auto;*/ /* Enable scroll if needed */
   -webkit-animation-name: fadeIn; /* Fade in the background */
   -webkit-animation-duration: 0.4s;
@@ -294,10 +374,10 @@ export default {
   -webkit-animation-name: slideIn;
   -webkit-animation-duration: 0.4s;
   animation-name: slideIn;
-  animation-duration: 0.4s
+  animation-duration: 0.4s;
 }
 
-.renewed-recipes-header{
+.renewed-recipes-header {
   background-color: forestgreen;
   position: relative;
   display: flex;
@@ -307,7 +387,7 @@ export default {
   border-top-right-radius: 15px;
 }
 
-.renewed-recipes-header-content{
+.renewed-recipes-header-content {
   width: 100%;
   padding-left: 55px;
   color: white;
@@ -315,23 +395,43 @@ export default {
 }
 
 @-webkit-keyframes slideIn {
-  from {bottom: -500px; opacity: 0}
-  to {bottom: 0; opacity: 1}
+  from {
+    bottom: -500px;
+    opacity: 0;
+  }
+  to {
+    bottom: 0;
+    opacity: 1;
+  }
 }
 
 @keyframes slideIn {
-  from {bottom: -500px; opacity: 0}
-  to {bottom: 0; opacity: 1}
+  from {
+    bottom: -500px;
+    opacity: 0;
+  }
+  to {
+    bottom: 0;
+    opacity: 1;
+  }
 }
 
 @-webkit-keyframes fadeIn {
-  from {opacity: 0}
-  to {opacity: 1}
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeIn {
-  from {opacity: 0}
-  to {opacity: 1}
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /*----------------------------------*/
@@ -364,8 +464,8 @@ export default {
   height: 100%; /* Full height */
   overflow: auto; /* Enable scroll if needed */
   padding-top: 200px;
-  background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
 }
 .recipes-alert-modal-content {
   background-color: #fefefe;
@@ -391,7 +491,7 @@ button {
   color: black;
   font-weight: bolder;
   font-size: 19px;
-  border-radius: 3px;
+  border-radius: 10px;
   border: none;
   opacity: 1;
 }
@@ -405,7 +505,7 @@ button:hover {
   padding: 20px;
   /*margin: 0 200px 0 200px;*/
 }
-.recipes-list{
+.recipes-list {
   overflow: auto;
   height: 82%;
 }
@@ -414,7 +514,7 @@ button:hover {
   /*position: relative;*/
 }
 
-.buttons{
+.buttons {
   display: flex;
 }
 .status-filter-button {
@@ -450,7 +550,7 @@ button:hover {
   margin-right: 15px;
 }
 
-.search-patient:hover{
+.search-patient:hover {
   opacity: 0.7;
 }
 
@@ -462,7 +562,7 @@ button:hover {
     font-size: 18px;
     padding: 12px 5px 12px 45px;
   }
-  .recipes-view-box{
+  .recipes-view-box {
     padding: 25px 10px 10px 10px;
   }
 
@@ -470,13 +570,12 @@ button:hover {
     display: block;
   }
 
-  .buttons{
+  .buttons {
     place-content: center;
     margin-bottom: 15px;
   }
 }
 
 @media (min-width: 530px) {
-
 }
 </style>

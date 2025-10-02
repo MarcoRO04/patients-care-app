@@ -115,7 +115,7 @@ export default {
       }
     },
     goToRecipesView() {
-      this.$router.push(`/`)
+      this.$router.push(`/recipes`)
     },
     showConfirmDeletePopUp() {
       this.showModal = !this.showModal
@@ -160,7 +160,7 @@ export default {
         <button
           class="button-renew-recipe"
           @click="calculateFuturePrescriptionDate"
-          v-show="this.recipe.distance_between_prescriptions <= '1'"
+          v-show="this.recipe.distance_between_prescriptions <= '0'"
         >
           <FontAwesomeIcon :icon="faRotate()"></FontAwesomeIcon>Reînnoiește
         </button>

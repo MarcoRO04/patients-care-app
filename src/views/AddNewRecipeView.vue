@@ -118,7 +118,7 @@ export default {
       }
     },
     goToRecipesView() {
-      this.$router.push(`/`)
+      this.$router.push(`/recipes`)
     },
     generateID() {
       return new Date().getTime().toString()
