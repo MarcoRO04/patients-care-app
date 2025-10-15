@@ -160,7 +160,7 @@ export default {
         <button
           class="button-renew-recipe"
           @click="calculateFuturePrescriptionDate"
-          v-show="this.recipe.distance_between_prescriptions <= '0'"
+          v-show="this.recipe.distance_between_prescriptions <= '1'"
         >
           <FontAwesomeIcon :icon="faRotate()"></FontAwesomeIcon>Reînnoiește
         </button>

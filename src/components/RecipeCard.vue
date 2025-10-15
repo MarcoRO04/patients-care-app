@@ -10,6 +10,7 @@ export default {
     this.recipes_list = recipes === null ? [] : JSON.parse(recipes)
     this.initializeRecipe()
     this.change_recipe_status()
+    // this.fetchData2()
   },
   props: {
     id: String,
@@ -34,6 +35,7 @@ export default {
       },
       status_color: '',
       recipes_list: [],
+      img_url: '',
     }
   },
 
@@ -53,7 +55,8 @@ export default {
           this.recipe.future_prescription_date = this.recipes_list[r].future_prescription_date
           this.recipe.last_prescription_dates = this.recipes_list[r].last_prescription_dates
           this.recipe.status = this.recipes_list[r].status
-          this.recipe.distance_between_prescriptions = this.recipes_list[r].distance_between_prescriptions
+          this.recipe.distance_between_prescriptions =
+            this.recipes_list[r].distance_between_prescriptions
           break
         }
       }
@@ -77,6 +80,42 @@ export default {
           break
       }
     },
+    async fetchData() {
+      let randomNumber = Math.floor(Math.random() * 20 + 1)
+      try {
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${randomNumber}`)
+
+        if (!response.ok) {
+          throw new Error(
+            `Could not fetch data for https://pokeapi.co/api/v2/pokemon/${randomNumber}`,
+          )
+        } else {
+          const result = await response.json()
+          this.img_url = result.sprites.front_default
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    fetchData2() {
+      let randomNumber = Math.floor(Math.random() * 20 + 1)
+      fetch(`https://pokeapi.co/api/v2/pokemon/${randomNumber}`)
+        .then(response => {
+        return response.json()
+      }).then(data => {
+        console.log(data)
+        if (!data) {
+          throw new Error(
+            `Could not fetch data for https://pokeapi.co/api/v2/pokemon/${randomNumber}`,
+          )
+        } else {
+          this.img_url = data.sprites.front_default
+        }
+      }).catch(error => {
+        console.error(error)
+      })
+    },
+
   },
 }
 </script>
@@ -84,11 +123,15 @@ export default {
 <template>
   <div class="recipe-card" @click.prevent="goToDetails" id="recipe_card">
     <div class="recipe-details">
+<!--      <img :src="img_url" v-show="img_url !== ''" />-->
       <p style="font-size: 20px; font-weight: bold">{{ this.recipe.patient.name }}</p>
       <p>{{ this.recipe.doctor.name }}</p>
     </div>
     <div class="div-update-button">
-      <button class="extend-recipe-button" v-show="this.recipe.distance_between_prescriptions <= '0'">
+      <button
+        class="extend-recipe-button"
+        v-show="this.recipe.distance_between_prescriptions <= '1'"
+      >
         <FontAwesomeIcon :icon="faRotate()"></FontAwesomeIcon>Reînnoiește
       </button>
     </div>
@@ -152,5 +195,4 @@ export default {
   height: 22px;
   padding: 2px;
 }
-
 </style>

@@ -40,7 +40,6 @@ export default {
         console.log('Wrong username or password')
       } else {
         this.emitter.emit("login_process",{my_login : true}) //my_login:true
-        // localStorage.setItem('login', true)
         console.log('Login successful')
         this.goToRecipesView()
       }

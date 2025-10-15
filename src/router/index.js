@@ -69,12 +69,4 @@ const router = createRouter({
     }
   ],
 })
-
-// router.beforeEach((to, from, next) => {
-//   if (localStorage.getItem('login') === undefined) {
-//     next('/error')
-//   } else {
-//     next()
-//   }
-// })
 export default router

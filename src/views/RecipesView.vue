@@ -40,6 +40,31 @@ export default {
   computed: {
   },
   methods: {
+    requestGET(){
+      fetch('http://localhost:3001').then((response) => {
+        return response.json()
+      }).then((data) => {
+        console.log(data)
+      }).catch((error) => {
+        console.log('GET request',error)
+      })
+    },
+    requestRecipeFromBE(){
+        fetch('http://localhost:3001/users/test',{
+          method: 'GET',
+          headers: {
+        }
+      }).then( rsp => {
+        return rsp.json()
+      }).then( response =>{
+        if (response['result']){
+          console.log('am ajuns aici')
+        }
+      }).catch( err => {
+          console.log('Error on GET request: ',err)
+      })
+
+    },
     faRightFromBracket() {
       return faRightFromBracket
     },
@@ -207,9 +232,8 @@ export default {
   <div class="recipes-view-box">
     <div class="user-div">
       <button class="user-profile-btn"><FontAwesomeIcon :icon="faCircleUser()" /> Profil</button>
-      <button class="logout-btn" @click="logout">
-        <FontAwesomeIcon :icon="faRightFromBracket()" />Logout
-      </button>
+      <button class="logout-btn" @click="logout"><FontAwesomeIcon :icon="faRightFromBracket()" />Logout</button><br>
+      <button @click="requestRecipeFromBE()">Test</button>
     </div>
     <div class="filter-options">
       <input
@@ -281,7 +305,6 @@ export default {
     </p>
     <p v-else style="font-size: 18px">Momentan nu aveți nicio rețetă salvată.</p>
   </div>
-
   <div id="renewed-recipes-popUp" v-show="renewed_recipes_button === true">
     <div class="renewed-recipes-modal-content">
       <div class="renewed-recipes-header">

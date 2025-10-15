@@ -10,8 +10,4 @@ const app = createApp(App)
 let emitter = mitt()
 app.config.globalProperties.emitter = emitter
 app.use(router)
-
-// emitter.on('login_process', () => {
-//     localStorage.setItem('login', 'true')
-// })
 app.mount('#app')

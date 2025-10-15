@@ -60,13 +60,6 @@ export default {
     }
 
     this.recipes_list = recipes === null ? [] : JSON.parse(recipes)
-    // let d = new Date()
-    // console.log(d.toISOString())
-    // let mydate = d.toISOString().split('T')[0]
-    // console.log(mydate)
-    // this.min_c =mydate
-    console.log(this.calculate_min_date)
-    console.log(this.calculate_max_date)
   },
   data() {
     return {
