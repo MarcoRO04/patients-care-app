@@ -50,16 +50,20 @@ export default {
       })
     },
     requestRecipeFromBE(){
-        fetch('http://localhost:3001/users/test',{
+        fetch('http://localhost:3001/recipes',{
           method: 'GET',
           headers: {
         }
       }).then( rsp => {
         return rsp.json()
       }).then( response =>{
-        if (response['result']){
+        if(response['status']){
           console.log('am ajuns aici')
+          console.log(response['rsp'])
+        }else {
+          console.log('No data !')
         }
+
       }).catch( err => {
           console.log('Error on GET request: ',err)
       })
