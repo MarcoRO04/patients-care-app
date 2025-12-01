@@ -22,8 +22,6 @@ export default {
   computed: {},
   components: { FontAwesomeIcon },
   mounted() {
-    let recipes = localStorage.getItem('recipes')
-    this.recipes_list = recipes === null ? [] : JSON.parse(recipes)
     this.initializeRecipe()
   },
   data() {
@@ -45,7 +43,6 @@ export default {
         distance_between_prescriptions: '',
         renewed_today: '',
       },
-      recipes_list: [],
       showModal: false,
     }
   },
@@ -66,21 +63,12 @@ export default {
       return faEdit
     },
     initializeRecipe() {
-      for (let r in this.recipes_list) {
-        if (this.recipes_list[r].id === this.$route.params.id) {
-          this.recipe.id = this.recipes_list[r].id
-          this.recipe.patient.name = this.recipes_list[r].patient.name
-          this.recipe.doctor.name = this.recipes_list[r].doctor.name
-          this.recipe.doctor.specialization = this.recipes_list[r].doctor.specialization
-          this.recipe.recipe_duration = this.recipes_list[r].recipe_duration
-          this.recipe.current_prescription_date = this.recipes_list[r].current_prescription_date
-          this.recipe.future_prescription_date = this.recipes_list[r].future_prescription_date
-          this.recipe.last_prescription_dates = this.recipes_list[r].last_prescription_dates
-          this.recipe.status = this.recipes_list[r].status
-          this.recipe.distance_between_prescriptions = this.recipes_list[r].distance_between_prescriptions
-          this.recipe.renewed_today = this.recipes_list[r].renewed_today
-          break
-        }
+      //read the recipe (sent by RecipeCard.vue) from localStorage and initialize de recipe object
+      let r = localStorage.getItem('recipe')
+      if(r){
+        this.recipe = JSON.parse(r)
+        console.log(this.recipe)
+
       }
     },
     formatDate(date_string) {
@@ -115,7 +103,31 @@ export default {
       }
     },
     goToRecipesView() {
+      //deleting the recipe entry from localStorage when leaving the view
+      localStorage.removeItem('recipe')
       this.$router.push(`/recipes`)
+    },
+    sendEditRequestToBE(){
+      fetch(`http://localhost:3001/recipes/${this.recipe.id}`, {
+        method: 'PUT',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({recipe: this.recipe})
+      }).then( d => {
+        console.log(d.status)
+        return d.json()
+      }).then( (response) => {
+
+        if (response['result']) {
+          alert('Update ok!')
+        }else {
+          alert('Failed update recipe')
+        }
+      }).catch( (error) => {
+        console.log(error)
+      })
     },
     showConfirmDeletePopUp() {
       this.showModal = !this.showModal
@@ -168,7 +180,7 @@ export default {
         <button class="button-delete" @click="showConfirmDeletePopUp">
           <FontAwesomeIcon :icon="faTrashCan()"></FontAwesomeIcon>Șterge
         </button>
-        <button class="button-edit" @click="goToEditRecipe">
+        <button class="button-edit" @click="sendEditRequestToBE">
           <FontAwesomeIcon :icon="faEdit()"></FontAwesomeIcon>Editează
         </button>
       </div>

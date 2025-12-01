@@ -6,19 +6,16 @@ export default {
   name: 'RecipeCard',
   components: { FontAwesomeIcon },
   mounted() {
-    let recipes = localStorage.getItem('recipes')
-    this.recipes_list = recipes === null ? [] : JSON.parse(recipes)
     this.initializeRecipe()
     this.change_recipe_status()
-    // this.fetchData2()
   },
   props: {
-    id: String,
+    obj: Object,
   },
   data() {
     return {
       recipe: {
-        id: this.id,
+        id: '',
         patient: {
           name: '',
         },
@@ -44,25 +41,25 @@ export default {
       return faRotate
     },
     initializeRecipe() {
-      for (let r in this.recipes_list) {
-        if (this.recipes_list[r].id === this.id) {
-          this.recipe.id = this.recipes_list[r].id
-          this.recipe.patient.name = this.recipes_list[r].patient.name
-          this.recipe.doctor.name = this.recipes_list[r].doctor.name
-          this.recipe.doctor.specialization = this.recipes_list[r].doctor.specialization
-          this.recipe.recipe_duration = this.recipes_list[r].recipe_duration
-          this.recipe.current_prescription_date = this.recipes_list[r].current_prescription_date
-          this.recipe.future_prescription_date = this.recipes_list[r].future_prescription_date
-          this.recipe.last_prescription_dates = this.recipes_list[r].last_prescription_dates
-          this.recipe.status = this.recipes_list[r].status
-          this.recipe.distance_between_prescriptions =
-            this.recipes_list[r].distance_between_prescriptions
-          break
+        if (this.obj) {
+          this.recipe.id = this.obj.id
+          this.recipe.patient.name = this.obj.patient.name
+          this.recipe.doctor.name = this.obj.doctor.name
+          this.recipe.doctor.specialization = this.obj.doctor.specialization
+          this.recipe.recipe_duration = this.obj.recipe_duration
+          this.recipe.current_prescription_date = this.obj.current_prescription_date
+          this.recipe.future_prescription_date = this.obj.future_prescription_date
+          this.recipe.last_prescription_dates = this.obj.last_prescription_dates
+          this.recipe.status = this.obj.status
+          this.recipe.distance_between_prescriptions = this.obj.distance_between_prescriptions
+        }else{
+          alert('null data')
         }
-      }
     },
     goToDetails() {
-      this.$router.push(`/more_details_recipe/${this.id}`)
+      //put the recipe in localStorage and navigate to MoreDetailsRecipe.vue with the recipe's id
+      localStorage.setItem('recipe', JSON.stringify(this.recipe))
+      this.$router.push(`/more_details_recipe/${this.recipe.id}`)
     },
     change_recipe_status() {
       switch (this.recipe.status) {
@@ -80,42 +77,6 @@ export default {
           break
       }
     },
-    async fetchData() {
-      let randomNumber = Math.floor(Math.random() * 20 + 1)
-      try {
-        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${randomNumber}`)
-
-        if (!response.ok) {
-          throw new Error(
-            `Could not fetch data for https://pokeapi.co/api/v2/pokemon/${randomNumber}`,
-          )
-        } else {
-          const result = await response.json()
-          this.img_url = result.sprites.front_default
-        }
-      } catch (error) {
-        console.error(error)
-      }
-    },
-    fetchData2() {
-      let randomNumber = Math.floor(Math.random() * 20 + 1)
-      fetch(`https://pokeapi.co/api/v2/pokemon/${randomNumber}`)
-        .then(response => {
-        return response.json()
-      }).then(data => {
-        console.log(data)
-        if (!data) {
-          throw new Error(
-            `Could not fetch data for https://pokeapi.co/api/v2/pokemon/${randomNumber}`,
-          )
-        } else {
-          this.img_url = data.sprites.front_default
-        }
-      }).catch(error => {
-        console.error(error)
-      })
-    },
-
   },
 }
 </script>
@@ -123,7 +84,7 @@ export default {
 <template>
   <div class="recipe-card" @click.prevent="goToDetails" id="recipe_card">
     <div class="recipe-details">
-<!--      <img :src="img_url" v-show="img_url !== ''" />-->
+<!--      <button @click="getInfoCard(this.recipe.id)">{{this.recipe.id}}</button>-->
       <p style="font-size: 20px; font-weight: bold">{{ this.recipe.patient.name }}</p>
       <p>{{ this.recipe.doctor.name }}</p>
     </div>

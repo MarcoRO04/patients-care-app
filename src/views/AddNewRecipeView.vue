@@ -7,6 +7,7 @@ export default {
   components: { FontAwesomeIcon },
   mounted() {
     let recipes = localStorage.getItem('recipes')
+    console.log(recipes)
     let patients = localStorage.getItem('patients')
     let doctors = localStorage.getItem('doctors')
     let recipe_duration = localStorage.getItem('recipe_duration')
@@ -60,6 +61,8 @@ export default {
     }
 
     this.recipes_list = recipes === null ? [] : JSON.parse(recipes)
+    //console.log(typeof (this.recipes_list))
+    //console.log(this.recipes_list)
   },
   data() {
     return {
@@ -85,6 +88,7 @@ export default {
       patients_list: [],
       recipe_periods_list: [],
       submission_ok: false,
+      test_recipe_list:[],
     }
   },
   computed: {
@@ -116,7 +120,26 @@ export default {
     generateID() {
       return new Date().getTime().toString()
     },
-    saveRecipe() {
+    // saveRecipeInLocalStorage() {
+    //   this.calculateFuturePrescriptionDate()
+    //   this.recipe.last_prescription_dates.push(this.recipe.current_prescription_date)
+    //   this.recipe.id = this.generateID()
+    //   this.checkIDGeneration()
+    //   this.recipe.renewed_today = false
+    //   //saving also the doctor's specialization
+    //   for (let i = 0; i < this.doctors_list.length; i++) {
+    //     if (this.recipe.doctor.name === this.doctors_list[i].name) {
+    //       this.recipe.doctor.specialization = this.doctors_list[i].specialization
+    //       break
+    //     }
+    //   }
+    //   let new_recipe = this.recipe
+    //   this.recipes_list.push(new_recipe)
+    //   localStorage.setItem('recipes', JSON.stringify(this.recipes_list))
+    //   this.goToRecipesView()
+    // },
+
+    initializeNewRecipe(){
       this.calculateFuturePrescriptionDate()
       this.recipe.last_prescription_dates.push(this.recipe.current_prescription_date)
       this.recipe.id = this.generateID()
@@ -129,10 +152,27 @@ export default {
           break
         }
       }
-      let new_recipe = this.recipe
-      this.recipes_list.push(new_recipe)
-      localStorage.setItem('recipes', JSON.stringify(this.recipes_list))
-      this.goToRecipesView()
+      // let new_recipe = this.recipe
+      this.recipes_list.push(this.recipe)
+    },
+    saveRecipeToBE(){
+      this.initializeNewRecipe()
+      fetch('http://localhost:3001/recipes/new',{
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(this.recipe)
+      }).then(rsp => {
+        return rsp.json()
+      }).then(response =>
+      {if(response['status']){
+        console.log(response['rsp'])
+      }else{
+        console.log("There is no data in the response!")
+      }
+      }).catch(err => console.log(err));
     },
     check_submission() {
       //all field have to be completed, to be true
@@ -273,7 +313,7 @@ export default {
       <br />
 
       <button class="cancel-button" @click="goToRecipesView">Anulare</button>
-      <button class="save-button" @click="saveRecipe" :disabled="this.submission_ok === false">
+      <button class="save-button" @click="saveRecipeToBE" :disabled="this.submission_ok === false">
         Salvare
       </button>
       <br />

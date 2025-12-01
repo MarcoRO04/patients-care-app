@@ -13,8 +13,7 @@ import {
 export default {
   name: 'RecipesView',
   mounted() {
-    let recipes = localStorage.getItem('recipes')
-    this.recipes_list = recipes === null ? [] : JSON.parse(recipes)
+    this.initializeRecipeListFromBE()
     this.recalculate_distance_between_prescriptions()
     this.count_red_status_recipes()
     this.check_renewed_today()
@@ -40,35 +39,24 @@ export default {
   computed: {
   },
   methods: {
-    requestGET(){
-      fetch('http://localhost:3001').then((response) => {
-        return response.json()
-      }).then((data) => {
-        console.log(data)
-      }).catch((error) => {
-        console.log('GET request',error)
-      })
-    },
-    requestRecipeFromBE(){
-        fetch('http://localhost:3001/recipes',{
-          method: 'GET',
-          headers: {
-        }
-      }).then( rsp => {
+    //for the moment let's assume that the list exists and it is initialized
+    initializeRecipeListFromBE(){
+      fetch('http://localhost:3001/recipes',{
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+
+        /*Preflight si apoi raspunsul - e inca in pending*/
+      }).then(rsp =>{
         return rsp.json()
-      }).then( response =>{
-        if(response['status']){
-          console.log('am ajuns aici')
-          console.log(response['rsp'])
-        }else {
-          console.log('No data !')
-        }
-
-      }).catch( err => {
-          console.log('Error on GET request: ',err)
-      })
-
+      }).then(list => {
+        console.log(list)
+        this.recipes_list = list
+      }).catch(err=>{console.log(err)})
     },
+
     faRightFromBracket() {
       return faRightFromBracket
     },
@@ -237,7 +225,6 @@ export default {
     <div class="user-div">
       <button class="user-profile-btn"><FontAwesomeIcon :icon="faCircleUser()" /> Profil</button>
       <button class="logout-btn" @click="logout"><FontAwesomeIcon :icon="faRightFromBracket()" />Logout</button><br>
-      <button @click="requestRecipeFromBE()">Test</button>
     </div>
     <div class="filter-options">
       <input
@@ -284,17 +271,15 @@ export default {
       </div>
     </div>
 
+    <!--v-show="check_recipe(recipe) && filter_list_by_patient_name(recipe)" -->
     <div v-if="this.recipes_list.length > 0" class="recipes-list">
-      <RecipeCard
-        style="margin-bottom: 10px"
-        v-show="check_recipe(recipe) && filter_list_by_patient_name(recipe)"
-        v-for="recipe in recipes_list.sort(
+      <RecipeCard style="margin-bottom: 10px" v-for="recipe in recipes_list.sort(
           (recipe1, recipe2) =>
             Number(recipe1.distance_between_prescriptions) -
             Number(recipe2.distance_between_prescriptions),
         )"
         :key="recipe"
-        :id="recipe.id"
+        :obj="recipe"
       ></RecipeCard>
     </div>
 
@@ -327,8 +312,8 @@ export default {
               Number(recipe2.distance_between_prescriptions),
           )"
           :key="recipe"
-          :id="recipe.id"
-        ></RecipeCard>
+          :obj="recipe"
+        ></RecipeCard> <!-- creating an RecipeCard for every recipe in the list and passing the recipe details from the list through props  -->
       </div>
     </div>
   </div>
