@@ -120,25 +120,6 @@ export default {
     generateID() {
       return new Date().getTime().toString()
     },
-    // saveRecipeInLocalStorage() {
-    //   this.calculateFuturePrescriptionDate()
-    //   this.recipe.last_prescription_dates.push(this.recipe.current_prescription_date)
-    //   this.recipe.id = this.generateID()
-    //   this.checkIDGeneration()
-    //   this.recipe.renewed_today = false
-    //   //saving also the doctor's specialization
-    //   for (let i = 0; i < this.doctors_list.length; i++) {
-    //     if (this.recipe.doctor.name === this.doctors_list[i].name) {
-    //       this.recipe.doctor.specialization = this.doctors_list[i].specialization
-    //       break
-    //     }
-    //   }
-    //   let new_recipe = this.recipe
-    //   this.recipes_list.push(new_recipe)
-    //   localStorage.setItem('recipes', JSON.stringify(this.recipes_list))
-    //   this.goToRecipesView()
-    // },
-
     initializeNewRecipe(){
       this.calculateFuturePrescriptionDate()
       this.recipe.last_prescription_dates.push(this.recipe.current_prescription_date)
@@ -169,6 +150,7 @@ export default {
       }).then(response =>
       {if(response['status']){
         console.log(response['rsp'])
+        this.goToRecipesView()
       }else{
         console.log("There is no data in the response!")
       }

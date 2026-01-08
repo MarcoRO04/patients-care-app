@@ -6,10 +6,8 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 /* import all the icons in Free Solid, Free Regular, and Brands styles */
 import {
   faAngleLeft,
-  faEdit,
   faRotate,
   fas,
-  faTrashCan,
   faXmark,
 } from '@fortawesome/free-solid-svg-icons'
 import { far } from '@fortawesome/free-regular-svg-icons'
@@ -56,12 +54,6 @@ export default {
     faAngleLeft() {
       return faAngleLeft
     },
-    faTrashCan() {
-      return faTrashCan
-    },
-    faEdit() {
-      return faEdit
-    },
     initializeRecipe() {
       //read the recipe (sent by RecipeCard.vue) from localStorage and initialize de recipe object
       let r = localStorage.getItem('recipe')
@@ -85,23 +77,19 @@ export default {
       }
       return formatted_date
     },
-    calculateFuturePrescriptionDate() {
-      for (let r in this.recipes_list) {
-        if (this.recipes_list[r].id === this.$route.params.id) {
-          this.recipes_list[r].recipe_duration.split(' ')
-          this.recipes_list[r].current_prescription_date = new Date(Date.now())
-          this.recipes_list[r].future_prescription_date = new Date(Date.now() + this.recipes_list[r].recipe_duration[0] * 1000 * 60 * 60 * 24 * 30,)
-          this.recipes_list[r].last_prescription_dates.push(this.recipes_list[r].current_prescription_date)
-          if (this.recipes_list[r].last_prescription_dates.length === 2) {
-            this.recipes_list[r].renewed_today = true /*it's enough to set this property just once, when the prescription is renewed for the first time. It will be the same after.*/
+    renewRecipe() {
+          /*why is recipe_duration a string, and why I transform it afterward in an array*/
+          this.recipe.recipe_duration.split(' ')
+          this.recipe.current_prescription_date = new Date(Date.now())
+          this.recipe.future_prescription_date = new Date(Date.now() + this.recipe.recipe_duration[0] * 1000 * 60 * 60 * 24 * 30,)
+          this.recipe.last_prescription_dates.push(this.recipe.current_prescription_date)
+          if (this.recipe.last_prescription_dates.length === 2) {
+            this.recipe.renewed_today = true /*it's enough to set this property just once, when the prescription is renewed for the first time. It will be the same after.*/
           }
-          //this.recipe = this.recipes_list[r] /*I save the updated list of recipes, so I don't need this line. Next time I will access this view, the dates will be updated*/
-          localStorage.setItem('recipes', JSON.stringify(this.recipes_list))
+          this.sendEditRequestToBE()
           this.goToRecipesView()
-          break
-        }
-      }
     },
+
     goToRecipesView() {
       //deleting the recipe entry from localStorage when leaving the view
       localStorage.removeItem('recipe')
@@ -114,7 +102,7 @@ export default {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({recipe: this.recipe})
+        body: JSON.stringify(this.recipe) // {recipe: this.recipe}
       }).then( d => {
         console.log(d.status)
         return d.json()
@@ -128,27 +116,6 @@ export default {
       }).catch( (error) => {
         console.log(error)
       })
-    },
-    showConfirmDeletePopUp() {
-      this.showModal = !this.showModal
-    },
-    deleteRecipe() {
-      let index = this.searchRecipe()
-      if (index > -1) {
-        this.recipes_list.splice(index, 1)
-        localStorage.setItem('recipes', JSON.stringify(this.recipes_list))
-        this.goToRecipesView()
-      }
-    },
-    searchRecipe() {
-      for (let i = 0; i < this.recipes_list.length; i++) {
-        if (this.recipes_list[i].id === this.$route.params.id) {
-          return i
-        }
-      }
-    },
-    goToEditRecipe() {
-      this.$router.push(`/edit_recipe/${this.recipe.id}`)
     },
   },
 }
@@ -171,18 +138,12 @@ export default {
       <div class="upper-zone-right">
         <button
           class="button-renew-recipe"
-          @click="calculateFuturePrescriptionDate"
+          @click="renewRecipe"
           v-show="this.recipe.distance_between_prescriptions <= '1'"
         >
           <FontAwesomeIcon :icon="faRotate()"></FontAwesomeIcon>Reînnoiește
         </button>
-        <!-- Trebuie schimbat la loc <= '0'-->
-        <button class="button-delete" @click="showConfirmDeletePopUp">
-          <FontAwesomeIcon :icon="faTrashCan()"></FontAwesomeIcon>Șterge
-        </button>
-        <button class="button-edit" @click="sendEditRequestToBE">
-          <FontAwesomeIcon :icon="faEdit()"></FontAwesomeIcon>Editează
-        </button>
+        <!-- It needs to be changed back to <= '0'-->
       </div>
     </div>
     <div class="middle-zone">
@@ -201,20 +162,6 @@ export default {
       <button class="back-button" @click="goToRecipesView">
         <FontAwesomeIcon :icon="faAngleLeft()"></FontAwesomeIcon>Înapoi
       </button>
-    </div>
-  </div>
-
-  <div id="delete-confirmation-popUp" class="delete-recipe-modal" v-show="showModal === true">
-    <div class="modal-content">
-      <h2 style="background-color: firebrick; color: white; font-weight: bold">
-        Confirmare ștergere rețetă
-      </h2>
-      <p style="margin: 20px 2px 20px 2px; color: black">
-        Ești sigur că dorești să ștergi această rețetă?
-      </p>
-
-      <button class="button-cancel" @click="showConfirmDeletePopUp">Anulează</button>
-      <button class="button-confirm-deletion" @click="deleteRecipe">Șterge</button>
     </div>
   </div>
 </template>
@@ -312,59 +259,11 @@ button:hover {
   margin-bottom: 7px;
 }
 
-.button-edit {
-  background-color: forestgreen;
-  display: block;
-  border: none;
-}
-
-.button-delete {
-  background-color: #cf2e2e;
-  display: block;
-  border: none;
-  margin-bottom: 7px;
-}
-
-.button-cancel {
-  background-color: white;
-  border-color: #cf2e2e;
-  color: #cf2e2e;
-  margin-right: 10px;
-  margin-left: 10px;
-  margin-bottom: 20px;
-}
-
-.button-confirm-deletion {
-  background-color: #cf2e2e;
-  margin-bottom: 20px;
-  border: none;
-}
-
 .back-button {
   width: 90px; /* 90px*/
   height: 36px; /* 36px*/
   background-color: white;
   border-color: #cf2e2e;
   color: #cf2e2e;
-}
-
-#delete-confirmation-popUp {
-  text-align: center;
-  /*display: none; Hidden by default*/
-  position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
-  left: 0;
-  top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  padding-top: 150px;
-}
-
-.modal-content {
-  background-color: #fefefe;
-  margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
-  border: 1px solid black;
-  width: 80%; /* Could be more or less, depending on screen size */
 }
 </style>

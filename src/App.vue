@@ -7,7 +7,7 @@ export default{
   },
   mounted(){
     // localStorage.setItem('users', JSON.stringify([{"username":"marco","password":"2911"},{"username":"daniel","password":"6666"},{"username":"alina","password":"1234"}]));
-    // this.initializeRecipeListFromBE();
+    // this.getRecipesListFromBE();
   },
 
   data(){
@@ -55,7 +55,7 @@ export default{
 </script>
 
 <template>
-<!--  <button @click="initializeRecipeListFromBE">Test</button>-->
+<!--  <button @click="getRecipesListFromBE">Test</button>-->
   <RouterView />
 </template>
 
