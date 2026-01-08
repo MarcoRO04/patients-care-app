@@ -59,7 +59,7 @@ export default {
       let r = localStorage.getItem('recipe')
       if(r){
         this.recipe = JSON.parse(r)
-        console.log(this.recipe)
+        // console.log(this.recipe)
 
       }
     },

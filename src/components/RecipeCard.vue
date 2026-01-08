@@ -55,20 +55,20 @@ export default {
       return faRotate
     },
     initializeRecipe() {
-        if (this.obj) {
-          this.recipe.id = this.obj.id
-          this.recipe.patient.name = this.obj.patient.name
-          this.recipe.doctor.name = this.obj.doctor.name
-          this.recipe.doctor.specialization = this.obj.doctor.specialization
-          this.recipe.recipe_duration = this.obj.recipe_duration
-          this.recipe.current_prescription_date = this.obj.current_prescription_date
-          this.recipe.future_prescription_date = this.obj.future_prescription_date
-          this.recipe.last_prescription_dates = this.obj.last_prescription_dates
-          this.recipe.status = this.obj.status
-          this.recipe.distance_between_prescriptions = this.obj.distance_between_prescriptions
-        }else{
-          alert('null data')
-        }
+      if (this.obj) {
+        this.recipe.id = this.obj.id
+        this.recipe.patient.name = this.obj.patient.name
+        this.recipe.doctor.name = this.obj.doctor.name
+        this.recipe.doctor.specialization = this.obj.doctor.specialization
+        this.recipe.recipe_duration = this.obj.recipe_duration
+        this.recipe.current_prescription_date = this.obj.current_prescription_date
+        this.recipe.future_prescription_date = this.obj.future_prescription_date
+        this.recipe.last_prescription_dates = this.obj.last_prescription_dates
+        this.recipe.status = this.obj.status
+        this.recipe.distance_between_prescriptions = this.obj.distance_between_prescriptions
+      } else {
+        alert('null data')
+      }
     },
     set_recipe_status_color() {
       switch (this.recipe.status) {
@@ -94,11 +94,11 @@ export default {
     goToEditRecipe() {
       this.$router.push(`/edit_recipe/${this.recipe.id}`)
     },
-    goToRecipesView() {
-      //deleting the recipe entry from localStorage when leaving the view
-      localStorage.removeItem('recipe')
-      this.$router.push(`/recipes`)
-    },
+    // goToRecipesView() {
+    //   //deleting the recipe entry from localStorage when leaving the view
+    //   localStorage.removeItem('recipe')
+    //   this.$router.push(`/recipes`)
+    // },
     showCardMenu() {
       this.cardMenu = !this.cardMenu
     },
@@ -109,83 +109,87 @@ export default {
       fetch(`http://localhost:3001/recipes/${this.recipe.id}`, {
         method: 'DELETE',
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
         },
         // body: this.recipe.id // 'id' is already a string
-      }).then( d => {
-        console.log(d.status)
-        return d.json()
-      }).then( (response) => {
-        if (response['result']) {
-          alert('Delete ok!')
-          this.showDeleteConfirmationMenu()
-          this.emitter.emit("delete_operation",{id : this.recipe.id})
-          /*nu merge ca sunt practic deja in acel view. Ar trebuii pur si simplu sa reincarc pagina*/
-        }else {
-          alert('Failed to delete recipe')
-        }
-      }).catch( (error) => {
-        console.log(error)
       })
-      this.goToRecipesView()
+        .then((d) => {
+          // console.log(d.status)
+          return d.json()
+        })
+        .then((response) => {
+          if (response['result']) {
+            alert('Delete ok!')
+            this.showDeleteConfirmationMenu()
+            this.emitter.emit('delete_operation', { id: this.recipe.id })
+            /*nu merge ca sunt practic deja in acel view. Ar trebuii pur si simplu sa reincarc pagina*/
+          } else {
+            alert('Failed to delete recipe')
+          }
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+
     },
   },
 }
 </script>
 
 <template>
-  <div class="recipe-card">
-    <div class="recipe-card-elements">
-      <div class="recipe-card-info" @click="goToDetails()">
-        <div>{{index}}</div>
-        <div class="patient-details">
-          <p style="font-size: 20px; font-weight: bold">{{ this.recipe.patient.name }}</p>
-          <p>{{ this.recipe.doctor.name }}</p>
-        </div>
-          <button class="extend-recipe-button"
-                  v-show="this.recipe.distance_between_prescriptions <= '1'">
-            <FontAwesomeIcon :icon="faRotate()">
-
-            </FontAwesomeIcon>Reînnoiește
+  <div>
+    <!-- this div is used as a root to solve the vue warning: [Vue warn]: Extraneous non-props attributes (id, style) were passed to component but could not be automatically inherited because component renders fragment or text or teleport root nodes.  -->
+    <div class="recipe-card">
+      <div class="recipe-card-elements">
+        <div class="recipe-card-info" @click="goToDetails()">
+          <div>{{ index }}</div>
+          <div class="patient-details">
+            <p style="font-size: 20px; font-weight: bold">{{ this.recipe.patient.name }}</p>
+            <p>{{ this.recipe.doctor.name }}</p>
+          </div>
+          <button
+            class="extend-recipe-button"
+            v-show="this.recipe.distance_between_prescriptions <= '1'"
+          >
+            <FontAwesomeIcon :icon="faRotate()"> </FontAwesomeIcon>Reînnoiește
           </button>
-        <div class="days-left-square"
-          id="days_left_square"
-          :style="{ backgroundColor: this.status_color }"
-        >
-          <p style="font-size: 30px">{{ this.recipe.distance_between_prescriptions }}</p>
-          <p>zile</p>
+          <div
+            class="days-left-square"
+            id="days_left_square"
+            :style="{ backgroundColor: this.status_color }"
+          >
+            <p style="font-size: 30px">{{ this.recipe.distance_between_prescriptions }}</p>
+            <p>zile</p>
+          </div>
         </div>
+        <button @click="showCardMenu()" class="vertical-ellipsis-button">
+          <FontAwesomeIcon :icon="faEllipsisVertical()" style="font-size: 18px"> </FontAwesomeIcon>
+        </button>
       </div>
-      <button @click="showCardMenu()"
-              class="vertical-ellipsis-button">
-        <FontAwesomeIcon :icon="faEllipsisVertical()"
-                         style="font-size: 18px">
-        </FontAwesomeIcon></button>
+      <!--    Card menu-->
+      <div v-show="this.cardMenu === true" class="card-menu">
+        <button @click="goToEditRecipe()" class="button-edit">
+          <FontAwesomeIcon :icon="faEdit()"></FontAwesomeIcon>Editează
+        </button>
+        <button @click="showDeleteConfirmationMenu()" class="button-delete">
+          <FontAwesomeIcon :icon="faTrashCan()"></FontAwesomeIcon>Șterge
+        </button>
+      </div>
     </div>
-<!--    Card menu-->
-    <div v-show="this.cardMenu === true" class="card-menu">
-      <button @click="goToEditRecipe()" class="button-edit">
-        <FontAwesomeIcon :icon="faEdit()"></FontAwesomeIcon>Editează
-      </button>
-      <button @click="showDeleteConfirmationMenu()" class="button-delete">
-        <FontAwesomeIcon :icon="faTrashCan()"></FontAwesomeIcon>Șterge
-      </button>
-    </div>
-  </div>
+    <!--Delete confirmation modal-->
+    <div class="delete-recipe-modal" v-show="deleteConfirmationMenu === true">
+      <div class="modal-content">
+        <h2 style="background-color: firebrick; color: white; font-weight: bold">
+          Confirmare ștergere rețetă
+        </h2>
+        <p style="margin: 20px 2px 20px 2px; color: black">
+          Ești sigur că dorești să ștergi această rețetă?
+        </p>
 
-<!--Delete confirmation modal-->
-  <div class="delete-recipe-modal" v-show="deleteConfirmationMenu === true">
-    <div class="modal-content">
-      <h2 style="background-color: firebrick; color: white; font-weight: bold">
-        Confirmare ștergere rețetă
-      </h2>
-      <p style="margin: 20px 2px 20px 2px; color: black">
-        Ești sigur că dorești să ștergi această rețetă?
-      </p>
-
-      <button class="button-cancel" @click="showDeleteConfirmationMenu">Anulează</button>
-      <button class="button-confirm-deletion" @click="deleteRecipeInBE()">Șterge</button>
+        <button class="button-cancel" @click="showDeleteConfirmationMenu">Anulează</button>
+        <button class="button-confirm-deletion" @click="deleteRecipeInBE()">Șterge</button>
+      </div>
     </div>
   </div>
 </template>
@@ -201,7 +205,7 @@ export default {
   color: #181818;
   padding: 8px 12px;
   border-radius: 10px;
-  position: relative;  /*the position should by default relative, but just to make sure */
+  position: relative; /*the position should by default relative, but just to make sure */
   margin-bottom: 10px;
 }
 
@@ -218,7 +222,7 @@ export default {
 /*I wanted to separate the rest of the details from the 3 dots,
 such that I can click on the details to send me to MoreDetailsRecipe
 or to click on the 3 dots and show me the card menu*/
-.recipe-card-info{
+.recipe-card-info {
   display: flex;
   margin: 0 auto;
   width: 100%;
@@ -260,14 +264,14 @@ or to click on the 3 dots and show me the card menu*/
 }
 
 /*button that show the menu with edit and delete*/
-.vertical-ellipsis-button{
+.vertical-ellipsis-button {
   margin: 5px 1px 8px 1px;
   height: 70px;
   width: 70px;
   border-color: transparent;
   background-color: transparent;
 }
-.vertical-ellipsis-button:hover{
+.vertical-ellipsis-button:hover {
   opacity: 0.7;
 }
 
@@ -332,7 +336,6 @@ or to click on the 3 dots and show me the card menu*/
   font-weight: bolder;
   font-size: 14px;
   border-radius: 5px;
-
 }
 .button-confirm-deletion {
   width: 130px;

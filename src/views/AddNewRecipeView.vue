@@ -6,8 +6,6 @@ export default {
   name: 'AddNewRecipeView',
   components: { FontAwesomeIcon },
   mounted() {
-    let recipes = localStorage.getItem('recipes')
-    console.log(recipes)
     let patients = localStorage.getItem('patients')
     let doctors = localStorage.getItem('doctors')
     let recipe_duration = localStorage.getItem('recipe_duration')
@@ -59,10 +57,6 @@ export default {
     } else {
       this.recipe_periods_list = JSON.parse(recipe_duration)
     }
-
-    this.recipes_list = recipes === null ? [] : JSON.parse(recipes)
-    //console.log(typeof (this.recipes_list))
-    //console.log(this.recipes_list)
   },
   data() {
     return {

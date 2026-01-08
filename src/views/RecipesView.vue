@@ -7,7 +7,7 @@ import {
   faPersonCircleCheck,
   faPlus,
   faRightFromBracket,
-  faXmark
+  faXmark,
 } from '@fortawesome/free-solid-svg-icons'
 
 export default {
@@ -31,54 +31,26 @@ export default {
     }
   },
   mounted() {
-    this.emitter.on('delete_operation',(event)=>this.handleDelete(event.id)); // delete or edit
     this.getRecipesListFromBE()
-    // this.recalculate_distance_between_prescriptions()
+    this.emitter.on('delete_operation', (event) => this.handleDelete(event.id)) // delete or edit
     this.count_recipes_by_status()
     this.check_renewed_today()
     this.count_renewed_recipes()
-    // console.log("Red recipes: " + this.red_recipes_counter)
-    // console.log("Orange recipes: " + this.orange_recipes_counter)
-    // console.log("Green recipes: " + this.green_recipes_counter)
   },
-  updated() {
-    console.log('updated')
-    if (!this.checkNumberOfCards()) {
-      this.cardsNumberFlag = false
-    }else {
-      this.cardsNumberFlag = true
-    }
-  },
-  computed: {
-  },
+  // updated() {
+  //   // console.log('updated')
+  //   if (!this.checkNumberOfCards()) {
+  //     this.cardsNumberFlag = false
+  //   } else {
+  //     this.cardsNumberFlag = true
+  //   }
+  // },
+  computed: {},
   methods: {
-    handleDelete(id){
-      console.log("Id: " + id)
+    handleDelete(id) {
+      this.recipes_list = this.recipes_list.filter((recipe) => recipe.id !== id)
     },
     //for the moment let's assume that the list exists and it is initialized
-    getRecipesListFromBE(){
-      fetch('http://localhost:3001/recipes',{
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-
-        /*Preflight si apoi raspunsul - e inca in pending*/
-      }).then(rsp =>{
-        return rsp.json()
-      }).then(response => {
-        console.log(response['list'])
-        for (let i = 0; i < response['list'].length; i++) {
-          this.recipes_list[i]=response['list'][i]
-        }
-        console.log(this.recipes_list)
-        // this.recipes_list = response['list']
-      }).catch( () => {
-        alert('backend error')
-        }
-      )
-    },
     faRightFromBracket() {
       return faRightFromBracket
     },
@@ -97,6 +69,31 @@ export default {
     faPlus() {
       return faPlus
     },
+    getRecipesListFromBE() {
+      fetch('http://localhost:3001/recipes', {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+
+        /*Preflight si apoi raspunsul - e inca in pending*/
+      })
+        .then((rsp) => {
+          return rsp.json()
+        })
+        .then((response) => {
+          // console.log(response['list'])
+          for (let i = 0; i < response['list'].length; i++) {
+            this.recipes_list[i] = response['list'][i]
+          }
+          // console.log(this.recipes_list)
+          // this.recipes_list = response['list']
+        })
+        .catch(() => {
+          alert('backend error')
+        })
+    },
     check_recipe(r) {
       return (
         r.patient.name.length > 0 &&
@@ -114,7 +111,6 @@ export default {
         document.getElementById('status_filter_btn').style.backgroundColor = 'red'
         document.getElementById('status_filter_btn').style.color = 'black'
         document.getElementById('status_filter_btn').textContent = 'Roșu'
-        console.log(this.status_btn)
       }
       if (this.status_btn === 2) {
         document.getElementById('status_filter_btn').style.backgroundColor = 'orange'
@@ -133,38 +129,7 @@ export default {
         this.status_btn = 0
       }
     },
-    // recalculate_distance_between_prescriptions() {
-    //   let status_changed_cnt = 0
-    //   for (let recipe in this.recipes_list) {
-    //     //the difference between the future prescription and the current date, converted from milliseconds to days, and from number to string
-    //     const date_difference = Math.round(
-    //       (Date.parse(this.recipes_list[recipe].future_prescription_date) - Date.now()) / 8.64e7,
-    //     ).toString()
-    //     //if the date obtained is different, then modify the status
-    //     if (this.recipes_list[recipe].distance_between_prescriptions !== date_difference) {
-    //       status_changed_cnt++
-    //       this.recipes_list[recipe].distance_between_prescriptions = date_difference
-    //       if (this.recipes_list[recipe].distance_between_prescriptions < 0) {
-    //         this.recipes_list[recipe].status = '1'
-    //       } else if (
-    //         this.recipes_list[recipe].distance_between_prescriptions >= 0 &&
-    //         this.recipes_list[recipe].distance_between_prescriptions <= 7
-    //       ) {
-    //         this.recipes_list[recipe].status = '1'
-    //       } else if (
-    //         this.recipes_list[recipe].distance_between_prescriptions >= 8 &&
-    //         this.recipes_list[recipe].distance_between_prescriptions <= 14
-    //       ) {
-    //         this.recipes_list[recipe].status = '2'
-    //       } else {
-    //         this.recipes_list[recipe].status = '3'
-    //       }
-    //     }
-    //   }
-    //   if (status_changed_cnt > 0) {
-    //     localStorage.setItem('recipes', JSON.stringify(this.recipes_list))
-    //   }
-    // },
+
     searchRecipeInListByPatientName(recipe) {
       return (
         recipe.patient.name.includes(this.searched_name) ||
@@ -184,41 +149,50 @@ export default {
       }
     },
     showAlertModal() {
-      this.show_red_status_recipe_alert = !this.show_red_status_recipe_alert;
+      this.show_red_status_recipe_alert = !this.show_red_status_recipe_alert
     },
-    show_renewed_recipes_list(){
+    show_renewed_recipes_list() {
       // console.log(this.renewed_recipes_button)
       this.renewed_recipes_button = !this.renewed_recipes_button
     },
     formatDate(date_string) {
       let date = new Date(date_string)
       let formatted_date = ''
-      if (((date.getMonth() + 1) < 10) && (date.getDate() >= 10)) {
+      if (date.getMonth() + 1 < 10 && date.getDate() >= 10) {
         formatted_date = `${date.getDate()}/0${date.getMonth() + 1}/${date.getFullYear()}`
       } else if (date.getDate() < 10 && date.getMonth() + 1 >= 10) {
         formatted_date = `0${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
-      } else if ((date.getDate() < 10 && date.getMonth() + 1 < 10)){
+      } else if (date.getDate() < 10 && date.getMonth() + 1 < 10) {
         formatted_date = `0${date.getDate()}/0${date.getMonth() + 1}/${date.getFullYear()}`
-      }else{
+      } else {
         formatted_date = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
       }
       return formatted_date
     },
     filter_renewed_today(r) {
-      let unformatted_current_date = Date.now();
-        if (r.last_prescription_dates.length > 1){
-          if (this.formatDate(r.last_prescription_dates[r.last_prescription_dates.length - 1]) !== this.formatDate(unformatted_current_date)) {
-            // console.log(r.patient.name + " " + r.doctor.name)
-            r.renewed_today = false
-          }
+      let unformatted_current_date = Date.now()
+      if (r.last_prescription_dates.length > 1) {
+        if (
+          this.formatDate(r.last_prescription_dates[r.last_prescription_dates.length - 1]) !==
+          this.formatDate(unformatted_current_date)
+        ) {
+          // console.log(r.patient.name + " " + r.doctor.name)
+          r.renewed_today = false
         }
-        return r.renewed_today === true
+      }
+      return r.renewed_today === true
     },
     check_renewed_today() {
-      let unformatted_current_date = Date.now();
+      let unformatted_current_date = Date.now()
       for (let r in this.recipes_list) {
-        if (this.recipes_list[r].last_prescription_dates.length > 1){
-          if (this.formatDate(this.recipes_list[r].last_prescription_dates[this.recipes_list[r].last_prescription_dates.length - 1]) !== this.formatDate(unformatted_current_date)) {
+        if (this.recipes_list[r].last_prescription_dates.length > 1) {
+          if (
+            this.formatDate(
+              this.recipes_list[r].last_prescription_dates[
+                this.recipes_list[r].last_prescription_dates.length - 1
+              ],
+            ) !== this.formatDate(unformatted_current_date)
+          ) {
             // console.log(this.recipes_list[r].patient.name + " " + this.recipes_list[r].doctor.name)
             this.recipes_list[r].renewed_today = false
           }
@@ -236,12 +210,12 @@ export default {
     goToAddNewRecipeView() {
       this.$router.push(`/add_new_recipe`)
     },
-    logout(){
-      this.emitter.emit("login_process",{my_login : false})
+    logout() {
+      this.emitter.emit('login_process', { my_login: false })
     },
     checkNumberOfCards() {
-       let x = document.getElementById('filter-card')
-       console.log(x)
+      let x = document.getElementById('filter-card')
+      console.log(x)
       //let child = x.getElementById('recipe-details')
       return x
     },
@@ -253,7 +227,9 @@ export default {
   <div class="recipes-view-box">
     <div class="user-div">
       <button class="user-profile-btn"><FontAwesomeIcon :icon="faCircleUser()" /> Profil</button>
-      <button class="logout-btn" @click="logout"><FontAwesomeIcon :icon="faRightFromBracket()" />Logout</button><br>
+      <button class="logout-btn" @click="logout">
+        <FontAwesomeIcon :icon="faRightFromBracket()" />Logout</button
+      ><br />
     </div>
     <div class="filter-options">
       <input
@@ -300,30 +276,41 @@ export default {
       </div>
     </div>
 
-    <div v-show="!cardsNumberFlag">
-      <p v-if="this.status_btn === 1" style="font-size: 18px">Momentan nu aveți nicio rețetă cu status roșu.</p>
-      <p v-else-if="this.status_btn === 2" style="font-size: 18px">Momentan nu aveți nicio rețetă cu status portocaliu.</p>
-      <p v-else-if="this.status_btn === 3" style="font-size: 18px">Momentan nu aveți nicio rețetă cu status verde.</p>
-    </div>
+    <!--    <div v-show="!cardsNumberFlag">-->
+    <!--      <p v-if="this.status_btn === 1" style="font-size: 18px">-->
+    <!--        Momentan nu aveți nicio rețetă cu status roșu.-->
+    <!--      </p>-->
+    <!--      <p v-else-if="this.status_btn === 2" style="font-size: 18px">-->
+    <!--        Momentan nu aveți nicio rețetă cu status portocaliu.-->
+    <!--      </p>-->
+    <!--      <p v-else-if="this.status_btn === 3" style="font-size: 18px">-->
+    <!--        Momentan nu aveți nicio rețetă cu status verde.-->
+    <!--      </p>-->
+    <!--    </div>-->
 
     <!--v-show="check_recipe(recipe) && searchRecipeInListByPatientName(recipe)" -->
     <div v-if="this.recipes_list.length > 0" class="recipes-list">
-      <div v-for="(recipe,index) in recipes_list.sort
-      ((recipe1, recipe2) =>
-      Number(recipe1.distance_between_prescriptions) - Number(recipe2.distance_between_prescriptions))"
-           :key="recipe">
-        <RecipeCard id="filter-card" v-if=" check_recipe(recipe) && searchRecipeInListByPatientName(recipe)"
-                    style="margin-bottom: 10px"
-                    :obj="recipe"
-                    :index="index" >
+      <div
+        v-for="(recipe, index) in recipes_list.sort(
+          (recipe1, recipe2) =>
+            Number(recipe1.distance_between_prescriptions) -
+            Number(recipe2.distance_between_prescriptions),
+        )"
+        :key="recipe"
+      >
+        <RecipeCard
+          id="filter-card"
+          v-if="check_recipe(recipe) && searchRecipeInListByPatientName(recipe)"
+          style="margin-bottom: 10px"
+          :obj="recipe"
+          :index="index"
+        >
         </RecipeCard>
       </div>
     </div>
 
     <p v-else style="font-size: 18px">Momentan nu aveți nicio rețetă salvată.</p>
   </div>
-
-
 
   <div id="renewed-recipes-popUp" v-show="renewed_recipes_button === true">
     <div class="renewed-recipes-modal-content">
@@ -333,7 +320,9 @@ export default {
           <FontAwesomeIcon :icon="faXmark()" />
         </button>
       </div>
-      <p v-if="renewed_recipes_counter === 0" style="margin-top: 15px;">Momentan nu ați reînnoit nicio rețetă...</p>
+      <p v-if="renewed_recipes_counter === 0" style="margin-top: 15px">
+        Momentan nu ați reînnoit nicio rețetă...
+      </p>
       <div v-else style="overflow: auto; padding: 10px">
         <RecipeCard
           v-show="filter_renewed_today(recipe)"
@@ -344,7 +333,8 @@ export default {
           )"
           :key="recipe"
           :obj="recipe"
-        ></RecipeCard> <!-- creating an RecipeCard for every recipe in the list and passing the recipe details from the list th  -->
+        ></RecipeCard>
+        <!-- creating an RecipeCard for every recipe in the list and passing the recipe details from the list th  -->
       </div>
     </div>
   </div>
