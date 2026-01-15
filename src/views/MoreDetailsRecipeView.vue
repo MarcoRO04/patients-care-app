@@ -4,12 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 
 /* import all the icons in Free Solid, Free Regular, and Brands styles */
-import {
-  faAngleLeft,
-  faRotate,
-  fas,
-  faXmark,
-} from '@fortawesome/free-solid-svg-icons'
+import { faAngleLeft, faRotate, fas, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { far } from '@fortawesome/free-regular-svg-icons'
 import { fab } from '@fortawesome/free-brands-svg-icons'
 
@@ -57,65 +52,68 @@ export default {
     initializeRecipe() {
       //read the recipe (sent by RecipeCard.vue) from localStorage and initialize de recipe object
       let r = localStorage.getItem('recipe')
-      if(r){
+      if (r) {
         this.recipe = JSON.parse(r)
         // console.log(this.recipe)
-
       }
     },
     formatDate(date_string) {
       let date = new Date(date_string)
       let formatted_date = ''
-      if (((date.getMonth() + 1) < 10) && (date.getDate() >= 10)) {
+      if (date.getMonth() + 1 < 10 && date.getDate() >= 10) {
         formatted_date = `${date.getDate()}/0${date.getMonth() + 1}/${date.getFullYear()}`
       } else if (date.getDate() < 10 && date.getMonth() + 1 >= 10) {
         formatted_date = `0${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
-      } else if ((date.getDate() < 10 && date.getMonth() + 1 < 10)){
+      } else if (date.getDate() < 10 && date.getMonth() + 1 < 10) {
         formatted_date = `0${date.getDate()}/0${date.getMonth() + 1}/${date.getFullYear()}`
-      }else{
+      } else {
         formatted_date = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
       }
       return formatted_date
     },
-    renewRecipe() {
-          /*why is recipe_duration a string, and why I transform it afterward in an array*/
-          this.recipe.recipe_duration.split(' ')
-          this.recipe.current_prescription_date = new Date(Date.now())
-          this.recipe.future_prescription_date = new Date(Date.now() + this.recipe.recipe_duration[0] * 1000 * 60 * 60 * 24 * 30,)
-          this.recipe.last_prescription_dates.push(this.recipe.current_prescription_date)
-          if (this.recipe.last_prescription_dates.length === 2) {
-            this.recipe.renewed_today = true /*it's enough to set this property just once, when the prescription is renewed for the first time. It will be the same after.*/
+    sendEditRequestToBE() {
+      fetch(`http://localhost:3001/recipes/${this.recipe.id}`, {
+        method: 'PUT',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(this.recipe), // {recipe: this.recipe}
+      })
+        .then((d) => {
+          // console.log(d.status)
+          return d.json()
+        })
+        .then((response) => {
+          if (response['result']) {
+            alert('Update ok!')
+          } else {
+            alert('Failed update recipe')
           }
-          this.sendEditRequestToBE()
-          this.goToRecipesView()
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    },
+    renewRecipe() {
+      /*why is recipe_duration a string, and why I transform it afterward in an array*/
+      this.recipe.recipe_duration.split(' ')
+      this.recipe.current_prescription_date = new Date(Date.now())
+      this.recipe.future_prescription_date = new Date(
+        Date.now() + this.recipe.recipe_duration[0] * 1000 * 60 * 60 * 24 * 30,
+      )
+      this.recipe.last_prescription_dates.push(this.recipe.current_prescription_date)
+      if (this.recipe.last_prescription_dates.length === 2) {
+        this.recipe.renewed_today = true /*it's enough to set this property just once, when the prescription is renewed for the first time. It will be the same after.*/
+      }
+      this.sendEditRequestToBE()
+      this.goToRecipesView()
     },
 
     goToRecipesView() {
       //deleting the recipe entry from localStorage when leaving the view
       localStorage.removeItem('recipe')
       this.$router.push(`/recipes`)
-    },
-    sendEditRequestToBE(){
-      fetch(`http://localhost:3001/recipes/${this.recipe.id}`, {
-        method: 'PUT',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(this.recipe) // {recipe: this.recipe}
-      }).then( d => {
-        console.log(d.status)
-        return d.json()
-      }).then( (response) => {
-
-        if (response['result']) {
-          alert('Update ok!')
-        }else {
-          alert('Failed update recipe')
-        }
-      }).catch( (error) => {
-        console.log(error)
-      })
     },
   },
 }
@@ -131,7 +129,10 @@ export default {
     <div class="upper-zone">
       <div class="upper-zone-left">
         <p><span style="font-weight: bold">Pacient: </span> {{ this.recipe.patient.name }}</p>
-        <p><span style="font-weight: bold">Tip rețetă: </span> {{ this.recipe.doctor.specialization }}</p>
+        <p>
+          <span style="font-weight: bold">Tip rețetă: </span>
+          {{ this.recipe.doctor.specialization }}
+        </p>
         <p><span style="font-weight: bold">Doctor: </span>{{ this.recipe.doctor.name }}</p>
         <p><span style="font-weight: bold">Durata: </span>{{ this.recipe.recipe_duration }}</p>
       </div>
@@ -147,8 +148,14 @@ export default {
       </div>
     </div>
     <div class="middle-zone">
-        <p><span style="font-weight: bold">Data ultimei rețete prescrise: </span>{{ this.formatDate(this.recipe.current_prescription_date) }}</p>
-        <p style="margin-bottom: 15px"><span style="font-weight: bold">Data următoarei prescrieri: </span>{{ this.formatDate(this.recipe.future_prescription_date) }}</p>
+      <p>
+        <span style="font-weight: bold">Data ultimei rețete prescrise: </span
+        >{{ this.formatDate(this.recipe.current_prescription_date) }}
+      </p>
+      <p style="margin-bottom: 15px">
+        <span style="font-weight: bold">Data următoarei prescrieri: </span
+        >{{ this.formatDate(this.recipe.future_prescription_date) }}
+      </p>
       <p class="table-header">Rețetele prescrise anterior:</p>
       <div class="table-last-dates">
         <p
@@ -225,7 +232,6 @@ export default {
   position: relative;
   padding: 10px 15px;
 }
-
 
 .upper-zone-left {
   position: relative;

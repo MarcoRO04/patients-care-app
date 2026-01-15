@@ -92,13 +92,10 @@ export default {
       this.$router.push(`/more_details_recipe/${this.recipe.id}`)
     },
     goToEditRecipe() {
+      //put the recipe in localStorage and navigate to EditRecipeView.vue with the recipe's id
+      localStorage.setItem('recipe', JSON.stringify(this.recipe))
       this.$router.push(`/edit_recipe/${this.recipe.id}`)
     },
-    // goToRecipesView() {
-    //   //deleting the recipe entry from localStorage when leaving the view
-    //   localStorage.removeItem('recipe')
-    //   this.$router.push(`/recipes`)
-    // },
     showCardMenu() {
       this.cardMenu = !this.cardMenu
     },
@@ -131,7 +128,6 @@ export default {
         .catch((error) => {
           console.log(error)
         })
-
     },
   },
 }

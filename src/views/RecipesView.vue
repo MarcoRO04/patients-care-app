@@ -37,18 +37,22 @@ export default {
     this.check_renewed_today()
     this.count_renewed_recipes()
   },
-  // updated() {
-  //   // console.log('updated')
-  //   if (!this.checkNumberOfCards()) {
-  //     this.cardsNumberFlag = false
-  //   } else {
-  //     this.cardsNumberFlag = true
-  //   }
-  // },
+  updated() {
+    // console.log(this.recipes_list) /*test if the list updates after I delete a recipe*/
+  },
   computed: {},
   methods: {
     handleDelete(id) {
       this.recipes_list = this.recipes_list.filter((recipe) => recipe.id !== id)
+
+      for (let index = 0; index < this.recipes_list; index++) {
+        if (this.recipes_list[index].id === id) {
+          this.recipes_list.splice(index, 1)
+          break
+        } else {
+          console.log("Recipe with that id wasn't found\n")
+        }
+      }
     },
     //for the moment let's assume that the list exists and it is initialized
     faRightFromBracket() {
@@ -198,7 +202,7 @@ export default {
           }
         }
       }
-      localStorage.setItem('recipes', JSON.stringify(this.recipes_list))
+      // localStorage.setItem('recipes', JSON.stringify(this.recipes_list))
     },
     count_renewed_recipes() {
       for (let r in this.recipes_list) {
@@ -212,12 +216,6 @@ export default {
     },
     logout() {
       this.emitter.emit('login_process', { my_login: false })
-    },
-    checkNumberOfCards() {
-      let x = document.getElementById('filter-card')
-      console.log(x)
-      //let child = x.getElementById('recipe-details')
-      return x
     },
   },
 }

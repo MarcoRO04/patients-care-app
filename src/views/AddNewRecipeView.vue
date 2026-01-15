@@ -6,48 +6,9 @@ export default {
   name: 'AddNewRecipeView',
   components: { FontAwesomeIcon },
   mounted() {
-    let patients = localStorage.getItem('patients')
-    let doctors = localStorage.getItem('doctors')
+    this.getPatientsListFromBE()
+    this.getDoctorsListFromBE()
     let recipe_duration = localStorage.getItem('recipe_duration')
-
-    if (doctors === '') {
-      this.doctors_list = [
-        { name: 'Dr. Mihai Elena', specialization: 'Neurolog' },
-        { name: 'Dr. Ana Azuga', specialization: 'Psihiatru' },
-        { name: 'Dr. Maria Blandiana', specialization: 'Neurolog' },
-        { name: 'Dr. Alin Mircea', specialization: 'Psihiatru' },
-      ]
-      localStorage.setItem('doctors', JSON.stringify(this.doctors_list))
-    } else if (doctors === null) {
-      this.doctors_list = [
-        { name: 'Dr. Mihai Elena', specialization: 'Neurolog' },
-        { name: 'Dr. Ana Azuga', specialization: 'Psihiatru' },
-        { name: 'Dr. Maria Blandiana', specialization: 'Neurolog' },
-        { name: 'Dr. Alin Mircea', specialization: 'Psihiatru' },
-      ]
-      localStorage.setItem('doctors', JSON.stringify(this.doctors_list))
-    } else {
-      this.doctors_list = JSON.parse(doctors)
-    }
-    if (patients === '') {
-      this.patients_list = [
-        { name: 'Zora Chelici' },
-        { name: 'Mirabela Jovic' },
-        { name: 'Alin Mircea' },
-        { name: 'Maria Popescu' },
-      ]
-      localStorage.setItem('patients', JSON.stringify(this.patients_list))
-    } else if (patients === null) {
-      this.patients_list = [
-        { name: 'Zora Chelici' },
-        { name: 'Mirabela Jovic' },
-        { name: 'Alin Mircea' },
-        { name: 'Maria Popescu' },
-      ]
-      localStorage.setItem('patients', JSON.stringify(this.patients_list))
-    } else {
-      this.patients_list = JSON.parse(patients)
-    }
     if (recipe_duration === '') {
       this.recipe_periods_list = ['1 lună', '2 luni', '3 luni']
       localStorage.setItem('recipe_duration', JSON.stringify(this.recipe_periods_list))
@@ -82,18 +43,18 @@ export default {
       patients_list: [],
       recipe_periods_list: [],
       submission_ok: false,
-      test_recipe_list:[],
+      test_recipe_list: [],
     }
   },
   computed: {
     //these "computed properties functions" act as normal functions because Date.now() is not a reactive dependency
     calculate_min_date() {
       let current_date = Date.now()
-      return new Date(current_date - (30 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0] // current date - 30 days
+      return new Date(current_date - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // current date - 30 days
     },
     calculate_max_date() {
       let current_date = Date.now()
-      return new Date(current_date + (30 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0] // current date + 30 days
+      return new Date(current_date + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // current date + 30 days
     },
   },
   methods: {
@@ -114,7 +75,7 @@ export default {
     generateID() {
       return new Date().getTime().toString()
     },
-    initializeNewRecipe(){
+    initializeNewRecipe() {
       this.calculateFuturePrescriptionDate()
       this.recipe.last_prescription_dates.push(this.recipe.current_prescription_date)
       this.recipe.id = this.generateID()
@@ -130,26 +91,73 @@ export default {
       // let new_recipe = this.recipe
       this.recipes_list.push(this.recipe)
     },
-    saveRecipeToBE(){
+    saveRecipeToBE() {
       this.initializeNewRecipe()
-      fetch('http://localhost:3001/recipes/new',{
+      fetch('http://localhost:3001/recipes/new', {
         method: 'POST',
         headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(this.recipe)
-      }).then(rsp => {
-        return rsp.json()
-      }).then(response =>
-      {if(response['status']){
-        console.log(response['rsp'])
-        this.goToRecipesView()
-      }else{
-        console.log("There is no data in the response!")
-      }
-      }).catch(err => console.log(err));
+        body: JSON.stringify(this.recipe),
+      })
+        .then((rsp) => {
+          return rsp.json()
+        })
+        .then((response) => {
+          if (response['status']) {
+            console.log(response['rsp'])
+            this.goToRecipesView()
+          } else {
+            console.log('There is no data in the response!')
+          }
+        })
+        .catch((err) => console.log(err))
     },
+    getPatientsListFromBE() {
+      fetch('http://localhost:3001/patients', {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+
+        /*Preflight si apoi raspunsul - e inca in pending*/
+      })
+        .then((rsp) => {
+          return rsp.json()
+        })
+        .then((response) => {
+          // console.log(this.recipes_list)
+          this.patients_list = response['list']
+        })
+        .catch(() => {
+          alert('backend error')
+        })
+    },
+
+    getDoctorsListFromBE() {
+      fetch('http://localhost:3001/doctors', {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+
+        /*Preflight si apoi raspunsul - e inca in pending*/
+      })
+        .then((rsp) => {
+          return rsp.json()
+        })
+        .then((response) => {
+          // console.log(this.recipes_list)
+          this.doctors_list = response['list']
+        })
+        .catch(() => {
+          alert('backend error')
+        })
+    },
+
     check_submission() {
       //all field have to be completed, to be true
       this.submission_ok =
