@@ -1,3 +1,7 @@
+<!--View to add the details of a new recipe. All the recipe details will be selected and not typed, for usability purposes
+    NOTE: recipe and prescription terms are used interchangeably
+  -->
+
 <script>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
@@ -36,7 +40,7 @@ export default {
         last_prescription_dates: [],
         status: '',
         distance_between_prescriptions: '',
-        renewed_today: '',
+        // renewed_today: '',
       },
       recipes_list: [],
       doctors_list: [],
@@ -58,6 +62,7 @@ export default {
     },
   },
   methods: {
+    /*icon getter function*/
     faXmark() {
       return faXmark
     },
@@ -75,12 +80,19 @@ export default {
     generateID() {
       return new Date().getTime().toString()
     },
-    initializeNewRecipe() {
+    /*For the new recipe will need to do the following things:
+     - calculating the future prescription date based on the current date chosen by the user, also setting the status and calculating the next renewal date in days
+     - generating a unique ID for the recipe (check also the ID generation)
+     - checking renewed_today to be false (it's false because the recipe was just added, it wasn't renewed)
+     - adding the chosen doctor
+
+     and after all these steps were completed, then the recipe is pushed*/
+    setupNewRecipe() {
       this.calculateFuturePrescriptionDate()
       this.recipe.last_prescription_dates.push(this.recipe.current_prescription_date)
       this.recipe.id = this.generateID()
       this.checkIDGeneration()
-      this.recipe.renewed_today = false
+      // this.recipe.renewed_today = false
       //saving also the doctor's specialization
       for (let i = 0; i < this.doctors_list.length; i++) {
         if (this.recipe.doctor.name === this.doctors_list[i].name) {
@@ -91,8 +103,10 @@ export default {
       // let new_recipe = this.recipe
       this.recipes_list.push(this.recipe)
     },
+
+    /*sends a POST request to the BE with the new recipe as the body*/
     saveRecipeToBE() {
-      this.initializeNewRecipe()
+      this.setupNewRecipe()
       fetch('http://localhost:3001/recipes/new', {
         method: 'POST',
         headers: {
@@ -114,6 +128,8 @@ export default {
         })
         .catch((err) => console.log(err))
     },
+
+    /*get the mockup list of patients from the BE*/
     getPatientsListFromBE() {
       fetch('http://localhost:3001/patients', {
         method: 'GET',
@@ -135,7 +151,7 @@ export default {
           alert('backend error')
         })
     },
-
+    /*get the mockup list of doctors from the BE*/
     getDoctorsListFromBE() {
       fetch('http://localhost:3001/doctors', {
         method: 'GET',
@@ -157,7 +173,6 @@ export default {
           alert('backend error')
         })
     },
-
     check_submission() {
       //all field have to be completed, to be true
       this.submission_ok =
@@ -168,6 +183,9 @@ export default {
         this.calculateFuturePrescriptionDate() &&
         this.check_recipe_existence()
     },
+
+    /*Besides calculating the future prescription date, based on the current date,
+     * this function also sets the status of the recipe and calculated the distance in days until the next renewal*/
     calculateFuturePrescriptionDate() {
       // I want that format in the combo box with "1 luna", "2 luni", that's why I want to do this.
       let recipe_period = []

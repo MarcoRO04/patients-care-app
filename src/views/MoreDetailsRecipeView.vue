@@ -1,3 +1,8 @@
+<!--This view was created to display more details about a recipe, like the previous renewal dates of the recipe, the duration
+  and the doctor specialization. More information regarding medication and pills will be added in the future.
+    NOTE: recipe and prescription terms are used interchangeably
+  -->
+
 <script>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 /* add fontawesome core */
@@ -40,6 +45,7 @@ export default {
     }
   },
   methods: {
+    /*icon getter functions*/
     faRotate() {
       return faRotate
     },
@@ -49,6 +55,7 @@ export default {
     faAngleLeft() {
       return faAngleLeft
     },
+    /*Initializing the recipe from localStorage (it was set by the RecipeCard)*/
     initializeRecipe() {
       //read the recipe (sent by RecipeCard.vue) from localStorage and initialize de recipe object
       let r = localStorage.getItem('recipe')
@@ -71,6 +78,7 @@ export default {
       }
       return formatted_date
     },
+    /*send an edit request with the recipe id in the path and the edited recipe in the body of the request (for the recipe renewal)*/
     sendEditRequestToBE() {
       fetch(`http://localhost:3001/recipes/${this.recipe.id}`, {
         method: 'PUT',
@@ -95,21 +103,26 @@ export default {
           console.log(error)
         })
     },
+    /*To renew a recipe means changing the current date to be today
+    and then, calculating the new future date*/
     renewRecipe() {
-      /*why is recipe_duration a string, and why I transform it afterward in an array*/
+      /*why is recipe_duration a string, and why I transform it afterward in an array - I WANT TO MODIFY THIS*/
       this.recipe.recipe_duration.split(' ')
       this.recipe.current_prescription_date = new Date(Date.now())
       this.recipe.future_prescription_date = new Date(
         Date.now() + this.recipe.recipe_duration[0] * 1000 * 60 * 60 * 24 * 30,
       )
       this.recipe.last_prescription_dates.push(this.recipe.current_prescription_date)
-      if (this.recipe.last_prescription_dates.length === 2) {
-        this.recipe.renewed_today = true /*it's enough to set this property just once, when the prescription is renewed for the first time. It will be the same after.*/
-      }
+      this.recipe.renewed_today = true
+      // if (this.recipe.last_prescription_dates.length === 2) {
+      //   this.recipe.renewed_today = true /*it's enough to set this property just once, when the prescription is renewed for the first time. It will be the same after.*/
+      // }
       this.sendEditRequestToBE()
       this.goToRecipesView()
     },
 
+    /*Going back to RecipesView means firstly removing the recipe from localStorage
+     and then pushing the RecipesView path*/
     goToRecipesView() {
       //deleting the recipe entry from localStorage when leaving the view
       localStorage.removeItem('recipe')

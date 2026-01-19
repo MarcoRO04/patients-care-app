@@ -1,3 +1,4 @@
+<!--This view is the first view that is displayed when the application is launched.-->
 <script>
 // import { RouterLink } from 'vue-router'
 
@@ -17,14 +18,16 @@ export default {
   },
   mounted() {
     let users = JSON.parse(localStorage.getItem('users'))
-    this.userList = (this.userList === null) ? [] : users
+    this.userList = this.userList === null ? [] : users
   },
   computed: {
-    computeInputOk(){
-      return (this.user.username.length !== 0 && this.user.password.length !== 0)
+    computeInputOk() {
+      return this.user.username.length !== 0 && this.user.password.length !== 0
     },
   },
   methods: {
+    /*if the login is successful, then using the emitt object, an object with a boolean value is sent to App.vue
+    * to tell that login was successful, and so it can push the RecipeView.vue page*/
     login() {
       let found = false
       for (let x = 0; x < this.userList.length; x++) {
@@ -39,12 +42,12 @@ export default {
       if (found === false) {
         console.log('Wrong username or password')
       } else {
-        this.emitter.emit("login_process",{my_login : true}) //my_login:true
+        this.emitter.emit('login_process', { my_login: true }) //my_login:true
         console.log('Login successful')
         this.goToRecipesView()
       }
     },
-    goToRecipesView(){
+    goToRecipesView() {
       this.$router.push(`/recipes`)
     },
   },
@@ -62,9 +65,9 @@ export default {
 
       <label for="pass">Parola: </label><br />
       <input type="password" id="pass" v-model="user.password" required /><br />
-<!--      <RouterLink to="/recover_password">Ai uitat parola?</RouterLink>-->
+      <!--      <RouterLink to="/recover_password">Ai uitat parola?</RouterLink>-->
       <br /><br />
-<!--      <button class="cancel-button" @click="goToRecipesView">Anulare</button>-->
+      <!--      <button class="cancel-button" @click="goToRecipesView">Anulare</button>-->
       <button @click="login" :disabled="!computeInputOk">Login</button><br />
     </div>
   </div>

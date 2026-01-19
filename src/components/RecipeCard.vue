@@ -1,7 +1,14 @@
+<!--
+  This is the component was created for displaying the most important recipe details.
+  Each recipe will be represented like this.
+  They can be viewed in RecipesView.vue, in the form of a list of cards.
+
+  NOTE: recipe and prescription terms are used interchangeably
+ -->
+
 <script>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faEdit, faEllipsisVertical, faRotate, faTrashCan } from '@fortawesome/free-solid-svg-icons'
-
 export default {
   name: 'RecipeCard',
   components: { FontAwesomeIcon },
@@ -33,7 +40,7 @@ export default {
         current_prescription_date: '',
         last_prescription_dates: [],
         status: '',
-        renewed_today: false,
+        // renewed_today: false,
       },
       status_color: '',
       cardMenu: false,
@@ -42,6 +49,7 @@ export default {
   },
 
   methods: {
+    /*icon getter functions*/
     faEdit() {
       return faEdit
     },
@@ -54,6 +62,7 @@ export default {
     faRotate() {
       return faRotate
     },
+    /*initialize the recipe object with the one received from the parent view via props (RecipesView.vue)*/
     initializeRecipe() {
       if (this.obj) {
         this.recipe.id = this.obj.id
@@ -70,6 +79,10 @@ export default {
         alert('null data')
       }
     },
+    /*based on the property status of the recipe object, set
+    the status_color variable with a color represented as a string.
+
+    status_color will be used to color the square that shows the days left*/
     set_recipe_status_color() {
       switch (this.recipe.status) {
         case '1':
@@ -86,6 +99,12 @@ export default {
           break
       }
     },
+
+    /*The following two functions change the current view with another one by pushing a new path on top.
+     Here local storage is used to share the current recipe between the views.
+     When the user clicks a button to go to EditRecipeView or MoreDetailsRecipeView,
+     the recipe will be saved into the localStorage.
+     The recipe will be then deleted, when the user leaves those views.*/
     goToDetails() {
       //put the recipe in localStorage and navigate to MoreDetailsRecipe.vue with the recipe's id
       localStorage.setItem('recipe', JSON.stringify(this.recipe))
@@ -102,6 +121,23 @@ export default {
     showDeleteConfirmationMenu() {
       this.deleteConfirmationMenu = !this.deleteConfirmationMenu
     },
+    /*send a delete request to the BE, to delete the current recipe.
+     The id of the recipe is sent in the path, to achieve this.
+     The BE will search that respective recipe and delete it, sending back an object with a boolean value
+     with the status of the delete operation.
+
+     Although the recipe is deleted in the BE, the list of recipes will not be updated, until the page is refreshed.
+     That happens because the view is not changed. The user is in the same view basically.
+     And because the list of recipes is fetched from the BE, it won't be updated until the next fetch (when the page is reloaded)
+
+     For EditRecipeView.vue, this doesn't happen because we change the view. (see there why this isn't happening)
+
+     So, in order to solve this problem, an emitter object is created ( emitter is like a pipe, used to pass data between components)
+
+     The method emitter.emit() is used to send data, in our case, the id of the deleted recipe, wrapped in an object,
+     to RecipesView.vue in order to eliminate the recipe from the list.
+     The list of recipes is in RecipesView, that's why it is sent there. (This is the current working solution employed)
+     */
     deleteRecipeInBE() {
       fetch(`http://localhost:3001/recipes/${this.recipe.id}`, {
         method: 'DELETE',
@@ -137,6 +173,7 @@ export default {
   <div>
     <!-- this div is used as a root to solve the vue warning: [Vue warn]: Extraneous non-props attributes (id, style) were passed to component but could not be automatically inherited because component renders fragment or text or teleport root nodes.  -->
     <div class="recipe-card">
+      <!-- General recipe details-->
       <div class="recipe-card-elements">
         <div class="recipe-card-info" @click="goToDetails()">
           <div>{{ index }}</div>

@@ -1,3 +1,17 @@
+<!--This is the main view of the application, and it contains a list of cards
+(multiple RecipeCard.vue) and a menu with some operations that you can make on the list.
+E.g.
+- searching a prescription by patient name or doctor name (the search bar)
+- filtering prescriptions by status, showing just the prescriptions with status red, or orange, or green (the gray button 'Toate')
+- adding a new prescription - it will redirect the user to AddNewRecipeView.vue (the '+' button)
+- viewing the prescriptions that were renewed today ('the green man with a check' button).
+  The renewal procedure is described in RecipeCard.vue
+
+  Besides this, there are also some user level operations that can be done
+  from this view, like logging out or seeing the user profile (not yet implemented)
+
+  NOTE: recipe and prescription terms are used interchangeably
+  -->
 <script>
 import RecipeCard from '@/components/RecipeCard.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -21,27 +35,26 @@ export default {
       recipes_list: [],
       status_btn: 0,
       searched_name: '',
-      show_red_status_recipe_alert: false,
-      text_popUp_alert_recipe: '',
+      // show_red_status_recipe_alert: false,
+      // text_popUp_alert_recipe: '',
       renewed_recipes_button: false,
-      renewed_recipes_counter: 0,
+      // renewed_recipes_counter: 0,
 
-      red_recipes_counter: 0,
+      // red_recipes_counter: 0,
       cardsNumberFlag: true,
     }
   },
   mounted() {
     this.getRecipesListFromBE()
     this.emitter.on('delete_operation', (event) => this.handleDelete(event.id)) // delete or edit
-    this.count_recipes_by_status()
-    this.check_renewed_today()
-    this.count_renewed_recipes()
   },
   updated() {
     // console.log(this.recipes_list) /*test if the list updates after I delete a recipe*/
   },
-  computed: {},
   methods: {
+    /*When a recipe is deleted, the RecipeCard of that recipe won't be deleted until a page refresh.
+     * So, to solve this problem, using the emitter object, we listen for the deletion event and filter out
+     * the deleted recipe by the id received from emitter.emit() and then we delete the recipe.*/
     handleDelete(id) {
       this.recipes_list = this.recipes_list.filter((recipe) => recipe.id !== id)
 
@@ -54,7 +67,7 @@ export default {
         }
       }
     },
-    //for the moment let's assume that the list exists and it is initialized
+    /*icon getter functions*/
     faRightFromBracket() {
       return faRightFromBracket
     },
@@ -73,6 +86,7 @@ export default {
     faPlus() {
       return faPlus
     },
+    /*get the list of recipes from the BE*/
     getRecipesListFromBE() {
       fetch('http://localhost:3001/recipes', {
         method: 'GET',
@@ -98,6 +112,9 @@ export default {
           alert('backend error')
         })
     },
+    /*check the recipe and don't shoe the recipes that don't have a patient name (could be also doctor, but patient name it's enough)
+      Depending on the recipe status button (the gray button 'Toate'), show the recipes that have that status (green/red/orange/all)
+    * */
     check_recipe(r) {
       return (
         r.patient.name.length > 0 &&
@@ -133,14 +150,13 @@ export default {
         this.status_btn = 0
       }
     },
-
     searchRecipeInListByPatientName(recipe) {
       return (
         recipe.patient.name.includes(this.searched_name) ||
         recipe.doctor.name.includes(this.searched_name)
       )
     },
-    count_recipes_by_status() {
+    count_red_recipes() {
       for (let r in this.recipes_list) {
         if (this.recipes_list[r].status === '1') {
           this.red_recipes_counter++
@@ -173,44 +189,50 @@ export default {
       }
       return formatted_date
     },
-    filter_renewed_today(r) {
+
+    /*check if the recipe was renewed today. If it was display it. Also checked that it's not a recipe that was added today*/
+    check_renewed_today(r) {
       let unformatted_current_date = Date.now()
       if (r.last_prescription_dates.length > 1) {
+        let last_date_index = r.last_prescription_dates.length - 1
+        // console.log(r.last_prescription_dates)
         if (
-          this.formatDate(r.last_prescription_dates[r.last_prescription_dates.length - 1]) !==
+          this.formatDate(r.last_prescription_dates[last_date_index]) ===
           this.formatDate(unformatted_current_date)
         ) {
           // console.log(r.patient.name + " " + r.doctor.name)
-          r.renewed_today = false
+          return true
         }
       }
-      return r.renewed_today === true
+      return false
     },
-    check_renewed_today() {
-      let unformatted_current_date = Date.now()
-      for (let r in this.recipes_list) {
-        if (this.recipes_list[r].last_prescription_dates.length > 1) {
-          if (
-            this.formatDate(
-              this.recipes_list[r].last_prescription_dates[
-                this.recipes_list[r].last_prescription_dates.length - 1
-              ],
-            ) !== this.formatDate(unformatted_current_date)
-          ) {
-            // console.log(this.recipes_list[r].patient.name + " " + this.recipes_list[r].doctor.name)
-            this.recipes_list[r].renewed_today = false
-          }
-        }
-      }
-      // localStorage.setItem('recipes', JSON.stringify(this.recipes_list))
-    },
+
+    /*a renewed recipe is a recipe in which the last date in the table of previous prescription dates, is today
+    * This function is used to display the renewed recipes in the renewed recipe pop-up.*/
     count_renewed_recipes() {
+      let renewed_recipes_counter = 0
       for (let r in this.recipes_list) {
-        if (this.recipes_list[r].renewed_today === true) {
-          this.renewed_recipes_counter++
+        if (this.check_renewed_today(this.recipes_list[r])) {
+          renewed_recipes_counter++
         }
       }
+      return renewed_recipes_counter
     },
+
+    /*instead of having three separate functions, it's better to have one in which you pass the status
+    * This function is used to display the messages that "For the moment are no recipes with status x"
+    * There may be other recipes with other statuses, for example recipes with orange and green statuses, but no recipes
+    * with red statuses*/
+    count_recipes_by_status(status) {
+      let recipes_counter = 0
+      for (let r in this.recipes_list) {
+        if (this.recipes_list[r].status === status) {
+          recipes_counter++
+        }
+      }
+      return recipes_counter
+    },
+
     goToAddNewRecipeView() {
       this.$router.push(`/add_new_recipe`)
     },
@@ -223,12 +245,14 @@ export default {
 
 <template>
   <div class="recipes-view-box">
+    <!--User operations-->
     <div class="user-div">
       <button class="user-profile-btn"><FontAwesomeIcon :icon="faCircleUser()" /> Profil</button>
       <button class="logout-btn" @click="logout">
         <FontAwesomeIcon :icon="faRightFromBracket()" />Logout</button
       ><br />
     </div>
+    <!--Filter options-->
     <div class="filter-options">
       <input
         type="text"
@@ -274,42 +298,56 @@ export default {
       </div>
     </div>
 
-    <!--    <div v-show="!cardsNumberFlag">-->
-    <!--      <p v-if="this.status_btn === 1" style="font-size: 18px">-->
-    <!--        Momentan nu aveți nicio rețetă cu status roșu.-->
-    <!--      </p>-->
-    <!--      <p v-else-if="this.status_btn === 2" style="font-size: 18px">-->
-    <!--        Momentan nu aveți nicio rețetă cu status portocaliu.-->
-    <!--      </p>-->
-    <!--      <p v-else-if="this.status_btn === 3" style="font-size: 18px">-->
-    <!--        Momentan nu aveți nicio rețetă cu status verde.-->
-    <!--      </p>-->
-    <!--    </div>-->
-
+    <!-- The list of RecipeCards-->
     <!--v-show="check_recipe(recipe) && searchRecipeInListByPatientName(recipe)" -->
     <div v-if="this.recipes_list.length > 0" class="recipes-list">
-      <div
-        v-for="(recipe, index) in recipes_list.sort(
-          (recipe1, recipe2) =>
-            Number(recipe1.distance_between_prescriptions) -
-            Number(recipe2.distance_between_prescriptions),
-        )"
-        :key="recipe"
-      >
-        <RecipeCard
-          id="filter-card"
-          v-if="check_recipe(recipe) && searchRecipeInListByPatientName(recipe)"
-          style="margin-bottom: 10px"
-          :obj="recipe"
-          :index="index"
+      <!--there may be no x status recipes in the list for the moment, display a message if there are none-->
+      <p v-if="count_recipes_by_status('1') === 0 && this.status_btn === 1" style="font-size: 18px">
+        Momentan nu aveți nicio rețetă cu status roșu.
+      </p>
+      <p v-else-if="count_recipes_by_status('2') === 0 && this.status_btn === 2" style="font-size: 18px">
+        Momentan nu aveți nicio rețetă cu status portocaliu.
+      </p>
+      <p v-else-if="count_recipes_by_status('3') === 0 && this.status_btn === 3" style="font-size: 18px">
+        Momentan nu aveți nicio rețetă cu status verde.
+      </p>
+      <div v-else>
+        <div
+          v-for="(recipe, index) in recipes_list.sort(
+            (recipe1, recipe2) =>
+              Number(recipe1.distance_between_prescriptions) -
+              Number(recipe2.distance_between_prescriptions),
+          )"
+          :key="recipe"
         >
-        </RecipeCard>
+          <RecipeCard
+            id="filter-card"
+            v-if="check_recipe(recipe) && searchRecipeInListByPatientName(recipe)"
+            style="margin-bottom: 10px"
+            :obj="recipe"
+            :index="index"
+          >
+          </RecipeCard>
+        </div>
       </div>
     </div>
 
-    <p v-else style="font-size: 18px">Momentan nu aveți nicio rețetă salvată.</p>
+  <!--If there are no recipes, show specifically the message depending on the filter button -->
+    <div v-else>
+      <p v-if="this.status_btn === 1" style="font-size: 18px">
+        Momentan nu aveți nicio rețetă cu status roșu.
+      </p>
+      <p v-else-if="this.status_btn === 2" style="font-size: 18px">
+        Momentan nu aveți nicio rețetă cu status portocaliu.
+      </p>
+      <p v-else-if="this.status_btn === 3" style="font-size: 18px">
+        Momentan nu aveți nicio rețetă cu status verde.
+      </p>
+      <p v-else style="font-size: 18px">Momentan nu aveți nicio rețetă salvată.</p>
+    </div>
   </div>
 
+  <!-- Pop-up with the renewed recipes-->
   <div id="renewed-recipes-popUp" v-show="renewed_recipes_button === true">
     <div class="renewed-recipes-modal-content">
       <div class="renewed-recipes-header">
@@ -318,12 +356,12 @@ export default {
           <FontAwesomeIcon :icon="faXmark()" />
         </button>
       </div>
-      <p v-if="renewed_recipes_counter === 0" style="margin-top: 15px">
+      <p v-if="count_renewed_recipes() === 0" style="margin-top: 15px">
         Momentan nu ați reînnoit nicio rețetă...
       </p>
       <div v-else style="overflow: auto; padding: 10px">
         <RecipeCard
-          v-show="filter_renewed_today(recipe)"
+          v-show="check_renewed_today(recipe)"
           v-for="recipe in recipes_list.sort(
             (recipe1, recipe2) =>
               Number(recipe1.distance_between_prescriptions) -
@@ -337,6 +375,7 @@ export default {
     </div>
   </div>
 
+  <!-- Pop-up to alert the user about the red status recipes-->
   <div id="recipes-alert" v-show="red_recipes_counter > 0 && show_red_status_recipe_alert === true">
     <div class="recipes-alert-modal-content">
       <div class="alert-header">
