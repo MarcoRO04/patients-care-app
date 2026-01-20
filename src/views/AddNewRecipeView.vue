@@ -12,16 +12,6 @@ export default {
   mounted() {
     this.getPatientsListFromBE()
     this.getDoctorsListFromBE()
-    let recipe_duration = localStorage.getItem('recipe_duration')
-    if (recipe_duration === '') {
-      this.recipe_periods_list = ['1 lună', '2 luni', '3 luni']
-      localStorage.setItem('recipe_duration', JSON.stringify(this.recipe_periods_list))
-    } else if (recipe_duration === null) {
-      this.recipe_periods_list = ['1 lună', '2 luni', '3 luni']
-      localStorage.setItem('recipe_duration', JSON.stringify(this.recipe_periods_list))
-    } else {
-      this.recipe_periods_list = JSON.parse(recipe_duration)
-    }
   },
   data() {
     return {
@@ -34,20 +24,14 @@ export default {
           name: '',
           specialization: '',
         },
-        future_prescription_date: '',
-        current_prescription_date: '',
         recipe_duration: '',
-        last_prescription_dates: [],
-        status: '',
-        distance_between_prescriptions: '',
-        // renewed_today: '',
+        prescription_dates: [],
       },
       recipes_list: [],
       doctors_list: [],
       patients_list: [],
-      recipe_periods_list: [],
+      recipe_periods_list: ['1 lună', '2 luni', '3 luni'],
       submission_ok: false,
-      test_recipe_list: [],
     }
   },
   computed: {
@@ -66,14 +50,6 @@ export default {
     faXmark() {
       return faXmark
     },
-    checkIDGeneration() {
-      for (let r in this.recipes_list) {
-        if (this.recipes_list[r].id === this.recipe.id) {
-          this.recipe.id = this.generateID()
-          console.log('I thought it was impossible to generate the same ID.')
-        }
-      }
-    },
     goToRecipesView() {
       this.$router.push(`/recipes`)
     },
@@ -81,18 +57,15 @@ export default {
       return new Date().getTime().toString()
     },
     /*For the new recipe will need to do the following things:
-     - calculating the future prescription date based on the current date chosen by the user, also setting the status and calculating the next renewal date in days
-     - generating a unique ID for the recipe (check also the ID generation)
-     - checking renewed_today to be false (it's false because the recipe was just added, it wasn't renewed)
-     - adding the chosen doctor
+     - generating a unique ID for the recipe
+     - adding the chosen doctor to the recipe (name and specialization)
 
-     and after all these steps were completed, then the recipe is pushed*/
-    setupNewRecipe() {
-      this.calculateFuturePrescriptionDate()
-      this.recipe.last_prescription_dates.push(this.recipe.current_prescription_date)
+     The rest of the properties are set with the help of vue's two-way binding.
+
+     and after all these steps were completed, then the recipe is POSTED to the BE
+     and the list of recipes (RecipesView) will be displayed*/
+    addNewRecipe() {
       this.recipe.id = this.generateID()
-      this.checkIDGeneration()
-      // this.recipe.renewed_today = false
       //saving also the doctor's specialization
       for (let i = 0; i < this.doctors_list.length; i++) {
         if (this.recipe.doctor.name === this.doctors_list[i].name) {
@@ -100,13 +73,12 @@ export default {
           break
         }
       }
-      // let new_recipe = this.recipe
-      this.recipes_list.push(this.recipe)
+      this.saveRecipeToBE()
+      this.goToRecipesView()
     },
 
     /*sends a POST request to the BE with the new recipe as the body*/
     saveRecipeToBE() {
-      this.setupNewRecipe()
       fetch('http://localhost:3001/recipes/new', {
         method: 'POST',
         headers: {
@@ -121,7 +93,6 @@ export default {
         .then((response) => {
           if (response['status']) {
             console.log(response['rsp'])
-            this.goToRecipesView()
           } else {
             console.log('There is no data in the response!')
           }
@@ -179,69 +150,7 @@ export default {
         this.recipe.patient.name.length !== 0 &&
         this.recipe.doctor.name.length !== 0 &&
         this.recipe.recipe_duration.length !== 0 &&
-        this.recipe.current_prescription_date.length !== 0 &&
-        this.calculateFuturePrescriptionDate() &&
-        this.check_recipe_existence()
-    },
-
-    /*Besides calculating the future prescription date, based on the current date,
-     * this function also sets the status of the recipe and calculated the distance in days until the next renewal*/
-    calculateFuturePrescriptionDate() {
-      // I want that format in the combo box with "1 luna", "2 luni", that's why I want to do this.
-      let recipe_period = []
-      recipe_period = this.recipe.recipe_duration.split(' ')
-
-      //The future prescription date is the current date in milliseconds + the recipe duration converted in milliseconds
-      this.recipe.future_prescription_date = new Date(
-        Date.parse(this.recipe.current_prescription_date) +
-          recipe_period[0] * 30 * 24 * 60 * 60 * 1000,
-      )
-      console.log(this.recipe.future_prescription_date)
-
-      // I could do it a lot simpler by multiplying 30 to the recipe_duration.
-
-      // The current method will be more useful for RecipeView.vue where I have to calculate it each day.
-      if (Date.parse(this.recipe.future_prescription_date) > Date.now()) {
-        const dates_difference = Date.parse(this.recipe.future_prescription_date) - Date.now()
-        const day = 8.64e7 // how many milliseconds in a day
-
-        //set the initial difference between dates (it will be changed later, every day)
-        this.recipe.distance_between_prescriptions = Math.round(dates_difference / day)
-        // the status should be always '3'
-        // but if, idk, the recipe was prescribed 2-3 weeks ago, we check it, and put the status accordingly
-        if (
-          this.recipe.distance_between_prescriptions >= 0 &&
-          this.recipe.distance_between_prescriptions <= 7
-        ) {
-          //red
-          this.recipe.status = '1'
-        } else if (
-          this.recipe.distance_between_prescriptions >= 8 &&
-          this.recipe.distance_between_prescriptions <= 14
-        ) {
-          //orange
-          this.recipe.status = '2'
-        } else {
-          //green
-          this.recipe.status = '3'
-        }
-        return true
-      } else {
-        alert(
-          'Nu poți adăuga o rețetă unde data următoare de prescriere a rețetei este mai mică decât ziua curentă!',
-        )
-        return false
-      }
-    },
-    check_recipe_existence() {
-      for (let r in this.recipes_list) {
-        if (this.recipe.patient.name === this.recipes_list[r].patient.name) {
-          if (this.recipe.doctor.name === this.recipes_list[r].doctor.name) {
-            alert('Nu poți să ai două rețete de același tip la același medic')
-            return false
-          }
-        }
-      }
+      this.recipe.prescription_dates.length !== 0
     },
   },
 }
@@ -305,7 +214,7 @@ export default {
       <input
         type="date"
         id="prescription_date"
-        v-model="this.recipe.current_prescription_date"
+        v-model="this.recipe.prescription_dates[0]"
         @change="check_submission"
         v-bind:min="calculate_min_date"
         v-bind:max="calculate_max_date"
@@ -314,8 +223,8 @@ export default {
       <br />
       <br />
 
-      <button class="cancel-button" @click="goToRecipesView">Anulare</button>
-      <button class="save-button" @click="saveRecipeToBE" :disabled="this.submission_ok === false">
+      <button class="cancel-button" @click="goToRecipesView()">Anulare</button>
+      <button class="save-button" @click="addNewRecipe()" :disabled="this.submission_ok === false">
         Salvare
       </button>
       <br />

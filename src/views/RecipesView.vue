@@ -35,17 +35,17 @@ export default {
       recipes_list: [],
       status_btn: 0,
       searched_name: '',
-      // show_red_status_recipe_alert: false,
-      // text_popUp_alert_recipe: '',
+      show_red_status_recipe_alert: false,
+      text_popUp_alert_recipe: '',
       renewed_recipes_button: false,
-      // renewed_recipes_counter: 0,
-
-      // red_recipes_counter: 0,
+      renewed_recipes_counter: 0,
+      red_recipes_counter: 0,
       cardsNumberFlag: true,
     }
   },
   mounted() {
     this.getRecipesListFromBE()
+    // console.log(this.recipes_list)
     this.emitter.on('delete_operation', (event) => this.handleDelete(event.id)) // delete or edit
   },
   updated() {
@@ -189,15 +189,14 @@ export default {
       }
       return formatted_date
     },
-
     /*check if the recipe was renewed today. If it was display it. Also checked that it's not a recipe that was added today*/
     check_renewed_today(r) {
       let unformatted_current_date = Date.now()
-      if (r.last_prescription_dates.length > 1) {
-        let last_date_index = r.last_prescription_dates.length - 1
-        // console.log(r.last_prescription_dates)
+      if (r.prescription_dates.length > 1) {
+        let last_date_index = r.prescription_dates.length - 1
+        // console.log(r.prescription_dates)
         if (
-          this.formatDate(r.last_prescription_dates[last_date_index]) ===
+          this.formatDate(r.prescription_dates[last_date_index]) ===
           this.formatDate(unformatted_current_date)
         ) {
           // console.log(r.patient.name + " " + r.doctor.name)
@@ -206,9 +205,8 @@ export default {
       }
       return false
     },
-
     /*a renewed recipe is a recipe in which the last date in the table of previous prescription dates, is today
-    * This function is used to display the renewed recipes in the renewed recipe pop-up.*/
+     * This function is used to display the renewed recipes in the renewed recipe pop-up.*/
     count_renewed_recipes() {
       let renewed_recipes_counter = 0
       for (let r in this.recipes_list) {
@@ -218,11 +216,10 @@ export default {
       }
       return renewed_recipes_counter
     },
-
     /*instead of having three separate functions, it's better to have one in which you pass the status
-    * This function is used to display the messages that "For the moment are no recipes with status x"
-    * There may be other recipes with other statuses, for example recipes with orange and green statuses, but no recipes
-    * with red statuses*/
+     * This function is used to display the messages that "For the moment are no recipes with status x"
+     * There may be other recipes with other statuses, for example recipes with orange and green statuses, but no recipes
+     * with red statuses*/
     count_recipes_by_status(status) {
       let recipes_counter = 0
       for (let r in this.recipes_list) {
@@ -232,7 +229,6 @@ export default {
       }
       return recipes_counter
     },
-
     goToAddNewRecipeView() {
       this.$router.push(`/add_new_recipe`)
     },
@@ -244,6 +240,7 @@ export default {
 </script>
 
 <template>
+  <!-- Menu and the list of recipes-->
   <div class="recipes-view-box">
     <!--User operations-->
     <div class="user-div">
@@ -305,10 +302,16 @@ export default {
       <p v-if="count_recipes_by_status('1') === 0 && this.status_btn === 1" style="font-size: 18px">
         Momentan nu aveți nicio rețetă cu status roșu.
       </p>
-      <p v-else-if="count_recipes_by_status('2') === 0 && this.status_btn === 2" style="font-size: 18px">
+      <p
+        v-else-if="count_recipes_by_status('2') === 0 && this.status_btn === 2"
+        style="font-size: 18px"
+      >
         Momentan nu aveți nicio rețetă cu status portocaliu.
       </p>
-      <p v-else-if="count_recipes_by_status('3') === 0 && this.status_btn === 3" style="font-size: 18px">
+      <p
+        v-else-if="count_recipes_by_status('3') === 0 && this.status_btn === 3"
+        style="font-size: 18px"
+      >
         Momentan nu aveți nicio rețetă cu status verde.
       </p>
       <div v-else>
@@ -332,7 +335,7 @@ export default {
       </div>
     </div>
 
-  <!--If there are no recipes, show specifically the message depending on the filter button -->
+    <!--If there are no recipes, show specifically the message depending on the filter button -->
     <div v-else>
       <p v-if="this.status_btn === 1" style="font-size: 18px">
         Momentan nu aveți nicio rețetă cu status roșu.

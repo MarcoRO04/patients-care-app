@@ -1,6 +1,7 @@
 <!--This view is used for changing two properties of the recipe: the doctor and the current prescription date.
 Maybe the doctor of the recipe will change in the meantime or maybe the current date of the recipe will be chosen wrong.
 To modify details about patients and doctors, the admin can acces the patients and doctors views to do so (those views are not yet implemented)
+TO DO: edit details about the actual prescription, like the pills name and quantity and the prescription plan for a week
 -->
 
 <script>
@@ -39,12 +40,7 @@ export default {
           specialization: '',
         },
         recipe_duration: '',
-        current_prescription_date: '',
-        future_prescription_date: '',
-        last_prescription_dates: [],
-        status: '',
-        distance_between_prescriptions: '',
-        // renewed_today: '',
+        prescription_dates: [],
       },
       recipes_list: [],
       patients_list: [],
@@ -60,15 +56,17 @@ export default {
   },
   methods: {
     // these functions for calculating the min and max values should work as
-    // computed properties cause they have a reactive variable, current_prescription_date
+    // computed properties cause they have a reactive variable, prescription_dates[last_date]
     calculate_min_date() {
       let date_difference =
-        Date.parse(this.recipe.current_prescription_date) - 30 * 24 * 60 * 60 * 1000
+        Date.parse(this.recipe.prescription_dates[this.recipe.prescription_dates.length - 1]) -
+        30 * 24 * 60 * 60 * 1000
       this.min_d = new Date(date_difference).toISOString().split('T')[0] // current date - 30 days
     },
     calculate_max_date() {
       let date_difference =
-        Date.parse(this.recipe.current_prescription_date) + 30 * 24 * 60 * 60 * 1000
+        Date.parse(this.recipe.prescription_dates[this.recipe.prescription_dates.length - 1]) +
+        30 * 24 * 60 * 60 * 1000
       this.max_d = new Date(date_difference).toISOString().split('T')[0] // current date + 30 days
     },
     /*icon getter function*/
@@ -82,7 +80,9 @@ export default {
         this.recipe = JSON.parse(r)
       }
       this.edited_doctor_name = this.recipe.doctor.name
-      this.edited_current_prescription_date = this.formatDate(this.recipe.current_prescription_date)
+      this.edited_current_prescription_date = this.formatDate(
+        this.recipe.prescription_dates[this.recipe.prescription_dates.length - 1],
+      )
     },
 
     /*Going back to RecipesView means firstly removing the recipe from localStorage
@@ -116,14 +116,14 @@ export default {
     },
 
     /*send an edit request with the recipe id in the path and the edited recipe in the body of the request*/
-    sendEditRequestToBE() {
+    sendEditRequestToBE(shortFormRecipe) {
       fetch(`http://localhost:3001/recipes/${this.recipe.id}`, {
         method: 'PUT',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(this.recipe), // {recipe: this.recipe}
+        body: JSON.stringify(shortFormRecipe), // {recipe: this.recipe}
       })
         .then((d) => {
           // console.log(d.status)
@@ -145,14 +145,16 @@ export default {
     check_recipe_modification() {
       return (
         this.recipe.doctor.name === this.edited_doctor_name &&
-        this.recipe.current_prescription_date === this.edited_current_prescription_date
+        this.recipe.prescription_dates[this.recipe.prescription_dates.length - 1] ===
+          this.edited_current_prescription_date
       )
     },
     /*if the user made a modification:
      * E.g.
      * - changed the doctor (then change the recipe's doctor to the new one)
      * or
-     * - changed the current date (then change the recipe's current date and also calculate the new future recipe date and set it)
+     * - changed the current date (then change the recipe's current date) - the future_date calculation will be handled by the BE
+     * when the list of recipes is retrieved)
      *
      * when the update button is pressed, a PUT request will be sent to the BE, to save the updated recipe
      * then RecipesView will be pushed, to see the modified recipe in the list of recipes
@@ -167,32 +169,24 @@ export default {
         if (this.recipe.doctor.name !== this.edited_doctor_name) {
           this.recipe.doctor.name = this.edited_doctor_name
         }
-        if (this.recipe.current_prescription_date !== this.edited_current_prescription_date) {
-          this.recipe.current_prescription_date = this.edited_current_prescription_date
-          this.recipe.future_prescription_date = this.calculateFuturePrescriptionDate(
-            this.recipe.recipe_duration,
-            this.recipe.current_prescription_date,
-          )
-          this.recipe.last_prescription_dates[this.recipe.last_prescription_dates.length - 1] =
-            this.recipe.current_prescription_date
+        if (
+          this.recipe.prescription_dates[this.recipe.prescription_dates.length - 1] !==
+          this.edited_current_prescription_date
+        ) {
+          this.recipe.prescription_dates[this.recipe.prescription_dates.length - 1] =
+            this.edited_current_prescription_date
         }
         // console.log(this.recipe)
-        this.sendEditRequestToBE()
+        let shortFormRecipe = {}
+        shortFormRecipe.id = this.recipe.id
+        shortFormRecipe.doctor = this.recipe.doctor
+        shortFormRecipe.patient = this.recipe.patient
+        shortFormRecipe.recipe_duration = this.recipe.recipe_duration
+        shortFormRecipe.prescription_dates = this.recipe.prescription_dates
+
+        this.sendEditRequestToBE(shortFormRecipe)
         this.goToRecipesView()
       }
-    },
-    /*calculate the future prescription date of the recipe based on the current date and recipe duration*/
-    calculateFuturePrescriptionDate(recipe_duration, current_prescription_date) {
-      // I want that format in the combo box with "1 luna", "2 luni", that's why I want to do this.
-      let recipe_period = []
-      recipe_period = recipe_duration.split(' ')
-
-      //The future prescription date is the current date in milliseconds + the recipe duration converted in milliseconds
-      let future_prescription_date = new Date(
-        Date.parse(current_prescription_date) + recipe_period[0] * 30 * 24 * 60 * 60 * 1000,
-      )
-
-      return this.formatDate(future_prescription_date)
     },
     formatDate(date_string) {
       let date = new Date(date_string)

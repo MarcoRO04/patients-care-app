@@ -37,8 +37,8 @@ export default {
         recipe_duration: '',
         distance_between_prescriptions: '',
         future_prescription_date: '',
-        current_prescription_date: '',
-        last_prescription_dates: [],
+        // initial_prescription_date: '',
+        prescription_dates: [],
         status: '',
         // renewed_today: false,
       },
@@ -70,9 +70,9 @@ export default {
         this.recipe.doctor.name = this.obj.doctor.name
         this.recipe.doctor.specialization = this.obj.doctor.specialization
         this.recipe.recipe_duration = this.obj.recipe_duration
-        this.recipe.current_prescription_date = this.obj.current_prescription_date
+        // this.recipe.current_prescription_date = this.obj.initial_prescription_date
         this.recipe.future_prescription_date = this.obj.future_prescription_date
-        this.recipe.last_prescription_dates = this.obj.last_prescription_dates
+        this.recipe.prescription_dates = this.obj.prescription_dates
         this.recipe.status = this.obj.status
         this.recipe.distance_between_prescriptions = this.obj.distance_between_prescriptions
       } else {
