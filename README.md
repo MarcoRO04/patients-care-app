@@ -1,41 +1,26 @@
-# patients-care-app
+# Project Overview
+This application is **part** of my **bachelor thesis**. Its purpose is to help **Nursing Homes administrators** to manage all the details about their patients' **prescriptions**, like renewal dates, duration, patient and doctor information and pills supply.
 
-This template should help get you started developing with Vue 3 in Vite.
+In addittion, the application will act like a **command control unit** for a **PillBox Sorting Robot**, that will **sort** the patients' medications. The robot is also part of the **bachelor thesis.**
+
 
 ## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
+[Webstorm](https://www.jetbrains.com/webstorm/download/?section=windows)
 
 ## Project Setup
+
+First of all, make sure you have installed [Vue.js](https://vueframework.com/guide/installation.html).
+
+Afterwards, install all the project's packages with:
 
 ```sh
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+To run the application, the simplest way is to type the command below in the IDE's terminal:
 
 ```sh
 npm run dev
 ```
 
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
-npm run test:unit
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+or it can be started from the IDE **RUN button** too.
