@@ -7,6 +7,8 @@ The application is split into **two components**, frontend and backend, that are
 
 This project is the **frontend part**.
 
+The backend poject can be found [here](https://github.com/MarcoRO04/patients-server)
+
 
 
 ## Recommended IDE Setup
