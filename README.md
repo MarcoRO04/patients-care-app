@@ -3,6 +3,11 @@ This application is **part** of my **bachelor thesis**. Its purpose is to help *
 
 In addittion, the application will act like a **command control unit** for a **PillBox Sorting Robot**, that will **sort** the patients' medications. The robot is also part of the **bachelor thesis.**
 
+The application is split into **two components**, frontend and backend, that are **two separate projects**.
+
+This project is the **frontend part**.
+
+
 
 ## Recommended IDE Setup
 [Webstorm](https://www.jetbrains.com/webstorm/download/?section=windows)
