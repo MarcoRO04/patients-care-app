@@ -19,6 +19,8 @@
     "@fortawesome/vue-fontawesome": "^3.1.1",
     "@obewds/icon-svg-to-vue": "^0.2.4",
     "mitt": "^3.0.1",
+    "serialport": "^13.0.0",
+    "socket.io-client": "^4.8.3",
     "vue": "^3.5.17",
     "vue-router": "^4.5.1"
   },

@@ -40,6 +40,7 @@ export default {
         distance_between_prescriptions: '',
       },
       showModal: false,
+      renewConfirmationMenu: false,
     }
   },
   methods: {
@@ -125,6 +126,9 @@ export default {
       localStorage.removeItem('recipe')
       this.$router.push(`/recipes`)
     },
+    showRenewConfirmationMenu() {
+      this.renewConfirmationMenu = !this.renewConfirmationMenu
+    },
   },
 }
 </script>
@@ -149,7 +153,7 @@ export default {
       <div class="upper-zone-right">
         <button
           class="button-renew-recipe"
-          @click="renewRecipe"
+          @click="showRenewConfirmationMenu()"
           v-show="this.recipe.distance_between_prescriptions <= '1'"
         >
           <FontAwesomeIcon :icon="faRotate()"></FontAwesomeIcon>Reînnoiește
@@ -181,6 +185,21 @@ export default {
       <button class="back-button" @click="goToRecipesView">
         <FontAwesomeIcon :icon="faAngleLeft()"></FontAwesomeIcon>Înapoi
       </button>
+    </div>
+  </div>
+  <!--Renew confirmation modal-->
+  <div class="renew-recipe-confirmation-modal" v-show="renewConfirmationMenu === true">
+    <div class="modal-content">
+      <h2 style="background-color: firebrick; color: white; font-weight: bold">
+        Confirmare reînnoire rețetă
+      </h2>
+      <p style="margin: 20px 2px 20px 2px; color: black">
+        Ești sigur că dorești să reînnoiești această rețetă?<br />
+        Rețeta va fi reînnoită pe data de astăzi: {{ this.formatDate(new Date(Date.now())) }}
+      </p>
+
+      <button class="button-cancel" @click="showRenewConfirmationMenu">Anulează</button>
+      <button class="button-confirm-renewal" @click="renewRecipe">Reînnoiește</button>
     </div>
   </div>
 </template>
@@ -283,5 +302,47 @@ button:hover {
   background-color: white;
   border-color: #cf2e2e;
   color: #cf2e2e;
+}
+
+/*delete confirmation modal*/
+.renew-recipe-confirmation-modal {
+  text-align: center;
+  /*display: none; Hidden by default*/
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  padding-top: 150px;
+}
+.modal-content {
+  background-color: #fefefe;
+  margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
+  border: 1px solid black;
+  width: 80%; /* Could be more or less, depending on screen size */
+}
+.button-cancel {
+  width: 130px;
+  height: 40px;
+  background-color: white;
+  border-color: #cf2e2e;
+  color: #cf2e2e;
+  margin: 0 10px 20px 10px;
+  font-weight: bolder;
+  font-size: 14px;
+  border-radius: 5px;
+}
+.button-confirm-renewal {
+  width: 130px;
+  height: 40px;
+  background-color: #cf2e2e;
+  border: none;
+  color: white;
+  margin-bottom: 20px;
+  font-weight: bolder;
+  font-size: 14px;
+  border-radius: 5px;
 }
 </style>

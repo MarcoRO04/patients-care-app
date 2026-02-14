@@ -10,6 +10,18 @@ const router = createRouter({
       component: () => import('../views/LoginView.vue'),
     },
     {
+      path: '/test_dispenser',
+      name: 'dispense_pills',
+      component: () => import('../views/TestDispenser.vue'),
+      beforeEnter: (to, from, next) => {
+        if (localStorage.getItem('context') === '123') {
+          next()
+        } else {
+          next('/error')
+        }
+      },
+    },
+    {
       path: '/error',
       name: 'error',
       component: () => import('../views/ErrorView.vue'),
@@ -21,10 +33,10 @@ const router = createRouter({
       beforeEnter: (to, from, next) => {
         if (localStorage.getItem('context') === '123') {
           next()
-        }else{
+        } else {
           next('/error')
         }
-      }
+      },
     },
     {
       path: '/recover_password',
@@ -38,10 +50,10 @@ const router = createRouter({
       beforeEnter: (to, from, next) => {
         if (localStorage.getItem('context') === '123') {
           next()
-        }else{
+        } else {
           next('/error')
         }
-      }
+      },
     },
     {
       path: '/more_details_recipe/:id',
@@ -50,10 +62,10 @@ const router = createRouter({
       beforeEnter: (to, from, next) => {
         if (localStorage.getItem('context') === '123') {
           next()
-        }else{
+        } else {
           next('/error')
         }
-      }
+      },
     },
     {
       path: '/edit_recipe/:id',
@@ -62,11 +74,11 @@ const router = createRouter({
       beforeEnter: (to, from, next) => {
         if (localStorage.getItem('context') === '123') {
           next()
-        }else{
+        } else {
           next('/error')
         }
-      }
-    }
+      },
+    },
   ],
 })
 export default router

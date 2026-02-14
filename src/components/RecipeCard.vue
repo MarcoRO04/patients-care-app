@@ -176,7 +176,7 @@ export default {
       <!-- General recipe details-->
       <div class="recipe-card-elements">
         <div class="recipe-card-info" @click="goToDetails()">
-          <div>{{ index }}</div>
+<!--          <div>{{ index }}</div>-->
           <div class="patient-details">
             <p style="font-size: 20px; font-weight: bold">{{ this.recipe.patient.name }}</p>
             <p>{{ this.recipe.doctor.name }}</p>
@@ -247,7 +247,7 @@ export default {
   opacity: 0.7;
 }*/
 
-/*this contains all the elements in the card, includng the 3 dots*/
+/*this contains all the elements in the card, including the 3 dots*/
 .recipe-card-elements {
   display: flex;
 }

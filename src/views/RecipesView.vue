@@ -21,6 +21,7 @@ import {
   faPersonCircleCheck,
   faPlus,
   faRightFromBracket,
+  faRobot,
   faXmark,
 } from '@fortawesome/free-solid-svg-icons'
 
@@ -52,6 +53,9 @@ export default {
     // console.log(this.recipes_list) /*test if the list updates after I delete a recipe*/
   },
   methods: {
+    faRobot() {
+      return faRobot
+    },
     /*When a recipe is deleted, the RecipeCard of that recipe won't be deleted until a page refresh.
      * So, to solve this problem, using the emitter object, we listen for the deletion event and filter out
      * the deleted recipe by the id received from emitter.emit() and then we delete the recipe.*/
@@ -102,11 +106,11 @@ export default {
         })
         .then((response) => {
           // console.log(response['list'])
-          for (let i = 0; i < response['list'].length; i++) {
-            this.recipes_list[i] = response['list'][i]
-          }
+          // for (let i = 0; i < response['list'].length; i++) {
+          //   this.recipes_list[i] = response['list'][i]
+          // }
           // console.log(this.recipes_list)
-          // this.recipes_list = response['list']
+          this.recipes_list = response['list']
         })
         .catch(() => {
           alert('backend error')
@@ -232,6 +236,10 @@ export default {
     goToAddNewRecipeView() {
       this.$router.push(`/add_new_recipe`)
     },
+    goToDispensePills() {
+      // localStorage.removeItem('recipe')
+      this.$router.push(`/test_dispenser`)
+    },
     logout() {
       this.emitter.emit('login_process', { my_login: false })
     },
@@ -246,8 +254,12 @@ export default {
     <div class="user-div">
       <button class="user-profile-btn"><FontAwesomeIcon :icon="faCircleUser()" /> Profil</button>
       <button class="logout-btn" @click="logout">
-        <FontAwesomeIcon :icon="faRightFromBracket()" />Logout</button
-      ><br />
+        <FontAwesomeIcon :icon="faRightFromBracket()" />Logout
+      </button>
+      <button class="dispense-pills-btn" @click="goToDispensePills()">
+        <FontAwesomeIcon :icon="faRobot()"></FontAwesomeIcon>Test
+      </button>
+      <br />
     </div>
     <!--Filter options-->
     <div class="filter-options">
@@ -416,6 +428,16 @@ export default {
   height: 40px;
   width: 85px;
   /*right: 0;*/
+  position: absolute;
+}
+
+.dispense-pills-btn {
+  background-color: white;
+  font-size: 15px;
+  border-radius: 10px;
+  height: 40px;
+  width: 85px;
+  margin-left: 105px;
   position: absolute;
 }
 #renewed-recipes-popUp {

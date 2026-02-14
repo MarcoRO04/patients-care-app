@@ -79,6 +79,7 @@ export default {
 
     /*sends a POST request to the BE with the new recipe as the body*/
     saveRecipeToBE() {
+      this.recipe.id = false
       fetch('http://localhost:3001/recipes/new', {
         method: 'POST',
         headers: {
@@ -94,7 +95,7 @@ export default {
           if (response['status']) {
             console.log(response['rsp'])
           } else {
-            console.log('There is no data in the response!')
+            console.log(response['rsp'])
           }
         })
         .catch((err) => console.log(err))
