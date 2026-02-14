@@ -11,8 +11,20 @@ const router = createRouter({
     },
     {
       path: '/test_dispenser',
+      name: 'test_dispenser',
+      component: () => import('../views/TestDispenserView.vue'),
+      beforeEnter: (to, from, next) => {
+        if (localStorage.getItem('context') === '123') {
+          next()
+        } else {
+          next('/error')
+        }
+      },
+    },
+    {
+      path: '/dispense_pills',
       name: 'dispense_pills',
-      component: () => import('../views/TestDispenser.vue'),
+      component: () => import('../views/DispensePillsView.vue'),
       beforeEnter: (to, from, next) => {
         if (localStorage.getItem('context') === '123') {
           next()
