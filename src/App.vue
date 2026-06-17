@@ -3,18 +3,20 @@
 -->
 
 <script>
+import MyFooter from '@/components/MyFooter.vue'
 
-export default{
+export default {
   name: 'App',
-  created () {
-    this.emitter.on('login_process',(event)=>this.handleLogin(event.my_login));
+  components: { MyFooter },
+  created() {
+    this.emitter.on('login_process', (event) => this.handleLogin(event.my_login))
   },
-  mounted(){
+  mounted() {
     // localStorage.setItem('users', JSON.stringify([{"username":"marco","password":"2911"},{"username":"daniel","password":"6666"},{"username":"alina","password":"1234"}]));
     // this.getRecipesListFromBE();
   },
 
-  data(){
+  data() {
     return {
       login: false,
       // recipes_list:[],
@@ -27,13 +29,13 @@ export default{
     (go to index.js file to see the protection mechanism against unauthorized users)
     * */
     handleLogin(login_status) {
-      this.login = login_status;
+      this.login = login_status
       if (this.login === true) {
-        localStorage.setItem('context',"123")
-        this.$router.push('/recipes');
-      }else{
-        localStorage.removeItem('context');
-        this.$router.push('/');
+        localStorage.setItem('context', '123')
+        this.$router.push('/recipes')
+      } else {
+        localStorage.removeItem('context')
+        this.$router.push('/')
       }
     },
     //
@@ -64,9 +66,9 @@ export default{
 </script>
 
 <template>
-<!--  <button @click="getRecipesListFromBE">Test</button>-->
+  <!--  <button @click="getRecipesListFromBE">Test</button>-->
   <RouterView />
+  <MyFooter></MyFooter>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

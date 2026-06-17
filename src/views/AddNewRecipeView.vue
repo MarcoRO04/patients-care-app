@@ -4,14 +4,20 @@
 
 <script>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faXmark } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faTrashCan, faXmark } from '@fortawesome/free-solid-svg-icons'
 
 export default {
   name: 'AddNewRecipeView',
   components: { FontAwesomeIcon },
   mounted() {
+    //this.patients_list = this.getListFromBE("patients")
+    //this.doctors_list = this.getListFromBE("doctors")
     this.getPatientsListFromBE()
     this.getDoctorsListFromBE()
+    //this.getPillsListFromBE()
+    this.getRecipesListFromBE()
+    console.log(this.pills_collection_xls)
+    console.log(this.$store.state.count)
   },
   data() {
     return {
@@ -26,10 +32,44 @@ export default {
         },
         recipe_duration: '',
         prescription_dates: [],
+        pills_list: [],
       },
-      recipes_list: [],
+      pill: {
+        id: '',
+        name: '',
+        morning: 0,
+        lunch: 0,
+        dinner: 0,
+        before_bed: 0,
+      },
+      pill_index: -1,
+      pills_collection_xls: [
+        {
+          id: 'W43451001',
+          name: '5 - FLUOROURACIL EBEWE 50mg/ml',
+        },
+        {
+          id: 'W66137001',
+          name: 'ACICLOVIR FITERMAN 50 mg/g',
+        },
+        {
+          id: 'W71207001',
+          name: 'ALFAGEM 2 g',
+        },
+        {
+          id: 'W55421015',
+          name: 'EMANERA 20 mg',
+        },
+        {
+          id: 'W70417025',
+          name: 'KOSTAROX 90 mg',
+        },
+      ], // paracetamol, ibuprofen, nurofen
+      // { denumire: 'ibu...', cod: 'W07589003'}
+      pill_cod_selected: '',
       doctors_list: [],
       patients_list: [],
+      recipes_list: [],
       recipe_periods_list: ['1 lună', '2 luni', '3 luni'],
       submission_ok: false,
     }
@@ -46,6 +86,12 @@ export default {
     },
   },
   methods: {
+    faTrashCan() {
+      return faTrashCan
+    },
+    faPlus() {
+      return faPlus
+    },
     /*icon getter function*/
     faXmark() {
       return faXmark
@@ -55,6 +101,14 @@ export default {
     },
     generateID() {
       return new Date().getTime().toString()
+    },
+    checkPatientDoctorExistence(patient_name) {
+      for (let recipe in this.recipes_list) {
+        if (this.recipes_list[recipe].patient.name === patient_name) {
+          return true
+        }
+      }
+      return false
     },
     /*For the new recipe will need to do the following things:
      - generating a unique ID for the recipe
@@ -73,13 +127,19 @@ export default {
           break
         }
       }
-      this.saveRecipeToBE()
-      this.goToRecipesView()
+      if (this.checkPatientDoctorExistence(this.recipe.patient.name)) {
+        alert(
+          `Pacientul ${this.recipe.patient.name} are deja rețetă la ${this.recipe.doctor.name}.`,
+        )
+      } else {
+        this.saveRecipeToBE()
+        this.goToRecipesView()
+      }
     },
 
     /*sends a POST request to the BE with the new recipe as the body*/
     saveRecipeToBE() {
-      this.recipe.id = false
+      // this.recipe.id = false
       fetch('http://localhost:3001/recipes/new', {
         method: 'POST',
         headers: {
@@ -102,6 +162,48 @@ export default {
     },
 
     /*get the mockup list of patients from the BE*/
+    getListFromBE(query) {
+      fetch(`http://localhost:3001/${query}`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+
+        /*Preflight si apoi raspunsul - e inca in pending*/
+      })
+        .then((rsp) => {
+          return rsp.json()
+        })
+        .then((response) => {
+          // console.log(this.recipes_list)
+          return response['list']
+        })
+        .catch(() => {
+          alert('backend error')
+        })
+    },
+    getPillsListFromBE() {
+      fetch('http://localhost:3001/pills', {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+
+        /*Preflight si apoi raspunsul - e inca in pending*/
+      })
+        .then((rsp) => {
+          return rsp.json()
+        })
+        .then((response) => {
+          // console.log(this.recipes_list)
+          this.pills_collection_xls = response['list']
+        })
+        .catch(() => {
+          alert('backend error')
+        })
+    },
     getPatientsListFromBE() {
       fetch('http://localhost:3001/patients', {
         method: 'GET',
@@ -118,6 +220,26 @@ export default {
         .then((response) => {
           // console.log(this.recipes_list)
           this.patients_list = response['list']
+        })
+        .catch(() => {
+          alert('backend error')
+        })
+    },
+    getRecipesListFromBE() {
+      fetch('http://localhost:3001/recipes', {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+
+        /*Preflight si apoi raspunsul - e inca in pending*/
+      })
+        .then((rsp) => {
+          return rsp.json()
+        })
+        .then((response) => {
+          this.recipes_list = response['list']
         })
         .catch(() => {
           alert('backend error')
@@ -151,7 +273,44 @@ export default {
         this.recipe.patient.name.length !== 0 &&
         this.recipe.doctor.name.length !== 0 &&
         this.recipe.recipe_duration.length !== 0 &&
-      this.recipe.prescription_dates.length !== 0
+        this.recipe.prescription_dates.length !== 0
+    },
+    isActiveAddBtnPill() {
+      return (
+        this.pill_index >= 0 &&
+        (this.pill.morning !== 0 ||
+          this.pill.lunch !== 0 ||
+          this.pill.dinner !== 0 ||
+          this.pill.before_bed !== 0)
+      )
+    },
+    addNewPillToList() {
+      console.log(this.recipe.pills_list)
+      console.log(this.pill_index)
+      const new_pill = {
+        id: this.pills_collection_xls[this.pill_index].id,
+        name: this.pills_collection_xls[this.pill_index].name,
+        morning: this.pill.morning,
+        lunch: this.pill.lunch,
+        dinner: this.pill.dinner,
+        before_bed: this.pill.before_bed,
+      }
+      this.recipe.pills_list.push(new_pill)
+
+      this.pill_index = -1
+
+      this.pill.id = ''
+      this.pill.name = ''
+      this.pill.morning = 0
+      this.pill.lunch = 0
+      this.pill.dinner = 0
+      this.pill.before_bed = 0
+    },
+    deletePillFromList(index) {
+      if (index > -1) {
+        // only splice array when item is found
+        this.recipe.pills_list.splice(index, 1) // 2nd parameter means remove one item only
+      }
     },
   },
 }
@@ -161,7 +320,7 @@ export default {
   <div id="add_recipe_form" class="add_recipe_form">
     <div class="form-header">
       <h3 style="color: white; font-weight: bold">Adaugă rețetă nouă</h3>
-      <button class="button-cancel-x" @click="goToRecipesView">
+      <button class="button-cancel-x" @click="goToRecipesView()">
         <FontAwesomeIcon :icon="faXmark()" />
       </button>
     </div>
@@ -221,9 +380,166 @@ export default {
         v-bind:max="calculate_max_date"
       />
 
-      <br />
+      <p style="font-size: 18px; font-weight: bold; margin-top: 30px; margin-bottom: 15px">
+        Adaugă medicament:
+      </p>
+      <div
+        v-show="this.recipe.pills_list.length < 5"
+        id="pill_prescription_row1"
+        style="display: flex"
+      >
+        <div style="width: 200px">
+          <label for="drug_name1">Denumire medicament</label> <br />
+          <!--          <input type="text" id="drug_name1" style="width: 160px" v-model="this.pill.name" />-->
+          <select v-model="this.pill_index">
+            <option disabled value="">Te rog selectează codul medicamentului</option>
+            <option v-for="(pill, index) in this.pills_collection_xls" :key="index" :value="index">
+              {{ pill.name }}
+            </option>
+          </select>
+
+          <!--          <p>{{ this.pill_index }}</p>-->
+        </div>
+        <div style="width: 80px; margin-right: 10px">
+          <label for="morning_number_of_pills1">Dimineața</label> <br />
+          <input
+            v-model="this.pill.morning"
+            type="number"
+            id="morning_number_of_pills1"
+            value="0"
+            min="0"
+            max="5"
+            style="width: 70px"
+          />
+        </div>
+
+        <div style="width: 80px; margin-right: 10px">
+          <label for="lunch_number_of_pills1">Prânz</label> <br />
+          <input
+            v-model="this.pill.lunch"
+            type="number"
+            id="lunch_number_of_pills1"
+            value="0"
+            min="0"
+            max="5"
+            style="width: 70px"
+          />
+        </div>
+
+        <div style="width: 80px; margin-right: 10px">
+          <label for="dinner_number_of_pills1">Cina</label> <br />
+          <input
+            v-model="this.pill.dinner"
+            type="number"
+            id="dinner_number_of_pills1"
+            value="0"
+            min="0"
+            max="5"
+            style="width: 70px"
+          />
+        </div>
+
+        <div style="width: 140px; margin-right: 10px">
+          <label for="before_bed_number_of_pills1">Înainte de culcare</label> <br />
+          <input
+            v-model="this.pill.before_bed"
+            type="number"
+            id="before_bed_number_of_pills1"
+            value="0"
+            min="0"
+            max="5"
+            style="width: 70px"
+          />
+        </div>
+        <div style="text-align: center; margin-top: 20px">
+          <button
+            class="add-new-pill-row-btn"
+            @click="addNewPillToList()"
+            v-show="this.recipe.pills_list.length < 5"
+            :disabled="!this.isActiveAddBtnPill()"
+          >
+            <FontAwesomeIcon :icon="faPlus()" />
+          </button>
+          <br />
+        </div>
+      </div>
       <br />
 
+      <p style="font-size: 18px; font-weight: bold; margin-top: 30px; margin-bottom: 15px">
+        Listă medicamente prescrise:
+      </p>
+      <p
+        v-if="this.recipe.pills_list.length === 0"
+        style="font-size: 16px; margin-top: 30px; margin-bottom: 15px"
+      >
+        Momentan nu a fost niciun medicament adăugat.
+      </p>
+      <div v-for="(pill, index) in this.recipe.pills_list" :key="index" style="display: flex">
+        <div style="margin-top: 35px; margin-right: 5px">{{ index + 1 }}.</div>
+        <div style="width: 200px">
+          <label>Denumire medicament</label> <br />
+          <input type="text" disabled style="width: 160px" v-model="pill.name" />
+        </div>
+        <div style="width: 80px; margin-right: 10px">
+          <label>Dimineața</label> <br />
+          <input
+            v-model="pill.morning"
+            disabled
+            type="number"
+            value="0"
+            min="0"
+            max="5"
+            style="width: 70px"
+          />
+        </div>
+
+        <div style="width: 80px; margin-right: 10px">
+          <label>Prânz</label> <br />
+          <input
+            v-model="pill.lunch"
+            disabled
+            type="number"
+            value="0"
+            min="0"
+            max="5"
+            style="width: 70px"
+          />
+        </div>
+
+        <div style="width: 80px; margin-right: 10px">
+          <label>Cina</label> <br />
+          <input
+            v-model="pill.dinner"
+            disabled
+            type="number"
+            value="0"
+            min="0"
+            max="5"
+            style="width: 70px"
+          />
+        </div>
+
+        <div style="width: 140px; margin-right: 10px">
+          <label>Înainte de culcare</label> <br />
+          <input
+            v-model="pill.before_bed"
+            disabled
+            type="number"
+            value="0"
+            min="0"
+            max="5"
+            style="width: 70px"
+          />
+        </div>
+        <div>
+          <button @click="deletePillFromList(index)">
+            <FontAwesomeIcon :icon="faTrashCan()"></FontAwesomeIcon>
+          </button>
+        </div>
+      </div>
+
+      <br />
+      <br />
       <button class="cancel-button" @click="goToRecipesView()">Anulare</button>
       <button class="save-button" @click="addNewRecipe()" :disabled="this.submission_ok === false">
         Salvare
@@ -245,12 +561,11 @@ export default {
   display: flex;
 }
 .add_recipe_form {
-  width: 70%;
+  width: 100%;
   height: 100%;
-  margin: 100px auto;
   text-align: left;
-  border: 2px solid black;
   background-color: white;
+  margin: auto;
   color: black;
 }
 label {
@@ -295,6 +610,11 @@ button {
   border: none;
 }
 
+.save-button:disabled {
+  cursor: not-allowed;
+  background-color: #555555;
+}
+
 .button-cancel-x {
   background-color: transparent;
   color: white;
@@ -302,5 +622,19 @@ button {
   height: 20px;
   text-align: right;
   margin-left: auto;
+}
+
+.add-new-pill-row-btn {
+  background-color: white;
+  color: black;
+  border-color: #cf2e2e;
+  font-size: 17px;
+  font-weight: bolder;
+}
+
+.add-new-pill-row-btn:disabled {
+  background-color: #555555;
+  border: none;
+  cursor: not-allowed;
 }
 </style>

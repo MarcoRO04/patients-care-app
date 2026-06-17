@@ -19,6 +19,7 @@ import {
   faBell,
   faCircleUser,
   faPersonCircleCheck,
+  faPills,
   faPlus,
   faRightFromBracket,
   faRobot,
@@ -48,11 +49,15 @@ export default {
     this.getRecipesListFromBE()
     // console.log(this.recipes_list)
     this.emitter.on('delete_operation', (event) => this.handleDelete(event.id)) // delete or edit
+    console.log(this.$store.state.count)
   },
   updated() {
     // console.log(this.recipes_list) /*test if the list updates after I delete a recipe*/
   },
   methods: {
+    faPills() {
+      return faPills
+    },
     faRobot() {
       return faRobot
     },
@@ -257,7 +262,7 @@ export default {
         <FontAwesomeIcon :icon="faRightFromBracket()" />Logout
       </button>
       <button class="dispense-pills-btn" @click="goToDispensePills()">
-        <FontAwesomeIcon :icon="faRobot()"></FontAwesomeIcon>Test
+        <FontAwesomeIcon :icon="faRobot()"></FontAwesomeIcon>  Dispenser
       </button>
       <br />
     </div>
@@ -436,7 +441,7 @@ export default {
   font-size: 15px;
   border-radius: 10px;
   height: 40px;
-  width: 85px;
+  width: 110px;
   margin-left: 105px;
   position: absolute;
 }

@@ -19,6 +19,7 @@ export default {
   mounted() {
     let users = JSON.parse(localStorage.getItem('users'))
     this.userList = this.userList === null ? [] : users
+
   },
   computed: {
     computeInputOk() {
@@ -61,10 +62,10 @@ export default {
     </div>
     <div style="padding: 10px 10px 10px 20px">
       <label for="username">Username: </label><br />
-      <input type="text" id="username" v-model="user.username" required /><br />
+      <input type="text" id="username" v-model="user.username" required/><br />
 
       <label for="pass">Parola: </label><br />
-      <input type="password" id="pass" v-model="user.password" required /><br />
+      <input type="password" id="pass" v-model="user.password" required/><br />
       <!--      <RouterLink to="/recover_password">Ai uitat parola?</RouterLink>-->
       <br /><br />
       <!--      <button class="cancel-button" @click="goToRecipesView">Anulare</button>-->

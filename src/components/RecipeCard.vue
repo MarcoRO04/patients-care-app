@@ -277,7 +277,7 @@ or to click on the 3 dots and show me the card menu*/
   background: none;
   padding: 10px;
   border-radius: 10px;
-  width: 76px;
+  width: 80px;
   margin-left: 8px;
 }
 
