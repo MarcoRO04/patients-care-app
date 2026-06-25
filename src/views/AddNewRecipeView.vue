@@ -40,29 +40,6 @@ export default {
         before_bed: 0,
       },
       pill_index: -1,
-      pills_collection_xls: [
-        {
-          id: 'W43451001',
-          name: '5 - FLUOROURACIL EBEWE 50mg/ml',
-        },
-        {
-          id: 'W66137001',
-          name: 'ACICLOVIR FITERMAN 50 mg/g',
-        },
-        {
-          id: 'W71207001',
-          name: 'ALFAGEM 2 g',
-        },
-        {
-          id: 'W55421015',
-          name: 'EMANERA 20 mg',
-        },
-        {
-          id: 'W70417025',
-          name: 'KOSTAROX 90 mg',
-        },
-      ], // paracetamol, ibuprofen, nurofen
-      // { denumire: 'ibu...', cod: 'W07589003'}
       pill_cod_selected: '',
       doctors_list: [],
       patients_list: [],
@@ -390,12 +367,11 @@ export default {
           <!--          <input type="text" id="drug_name1" style="width: 160px" v-model="this.pill.name" />-->
           <select v-model="this.pill_index">
             <option disabled value="">Te rog selectează codul medicamentului</option>
-            <option v-for="(pill, index) in this.pills_collection_xls" :key="index" :value="index">
+            <option v-for="(pill, index) in this.$store.state.pills_collection" :key="index" :value="index">
               {{ pill.name }}
             </option>
           </select>
 
-          <!--          <p>{{ this.pill_index }}</p>-->
         </div>
         <div style="width: 80px; margin-right: 10px">
           <label for="morning_number_of_pills1">Dimineața</label> <br />

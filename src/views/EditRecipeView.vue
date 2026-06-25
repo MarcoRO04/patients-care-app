@@ -42,13 +42,24 @@ export default {
         recipe_duration: '',
         prescription_dates: [],
       },
-      recipes_list: [],
-      recipes_list: [],
       doctors_list: [],
       edited_doctor_name: '',
       edited_current_prescription_date: '',
       min_d: '',
       max_d: '',
+
+      initial_pills_table: [],
+      pills_table: [],
+      morning: [],
+      lunch: [],
+      dinner: [],
+      before_bed: [],
+
+      pills_distribution: {},
+      morning_distribution: '',
+      lunch_distribution: '',
+      dinner_distribution: '',
+      before_bed_distribution: '',
     }
   },
   updated() {
@@ -83,6 +94,7 @@ export default {
       this.edited_current_prescription_date = this.formatDate(
         this.recipe.prescription_dates[this.recipe.prescription_dates.length - 1],
       )
+      this.getPillsConfigurationFromBE(this.recipe.id)
     },
 
     /*Going back to RecipesView means firstly removing the recipe from localStorage
@@ -130,7 +142,7 @@ export default {
           return d.json()
         })
         .then((response) => {
-          if (response['result']) {
+          if (response['status']) {
             alert('Update ok!')
           } else {
             alert('Failed update recipe')
@@ -146,8 +158,47 @@ export default {
       return (
         this.recipe.doctor.name === this.edited_doctor_name &&
         this.recipe.prescription_dates[this.recipe.prescription_dates.length - 1] ===
-          this.edited_current_prescription_date
+          this.edited_current_prescription_date &&
+        this.check_pill_distribution_modification()
       )
+    },
+
+    check_pill_distribution_modification() {
+      for (let index = 0; index < this.pills_table.length; index++) {
+        // console.log(
+        //   this.pills_table[index].morning_pill_number +
+        //     ' ' +
+        //     this.initial_pills_table[index].morning_pill_number,
+        // )
+        // console.log(
+        //   this.pills_table[index].lunch_pill_number +
+        //     ' ' +
+        //     this.initial_pills_table[index].lunch_pill_number,
+        // )
+        // console.log(
+        //   this.pills_table[index].dinner_pill_number +
+        //     ' ' +
+        //     this.initial_pills_table[index].dinner_pill_number,
+        // )
+        // console.log(
+        //   this.pills_table[index].before_bed_pill_number +
+        //     ' ' +
+        //     this.initial_pills_table[index].before_bed_pill_number,
+        // )
+        if (
+          this.pills_table[index].morning_pill_number ===
+            this.initial_pills_table[index].morning_pill_number &&
+          this.pills_table[index].lunch_pill_number ===
+            this.initial_pills_table[index].lunch_pill_number &&
+          this.pills_table[index].dinner_pill_number ===
+            this.initial_pills_table[index].dinner_pill_number &&
+          this.pills_table[index].before_bed_pill_number ===
+            this.initial_pills_table[index].before_bed_pill_number
+        ) {
+          return true
+        }
+      }
+      return false
     },
     /*if the user made a modification:
      * E.g.
@@ -177,12 +228,15 @@ export default {
             this.edited_current_prescription_date
         }
         // console.log(this.recipe)
+        this.computePillDistributionForDB()
+
         let shortFormRecipe = {}
         shortFormRecipe.id = this.recipe.id
         shortFormRecipe.doctor = this.recipe.doctor
         shortFormRecipe.patient = this.recipe.patient
         shortFormRecipe.recipe_duration = this.recipe.recipe_duration
         shortFormRecipe.prescription_dates = this.recipe.prescription_dates
+        shortFormRecipe.pills_distribution = this.pills_distribution
 
         this.sendEditRequestToBE(shortFormRecipe)
         this.goToRecipesView()
@@ -201,6 +255,108 @@ export default {
         formatted_date = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
       }
       return formatted_date
+    },
+    getPillsConfigurationFromBE(id) {
+      fetch(`http://localhost:3001/pills/pills_configuration/${id}`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+
+        /*Preflight si apoi raspunsul - e inca in pending*/
+      })
+        .then((rsp) => {
+          return rsp.json()
+        })
+        .then((response) => {
+          //console.log(response['result'][0]['morning'].split('#'))
+          this.morning = response['result'][0]['morning'].split('#')
+          //console.log(response['result'][0]['lunch'].split('#'))
+          this.lunch = response['result'][0]['lunch'].split('#')
+          //console.log(response['result'][0]['dinner'].split('#'))
+          this.dinner = response['result'][0]['dinner'].split('#')
+          //console.log(response['result'][0]['before_bed'].split('#'))
+          this.before_bed = response['result'][0]['before_bed'].split('#')
+          // this.pills_configuration = response['result'][0]
+          this.computeData()
+        })
+        .catch(() => {
+          alert('backend error pills configuration table')
+        })
+    },
+    computeData() {
+      // this.pills_table = []
+      for (let index = 0; index < this.morning.length; index++) {
+        // console.log(this.morning[index])
+        // console.log(this.lunch[index])
+        // console.log(this.dinner[index])
+        // console.log(this.before_bed[index])
+        // console.log('-------')
+
+        let row = {
+          id: '',
+          name: '',
+          morning_pill_number: '0',
+          lunch_pill_number: '0',
+          dinner_pill_number: '0',
+          before_bed_pill_number: '0',
+        }
+
+        row.id = this.morning[index].split(':')[0]
+        row.name = this.getPillName(this.morning[index].split(':')[0])
+        row.morning_pill_number = this.morning[index].split(':')[1]
+        row.lunch_pill_number = this.lunch[index].split(':')[1]
+        row.dinner_pill_number = this.dinner[index].split(':')[1]
+        row.before_bed_pill_number = this.before_bed[index].split(':')[1]
+
+        this.pills_table.push(row)
+      }
+      for (let index = 0; index < this.pills_table.length; index++) {
+        let newPill = {
+          id: this.pills_table[index].id,
+          name: this.pills_table[index].name,
+          morning_pill_number: this.pills_table[index].morning_pill_number,
+          lunch_pill_number: this.pills_table[index].lunch_pill_number,
+          dinner_pill_number: this.pills_table[index].dinner_pill_number,
+          before_bed_pill_number: this.pills_table[index].before_bed_pill_number,
+        }
+        this.initial_pills_table.push(newPill)
+      }
+    },
+    getPillName(id) {
+      for (let index = 0; index < this.$store.state.pills_collection.length; index++) {
+        if (this.$store.state.pills_collection[index].id === id) {
+          return this.$store.state.pills_collection[index].name
+        }
+      }
+    },
+    computePillDistributionForDB() {
+      for (let index = 0; index < this.pills_table.length; index++) {
+        if (index === this.pills_table.length - 1) {
+          this.morning_distribution +=
+            this.pills_table[index].id + ':' + this.pills_table[index].morning_pill_number
+          this.lunch_distribution +=
+            this.pills_table[index].id + ':' + this.pills_table[index].lunch_pill_number
+          this.dinner_distribution +=
+            this.pills_table[index].id + ':' + this.pills_table[index].dinner_pill_number
+          this.before_bed_distribution +=
+            this.pills_table[index].id + ':' + this.pills_table[index].before_bed_pill_number
+        } else {
+          this.morning_distribution +=
+            this.pills_table[index].id + ':' + this.pills_table[index].morning_pill_number + '#'
+          this.lunch_distribution +=
+            this.pills_table[index].id + ':' + this.pills_table[index].lunch_pill_number + '#'
+          this.dinner_distribution +=
+            this.pills_table[index].id + ':' + this.pills_table[index].dinner_pill_number + '#'
+          this.before_bed_distribution +=
+            this.pills_table[index].id + ':' + this.pills_table[index].before_bed_pill_number + '#'
+        }
+      }
+      this.pills_distribution.morning = this.morning_distribution
+      this.pills_distribution.lunch = this.lunch_distribution
+      this.pills_distribution.dinner = this.dinner_distribution
+      this.pills_distribution.before_bed = this.before_bed_distribution
     },
   },
 }
@@ -234,8 +390,85 @@ export default {
         <option></option>
         <option v-for="(doctor, index) in this.doctors_list" :key="index">
           {{ doctor.name }}
-        </option></select
-      ><br />
+        </option>
+      </select>
+
+      <!-- Schimba distributia de pastile daca a fost gresit ceva la ea -->
+      <p style="font-weight: bold; margin-top: 10px; margin-bottom: 6px">
+        Schimbă distribuția pastilelor:
+      </p>
+      <div>
+        <!--        <div>{{ this.pills_table[0] }}</div> - de ce nu merge?-->
+        <table>
+          <tbody>
+            <tr>
+              <th>Nr. crt.</th>
+              <th>Denumire</th>
+              <th>Dimineața</th>
+              <th>Prânz</th>
+              <th>Cina</th>
+              <th>Înainte de culcare</th>
+            </tr>
+            <tr v-for="(pill, index) in pills_table" :key="index">
+              <td>{{ index + 1 }}.</td>
+              <td>{{ pill.name }}</td>
+              <td>
+                <div style="width: 80px; margin-right: 10px">
+                  <input
+                    v-model="pill.morning_pill_number"
+                    type="number"
+                    id="morning_number_of_pills1"
+                    value="0"
+                    min="0"
+                    max="5"
+                    style="width: 70px"
+                  />
+                </div>
+              </td>
+              <td>
+                <div style="width: 80px; margin-right: 10px">
+                  <input
+                    v-model="pill.lunch_pill_number"
+                    type="number"
+                    id="lunch_number_of_pills1"
+                    value="0"
+                    min="0"
+                    max="5"
+                    style="width: 70px"
+                  />
+                </div>
+              </td>
+              <td>
+                <div style="width: 80px; margin-right: 10px">
+                  <input
+                    v-model="pill.dinner_pill_number"
+                    type="number"
+                    id="dinner_number_of_pills1"
+                    value="0"
+                    min="0"
+                    max="5"
+                    style="width: 70px"
+                  />
+                </div>
+              </td>
+              <td>
+                <div style="width: 140px; margin-right: 10px">
+                  <input
+                    v-model="pill.before_bed_pill_number"
+                    type="number"
+                    id="before_bed_number_of_pills1"
+                    value="0"
+                    min="0"
+                    max="5"
+                    style="width: 70px"
+                  />
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <br />
       <button class="cancel-edit-btn" @click="goToRecipesView">Anulează</button>
       <button class="save-edit-btn" @click="saveEditedRecipe">Salvează</button>
     </div>
@@ -311,5 +544,21 @@ select {
   margin-bottom: 7px;
   border-radius: 10px;
   margin-right: 15px;
+}
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+th {
+  font-weight: bold;
 }
 </style>

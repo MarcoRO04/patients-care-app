@@ -1,7 +1,9 @@
 <script>
+import PillsConfigurationTable from '@/components/PillsConfigurationTable.vue'
+
 export default {
   name: 'DispensePillsView',
-  components: {},
+  components: { PillsConfigurationTable },
   mounted() {
     this.getRecipesListFromBE()
     console.log(this.$store.state.test_banda)
