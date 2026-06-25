@@ -43,7 +43,7 @@ export default {
         prescription_dates: [],
       },
       recipes_list: [],
-      patients_list: [],
+      recipes_list: [],
       doctors_list: [],
       edited_doctor_name: '',
       edited_current_prescription_date: '',

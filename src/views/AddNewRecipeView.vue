@@ -10,14 +10,11 @@ export default {
   name: 'AddNewRecipeView',
   components: { FontAwesomeIcon },
   mounted() {
-    //this.patients_list = this.getListFromBE("patients")
+    //this.recipes_list = this.getListFromBE("patients")
     //this.doctors_list = this.getListFromBE("doctors")
     this.getPatientsListFromBE()
     this.getDoctorsListFromBE()
-    //this.getPillsListFromBE()
     this.getRecipesListFromBE()
-    console.log(this.pills_collection_xls)
-    console.log(this.$store.state.count)
   },
   data() {
     return {

@@ -16,14 +16,6 @@ export default {
   components: { Modal: PopUp, FontAwesomeIcon },
   mounted() {
     this.check_arduino_connection()
-    this.$store.commit('changeTestBand', 1)
-  },
-  updated() {
-    console.log('update')
-    window.addEventListener('beforeunload', (event) => {
-      console.log('beforeunload')
-      console.log('event', event)
-    })
   },
   data() {
     return {
@@ -45,12 +37,11 @@ export default {
 
       testSoftwareErrors: false,
       tests_results: [], //0 - tube, 1 - band, 2 - stick
-
       showModal: false,
 
       i: 0,
       speed: 50,
-      txt: '\nAm inceput sa testez......\n'
+      txt: '\nAm inceput sa testez......\n',
     }
   },
   methods: {
@@ -124,8 +115,6 @@ export default {
     },
 
     change_button_color(button_state_name) {
-      // ? ??? ce inseamna sau ce reprezinta 0 -arduino disconnected
-
       if ((button_state_name === 0 || button_state_name === 1) && this.arduino_connection_status) {
         return 'lightcoral'
       } else if (button_state_name === 2) {
@@ -136,12 +125,12 @@ export default {
     },
     sendTestType() {
       if (this.testSoftwareErrors) {
-        this.getDispenseResponse('testBandError')
+        this.getTestDispenserResponse('testBandError')
       } else {
-        this.getDispenseResponse('testBandOk')
+        this.getTestDispenserResponse('testBandOk')
       }
     },
-    getDispenseResponse(test_type) {
+    getTestDispenserResponse(test_type) {
       this.disable_test_buttons(test_type)
       fetch(`http://localhost:3001/pills/test/${test_type}`, {
         method: 'GET',
@@ -155,8 +144,6 @@ export default {
         })
         .then((data) => {
           if (data['arduino']) {
-            // un comportament al app
-            // this.test_result = data['result']
             if (test_type === 'testBandOk') {
               this.tests_results[1] = 1
               this.tubes_status_button_disable = false
@@ -201,35 +188,34 @@ export default {
             ) {
               this.execution_btn_activation = true
             }
-            // [tubes,bande,stick] = [ 1,1,1] , [{tubes:0},{bande:1},{stick:0}] , '111' , [true,false,true]
-            // daca [1,1,1] atunci activeaza buton execution
-          } else {
-            // alt comportament
           }
           console.log(data['result'])
         })
         .catch((err) => console.log(err))
     },
 
+    runAllTests() {
+      this.getTestDispenserResponse('testBandOk')
+      this.getTestDispenserResponse('testStick')
+      this.getTestDispenserResponse('testTubes')
+      this.getTestDispenserResponse('testTubesAndStick')
+    },
+
     goToPillDispensingView() {
       this.$router.push('/dispense_pills')
     },
-    updateTerminal() {
-      const terminal = document.getElementById('terminal')
-      if (terminal) {
-        terminal.innerText += '\n@cursor: Raspuns Arduino : Banda ok'
-      }
-    },
+
     typeWriter() {
       if (this.i < this.txt.length) {
-        document.getElementById('terminal').innerHTML += this.txt.charAt(this.i);
-        this.i++;
-        setTimeout(this.typeWriter, this.speed);
+        document.getElementById('terminal').innerHTML += this.txt.charAt(this.i)
+        this.i++
+        setTimeout(this.typeWriter, this.speed)
+      } else {
+        this.i = 0
       }
-      else
-      {
-        this.i = 0;
-      }
+    },
+    goToRecipesView() {
+      this.$router.push(`/recipes`)
     },
   },
 }
@@ -247,7 +233,10 @@ export default {
         <span class="slider round"></span>
       </label>
     </div>
-    <div style="margin-top: 10px; margin-right: 10px; margin-left: 10px">
+    <div
+      @click="this.runAllTests()"
+      style="margin-top: 10px; margin-right: 10px; margin-left: 10px"
+    >
       Run all tests
       <label class="switch">
         <input v-model="this.testSoftwareErrors" type="checkbox" />
@@ -257,16 +246,19 @@ export default {
     <!--    <button id="run-all-tests-btn-img" class="run-all-tests-btn">Run all tests</button>-->
   </div>
 
-  <button @click="typeWriter()">Test</button>
+  <!--  <button @click="typeWriter()">Test</button>-->
   <div class="container">
     <img src="../assets/prototypeEdited.png" alt="Pills dispenser" class="img-prototype" />
-    <div id="terminal" style="background-color: #555555; color: yellowgreen; height: 100px; overflow: scroll">
-    cursor
-    </div>
+    <!--    <div-->
+    <!--      id="terminal"-->
+    <!--      style="background-color: #555555; color: yellowgreen; height: 100px; overflow: scroll"-->
+    <!--    >-->
+    <!--      cursor-->
+    <!--    </div>-->
     <button
       id="tubes-btn-img"
       class="tubes-btn"
-      @click="getDispenseResponse('testTubes')"
+      @click="getTestDispenserResponse('testTubes')"
       :disabled="tubes_status_button_disable"
       :style="{ backgroundColor: this.change_button_color(showStateButtonTubes) }"
     >
@@ -289,7 +281,7 @@ export default {
     <button
       id="tubes-and-stick-btn-img"
       class="tubes-and-stick-btn"
-      @click="getDispenseResponse('testTubesAndStick')"
+      @click="getTestDispenserResponse('testTubesAndStick')"
       :disabled="tubes_and_stick_status_button_disable"
       :style="{ backgroundColor: this.change_button_color(showStateButtonTubesAndStick) }"
     >
@@ -312,7 +304,7 @@ export default {
     <button
       id="stick-btn-img"
       class="stick-btn"
-      @click="getDispenseResponse('testStick')"
+      @click="getTestDispenserResponse('testStick')"
       :disabled="stick_status_button_disable"
       :style="{ backgroundColor: this.change_button_color(showStateButtonStick) }"
     >
@@ -367,14 +359,8 @@ export default {
     </button>
   </div>
 
-  <!--  <div>-->
-  <!--    <p style="background-color: red">-->
-  <!--      {{ test_result }}-->
-  <!--      {{ arduino_connection_message }}-->
-  <!--    </p>-->
-  <!--  </div>-->
-
   <div style="text-align: center">
+    <button class="cancel-button" @click="goToRecipesView()">Return to Home</button>
     <button
       class="execution-btn"
       :disabled="execution_btn_activation === true"
@@ -383,16 +369,11 @@ export default {
       Go to Execution
     </button>
   </div>
-
-  <!--<FontAwesomeIcon v-if="showStateButtonTubes === 0" :icon="faCirclePlay()" />-->
-  <!--<FontAwesomeIcon v-else-if="showStateButtonTubes === 1" :icon="faSpinner()" />-->
-  <!--<FontAwesomeIcon v-else-if="showStateButtonTubes === 2" :icon="faCheck()" />-->
-  <!--<FontAwesomeIcon v-else-if="showStateButtonTubes === 3" :icon="faCircleXmark()" />-->
 </template>
 
 <style>
 button:hover {
-  background-color: lightseagreen;
+  background-color: lightgrey;
 }
 button:disabled {
   cursor: not-allowed;
@@ -402,7 +383,7 @@ button:disabled {
 
 .img-prototype {
   width: 100%;
-  height: auto;
+  height: 425px;
 }
 
 .container {
@@ -412,14 +393,31 @@ button:disabled {
   margin: auto;
 }
 
+.cancel-button {
+  border-color: #cf2e2e;
+  width: 120px;
+  height: 34px;
+  background-color: white;
+  color: #cf2e2e;
+  font-weight: bolder;
+  font-size: 13px;
+  border-radius: 5px;
+  position: relative;
+  margin-right: 20px;
+}
+
 .execution-btn {
-  background-color: orange;
+  width: 120px;
+  height: 34px;
+  background-color: #cf2e2e;
   color: white;
-  font-size: 16px;
-  padding: 12px 24px;
+  //padding: 12px 24px;
+  position: relative;
   border: none;
   cursor: pointer;
-  border-radius: 50px;
+  border-radius: 5px;
+  font-weight: bolder;
+  font-size: 13px;
 }
 .run-all-tests-btn {
   background-color: darkgray;

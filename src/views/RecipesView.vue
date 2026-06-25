@@ -262,7 +262,7 @@ export default {
         <FontAwesomeIcon :icon="faRightFromBracket()" />Logout
       </button>
       <button class="dispense-pills-btn" @click="goToDispensePills()">
-        <FontAwesomeIcon :icon="faRobot()"></FontAwesomeIcon>  Dispenser
+        <FontAwesomeIcon :icon="faRobot()"></FontAwesomeIcon> Dispenser
       </button>
       <br />
     </div>
@@ -478,7 +478,7 @@ export default {
 }
 
 .renewed-recipes-header {
-  background-color: forestgreen;
+  background-color: #cf2e2e;
   position: relative;
   display: flex;
   width: 100%;

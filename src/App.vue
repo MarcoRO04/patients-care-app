@@ -68,7 +68,7 @@ export default {
 <template>
   <!--  <button @click="getRecipesListFromBE">Test</button>-->
   <RouterView />
-  <MyFooter></MyFooter>
+<!--  <MyFooter></MyFooter>-->
 </template>
 
 <style scoped></style>
