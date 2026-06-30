@@ -11,7 +11,7 @@ export default {
     this.emitter.on('login_process', (event) => this.handleLogin(event.my_login))
   },
   mounted() {
-    // localStorage.setItem('users', JSON.stringify([{"username":"marco","password":"2911"},{"username":"daniel","password":"6666"},{"username":"alina","password":"1234"}]));
+    localStorage.setItem('users', JSON.stringify([{"username":"marco","password":"2911"},{"username":"daniel","password":"6666"},{"username":"alina","password":"1234"}]));
     // this.getRecipesListFromBE();
   },
 

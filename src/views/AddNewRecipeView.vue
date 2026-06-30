@@ -14,6 +14,17 @@ export default {
     this.getPatientsListFromBE()
     this.getDoctorsListFromBE()
     this.getRecipesListFromBE()
+
+    let recipe_duration = localStorage.getItem('recipe_duration')
+    if (recipe_duration === '') {
+      this.recipe_periods_list = ['1 lună', '2 luni', '3 luni']
+      localStorage.setItem('recipe_duration', JSON.stringify(this.recipe_periods_list))
+    } else if (recipe_duration === null) {
+      this.recipe_periods_list = ['1 lună', '2 luni', '3 luni']
+      localStorage.setItem('recipe_duration', JSON.stringify(this.recipe_periods_list))
+    } else {
+      this.recipe_periods_list = JSON.parse(recipe_duration)
+    }
   },
   data() {
     return {
@@ -103,7 +114,7 @@ export default {
           break
         }
       }
-      if (this.checkPatientDoctorExistence(this.recipe.patient.name,this.recipe.doctor.name)) {
+      if (this.checkPatientDoctorExistence(this.recipe.patient.name, this.recipe.doctor.name)) {
         alert(
           `Pacientul ${this.recipe.patient.name} are deja rețetă la ${this.recipe.doctor.name}.`,
         )
@@ -165,7 +176,6 @@ export default {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-
       })
         .then((rsp) => {
           return rsp.json()
@@ -185,7 +195,6 @@ export default {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-
       })
         .then((rsp) => {
           return rsp.json()
