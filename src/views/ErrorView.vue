@@ -1,6 +1,5 @@
 <!-- Error view in case an unauthorized user tries to acces the app-->
 <script>
-/*This view*/
 export default {
   name: "ErrorView",
 }

@@ -51,11 +51,6 @@ const router = createRouter({
       },
     },
     {
-      path: '/recover_password',
-      name: 'recover_password',
-      component: () => import('../views/RecoverPasswordView.vue'),
-    },
-    {
       path: '/add_new_recipe',
       name: 'add_new_recipe',
       component: () => import('../views/AddNewRecipeView.vue'),

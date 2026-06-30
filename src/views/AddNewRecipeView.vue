@@ -1,4 +1,5 @@
-<!--View to add the details of a new recipe. All the recipe details will be selected and not typed, for usability purposes
+<!--View to add the details of a new recipe. All the recipe details will be selected and not typed,
+    for usability purposes.
     NOTE: recipe and prescription terms are used interchangeably
   -->
 
@@ -10,8 +11,6 @@ export default {
   name: 'AddNewRecipeView',
   components: { FontAwesomeIcon },
   mounted() {
-    //this.recipes_list = this.getListFromBE("patients")
-    //this.doctors_list = this.getListFromBE("doctors")
     this.getPatientsListFromBE()
     this.getDoctorsListFromBE()
     this.getRecipesListFromBE()
@@ -76,9 +75,12 @@ export default {
     generateID() {
       return new Date().getTime().toString()
     },
-    checkPatientDoctorExistence(patient_name) {
+    checkPatientDoctorExistence(patient_name, doctor_name) {
       for (let recipe in this.recipes_list) {
-        if (this.recipes_list[recipe].patient.name === patient_name) {
+        if (
+          this.recipes_list[recipe].patient.name === patient_name &&
+          this.recipes_list[recipe].doctor.name === doctor_name
+        ) {
           return true
         }
       }
@@ -101,7 +103,7 @@ export default {
           break
         }
       }
-      if (this.checkPatientDoctorExistence(this.recipe.patient.name)) {
+      if (this.checkPatientDoctorExistence(this.recipe.patient.name,this.recipe.doctor.name)) {
         alert(
           `Pacientul ${this.recipe.patient.name} are deja rețetă la ${this.recipe.doctor.name}.`,
         )
@@ -113,7 +115,6 @@ export default {
 
     /*sends a POST request to the BE with the new recipe as the body*/
     saveRecipeToBE() {
-      // this.recipe.id = false
       fetch('http://localhost:3001/recipes/new', {
         method: 'POST',
         headers: {
@@ -165,7 +166,6 @@ export default {
           'Content-Type': 'application/json',
         },
 
-        /*Preflight si apoi raspunsul - e inca in pending*/
       })
         .then((rsp) => {
           return rsp.json()
@@ -186,7 +186,6 @@ export default {
           'Content-Type': 'application/json',
         },
 
-        /*Preflight si apoi raspunsul - e inca in pending*/
       })
         .then((rsp) => {
           return rsp.json()
@@ -227,8 +226,6 @@ export default {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-
-        /*Preflight si apoi raspunsul - e inca in pending*/
       })
         .then((rsp) => {
           return rsp.json()
@@ -259,18 +256,15 @@ export default {
       )
     },
     addNewPillToList() {
-      console.log(this.recipe.pills_list)
-      console.log(this.pill_index)
       const new_pill = {
-        id: this.pills_collection_xls[this.pill_index].id,
-        name: this.pills_collection_xls[this.pill_index].name,
+        id: this.$store.state.pills_collection[this.pill_index].id,
+        name: this.$store.state.pills_collection[this.pill_index].name,
         morning: this.pill.morning,
         lunch: this.pill.lunch,
         dinner: this.pill.dinner,
         before_bed: this.pill.before_bed,
       }
       this.recipe.pills_list.push(new_pill)
-
       this.pill_index = -1
 
       this.pill.id = ''
@@ -367,11 +361,14 @@ export default {
           <!--          <input type="text" id="drug_name1" style="width: 160px" v-model="this.pill.name" />-->
           <select v-model="this.pill_index">
             <option disabled value="">Te rog selectează codul medicamentului</option>
-            <option v-for="(pill, index) in this.$store.state.pills_collection" :key="index" :value="index">
+            <option
+              v-for="(pill, index) in this.$store.state.pills_collection"
+              :key="index"
+              :value="index"
+            >
               {{ pill.name }}
             </option>
           </select>
-
         </div>
         <div style="width: 80px; margin-right: 10px">
           <label for="morning_number_of_pills1">Dimineața</label> <br />
@@ -439,7 +436,7 @@ export default {
       <br />
 
       <p style="font-size: 18px; font-weight: bold; margin-top: 30px; margin-bottom: 15px">
-        Listă medicamente prescrise:
+        Distribuție pastile:
       </p>
       <p
         v-if="this.recipe.pills_list.length === 0"
@@ -447,70 +444,38 @@ export default {
       >
         Momentan nu a fost niciun medicament adăugat.
       </p>
-      <div v-for="(pill, index) in this.recipe.pills_list" :key="index" style="display: flex">
-        <div style="margin-top: 35px; margin-right: 5px">{{ index + 1 }}.</div>
-        <div style="width: 200px">
-          <label>Denumire medicament</label> <br />
-          <input type="text" disabled style="width: 160px" v-model="pill.name" />
-        </div>
-        <div style="width: 80px; margin-right: 10px">
-          <label>Dimineața</label> <br />
-          <input
-            v-model="pill.morning"
-            disabled
-            type="number"
-            value="0"
-            min="0"
-            max="5"
-            style="width: 70px"
-          />
-        </div>
-
-        <div style="width: 80px; margin-right: 10px">
-          <label>Prânz</label> <br />
-          <input
-            v-model="pill.lunch"
-            disabled
-            type="number"
-            value="0"
-            min="0"
-            max="5"
-            style="width: 70px"
-          />
-        </div>
-
-        <div style="width: 80px; margin-right: 10px">
-          <label>Cina</label> <br />
-          <input
-            v-model="pill.dinner"
-            disabled
-            type="number"
-            value="0"
-            min="0"
-            max="5"
-            style="width: 70px"
-          />
-        </div>
-
-        <div style="width: 140px; margin-right: 10px">
-          <label>Înainte de culcare</label> <br />
-          <input
-            v-model="pill.before_bed"
-            disabled
-            type="number"
-            value="0"
-            min="0"
-            max="5"
-            style="width: 70px"
-          />
-        </div>
-        <div>
-          <button @click="deletePillFromList(index)">
-            <FontAwesomeIcon :icon="faTrashCan()"></FontAwesomeIcon>
-          </button>
-        </div>
+      <div v-show="this.recipe.pills_list.length > 0">
+        <table>
+          <colgroup>
+            <col span="6" style="background-color: white" />
+            <col span="7" style="border: 1px solid white" />
+          </colgroup>
+          <tbody>
+            <tr>
+              <th>Nr. crt.</th>
+              <th>Denumire</th>
+              <th>Dimineața</th>
+              <th>Prânz</th>
+              <th>Cina</th>
+              <th>Înainte de culcare</th>
+              <th></th>
+            </tr>
+            <tr v-for="(pill, index) in this.recipe.pills_list" :key="index">
+              <td>{{ index + 1 }}.</td>
+              <td>{{ pill.name }}</td>
+              <td>{{ pill.morning }}</td>
+              <td>{{ pill.lunch }}</td>
+              <td>{{ pill.dinner }}</td>
+              <td>{{ pill.before_bed }}</td>
+              <td>
+                <button @click="deletePillFromList(index)">
+                  <FontAwesomeIcon :icon="faTrashCan()"></FontAwesomeIcon>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-
       <br />
       <br />
       <button class="cancel-button" @click="goToRecipesView()">Anulare</button>
@@ -609,5 +574,15 @@ button {
   background-color: #555555;
   border: none;
   cursor: not-allowed;
+}
+
+td,
+th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+th {
+  font-weight: bold;
 }
 </style>

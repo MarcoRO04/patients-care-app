@@ -1,3 +1,8 @@
+<!--
+  This component was created for displaying the pills distribution table in multiple views.
+  NOTE: recipe and prescription terms are used interchangeably
+ -->
+
 <script>
 export default {
   name: 'PillsConfigurationTable',
@@ -17,6 +22,9 @@ export default {
     }
   },
   methods: {
+    /*this function retrieves from the backend the prescription pills distribution
+    * and it assigns to each part of the day a list of strings of the form id:quantity and then
+    * it calls computeData function that is creating the rows that will appear in the table*/
     getPillsConfigurationFromBE(id) {
       fetch(`http://localhost:3001/pills/pills_configuration/${id}`, {
         method: 'GET',
@@ -24,8 +32,6 @@ export default {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-
-        /*Preflight si apoi raspunsul - e inca in pending*/
       })
         .then((rsp) => {
           return rsp.json()
@@ -46,15 +52,10 @@ export default {
           alert('backend error pills configuration table')
         })
     },
-    computeData() {
-      // this.pills_table = []
-      for (let index = 0; index < this.morning.length; index++) {
-        console.log(this.morning[index])
-        console.log(this.lunch[index])
-        console.log(this.dinner[index])
-        console.log(this.before_bed[index])
-        console.log('-------')
 
+    /*form the rows of the table*/
+    computeData() {
+      for (let index = 0; index < this.morning.length; index++) {
         let row = {
           name: '',
           morning_pill_number: '0',
@@ -71,8 +72,9 @@ export default {
 
         this.pills_table.push(row)
       }
-      //reverse to get the initial order in which the pills were added
     },
+
+    // search for the pill name based on the pill id
     getPillName(id) {
       for (let index = 0; index < this.$store.state.pills_collection.length; index++) {
         if (this.$store.state.pills_collection[index].id === id) {
@@ -123,7 +125,7 @@ th {
   text-align: left;
   padding: 8px;
 }
-th{
+th {
   font-weight: bold;
 }
 </style>

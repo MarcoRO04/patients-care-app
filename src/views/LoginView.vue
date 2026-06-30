@@ -1,10 +1,8 @@
 <!--This view is the first view that is displayed when the application is launched.-->
 <script>
-// import { RouterLink } from 'vue-router'
 
 export default {
   name: 'LoginView',
-  // components: { RouterLink },
   data() {
     return {
       user: {
@@ -66,9 +64,7 @@ export default {
 
       <label for="pass">Parola: </label><br />
       <input type="password" id="pass" v-model="user.password" required/><br />
-      <!--      <RouterLink to="/recover_password">Ai uitat parola?</RouterLink>-->
       <br /><br />
-      <!--      <button class="cancel-button" @click="goToRecipesView">Anulare</button>-->
       <button @click="login" :disabled="!computeInputOk">Login</button><br />
     </div>
   </div>
@@ -112,17 +108,5 @@ button {
   font-weight: bolder;
   font-size: 13px;
   border-radius: 5px;
-}
-
-.cancel-button {
-  margin-right: 16px;
-  background-color: white;
-  border-color: #cf2e2e;
-  color: #cf2e2e;
-}
-
-.save-button {
-  margin-right: 16px;
-  border: none;
 }
 </style>

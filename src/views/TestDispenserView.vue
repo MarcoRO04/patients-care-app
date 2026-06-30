@@ -1,4 +1,8 @@
-<!-- This view is used to test the mechanism of the dispenser.-->
+<!-- This view is used to test the mechanism of the dispenser.
+  NOTE: recipe and prescription terms are used interchangeably
+
+  Remark: The run all tests button is not implemented yet.
+-->
 
 <script>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -9,11 +13,10 @@ import {
   faCirclePlay,
   faCircleXmark,
 } from '@fortawesome/free-solid-svg-icons'
-import PopUp from '@/components/PopUp.vue'
 
 export default {
   name: 'TestDispenserView',
-  components: { Modal: PopUp, FontAwesomeIcon },
+  components: { FontAwesomeIcon },
   mounted() {
     this.check_arduino_connection()
   },
@@ -36,12 +39,7 @@ export default {
       execution_btn_activation: false,
 
       testSoftwareErrors: false,
-      tests_results: [], //0 - tube, 1 - band, 2 - stick
-      showModal: false,
-
-      i: 0,
-      speed: 50,
-      txt: '\nAm inceput sa testez......\n',
+      tests_results: [], // 0 - tube, 1 - band, 2 - stick
     }
   },
   methods: {
@@ -80,7 +78,6 @@ export default {
             this.tubes_and_stick_status_button_disable = true
             this.stick_status_button_disable = true
             this.band_status_button_disable = true
-            this.showModal = false
           }
         })
     },
@@ -194,6 +191,7 @@ export default {
         .catch((err) => console.log(err))
     },
 
+    /*work in progress*/
     runAllTests() {
       this.getTestDispenserResponse('testBandOk')
       this.getTestDispenserResponse('testStick')
@@ -205,15 +203,6 @@ export default {
       this.$router.push('/dispense_pills')
     },
 
-    typeWriter() {
-      if (this.i < this.txt.length) {
-        document.getElementById('terminal').innerHTML += this.txt.charAt(this.i)
-        this.i++
-        setTimeout(this.typeWriter, this.speed)
-      } else {
-        this.i = 0
-      }
-    },
     goToRecipesView() {
       this.$router.push(`/recipes`)
     },
@@ -221,9 +210,7 @@ export default {
 }
 </script>
 <template>
-  <Modal v-show="showModal"></Modal>
-
-  <h1 style="text-align: center">Dispenser Test</h1>
+  <h1 style="text-align: center">Dispenser Components Test</h1>
   <p>{{ this.arduino_connection_message }}</p>
   <div style="display: flex; margin-top: 10px">
     <div style="margin-top: 10px; margin-bottom: 10px">
@@ -243,18 +230,10 @@ export default {
         <span class="slider round"></span>
       </label>
     </div>
-    <!--    <button id="run-all-tests-btn-img" class="run-all-tests-btn">Run all tests</button>-->
   </div>
 
-  <!--  <button @click="typeWriter()">Test</button>-->
   <div class="container">
     <img src="../assets/prototypeEdited.png" alt="Pills dispenser" class="img-prototype" />
-    <!--    <div-->
-    <!--      id="terminal"-->
-    <!--      style="background-color: #555555; color: yellowgreen; height: 100px; overflow: scroll"-->
-    <!--    >-->
-    <!--      cursor-->
-    <!--    </div>-->
     <button
       id="tubes-btn-img"
       class="tubes-btn"
@@ -363,7 +342,7 @@ export default {
     <button class="cancel-button" @click="goToRecipesView()">Return to Home</button>
     <button
       class="execution-btn"
-      :disabled="execution_btn_activation === true"
+      :disabled="execution_btn_activation === false"
       @click="goToPillDispensingView()"
     >
       Go to Execution

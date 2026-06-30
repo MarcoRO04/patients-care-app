@@ -1,3 +1,11 @@
+<!--
+  This component was created for displaying a pop-up.
+  Multiple pop-ups are used in the application and reusing the same component
+  in different views is better than hardcoding them in each view.
+  Remark: This is view is not currently used. It still needs improvement.
+  NOTE: recipe and prescription terms are used interchangeably
+ -->
+
 <script>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
@@ -14,10 +22,10 @@ export default {
 </script>
 
 <template>
-  <div id="recipes-alert">
-    <div class="recipes-alert-modal-content">
-      <div class="alert-header">
-        <h2 class="alert-header-content">Alertă</h2>
+  <div id="recipes-pop-up">
+    <div class="recipes-modal-content">
+      <div class="header">
+        <h2 class="header-content">Alertă</h2>
         <button class="button-cancel-x">
           <FontAwesomeIcon :icon="faXmark()" />
         </button>
@@ -29,14 +37,14 @@ export default {
 </template>
 
 <style scoped>
-.alert-header {
+.header {
   background-color: #cf2e2e;
   position: relative;
   display: flex;
   width: 100%;
   height: 38px;
 }
-.alert-header-content {
+.header-content {
   width: 100%;
   padding-left: 70px;
   color: white;
@@ -47,7 +55,7 @@ export default {
   color: white;
   margin-right: 0;
 }
-#recipes-alert {
+#recipes-pop-up {
   text-align: center;
   /*display: none; Hidden by default*/
   position: fixed; /* Stay in place */
@@ -61,7 +69,7 @@ export default {
   background-color: rgb(0, 0, 0); /* Fallback color */
   background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
 }
-.recipes-alert-modal-content {
+.recipes-modal-content {
   background-color: #fefefe;
   margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
   border: 1px solid black;

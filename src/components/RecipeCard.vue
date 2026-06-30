@@ -1,5 +1,5 @@
 <!--
-  This is the component was created for displaying the most important recipe details.
+  This component was created for displaying the most important recipe details.
   Each recipe will be represented like this.
   They can be viewed in RecipesView.vue, in the form of a list of cards.
 
@@ -142,10 +142,8 @@ export default {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-        // body: this.recipe.id // 'id' is already a string
       })
         .then((d) => {
-          // console.log(d.status)
           return d.json()
         })
         .then((response) => {
@@ -153,7 +151,6 @@ export default {
             alert('Delete ok!')
             this.showDeleteConfirmationMenu()
             this.emitter.emit('delete_operation', { id: this.recipe.id })
-            /*nu merge ca sunt practic deja in acel view. Ar trebuii pur si simplu sa reincarc pagina*/
           } else {
             alert('Failed to delete recipe')
           }
@@ -168,12 +165,13 @@ export default {
 
 <template>
   <div>
-    <!-- this div is used as a root to solve the vue warning: [Vue warn]: Extraneous non-props attributes (id, style) were passed to component but could not be automatically inherited because component renders fragment or text or teleport root nodes.  -->
+    <!-- this div is used as a root to solve the vue warning: [Vue warn]: Extraneous non-props attributes
+    (id, style) were passed to component but could not be automatically inherited because component renders
+    fragment or text or teleport root nodes.  -->
     <div class="recipe-card">
       <!-- General recipe details-->
       <div class="recipe-card-elements">
         <div class="recipe-card-info" @click="goToDetails()">
-<!--          <div>{{ index }}</div>-->
           <div class="patient-details">
             <p style="font-size: 20px; font-weight: bold">{{ this.recipe.patient.name }}</p>
             <p>{{ this.recipe.doctor.name }}</p>

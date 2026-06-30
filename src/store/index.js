@@ -1,12 +1,9 @@
 import { createStore } from 'vuex'
 
-// Create a new store instance.
+// The mock-up array of pills is store here in order to be reused in multiple views.
 export const store = createStore({
   state() {
     return {
-      count: 12,
-      test_banda: 0,
-      test_stick: 0,
       pills_collection: [
         {
           id: 'W43451001',
@@ -32,15 +29,6 @@ export const store = createStore({
     }
   },
   mutations: {
-    increment(state) {
-      state.count++
-    },
-    changeTestBand(state,value) {
-      state.test_banda = value
-    },
-    changeTestStick(state,value) {
-      state.test_stick = value
-    }
   },
 })
 

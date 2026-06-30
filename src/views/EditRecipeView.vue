@@ -1,7 +1,8 @@
-<!--This view is used for changing two properties of the recipe: the doctor and the current prescription date.
-Maybe the doctor of the recipe will change in the meantime or maybe the current date of the recipe will be chosen wrong.
+<!--This view is used for changing two properties of the prescription:
+the doctor, the current prescription date or the quantity of pills that a patient need to take during different parts of the day.
+Maybe the doctor of the prescription will change in the meantime or maybe the current date of the prescription will be chosen wrong,
+or the pills quantity will be set wrong.
 To modify details about patients and doctors, the admin can acces the patients and doctors views to do so (those views are not yet implemented)
-TO DO: edit details about the actual prescription, like the pills name and quantity and the prescription plan for a week
 -->
 
 <script>
@@ -26,6 +27,7 @@ export default {
     this.initializeRecipe()
     this.calculate_min_date()
     this.calculate_max_date()
+    this.getRecipesListFromBE()
   },
 
   data() {
@@ -42,6 +44,7 @@ export default {
         recipe_duration: '',
         prescription_dates: [],
       },
+      recipes_list: [],
       doctors_list: [],
       edited_doctor_name: '',
       edited_current_prescription_date: '',
@@ -104,6 +107,25 @@ export default {
       this.$router.push(`/recipes`)
     },
 
+    getRecipesListFromBE() {
+      fetch('http://localhost:3001/recipes', {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      })
+        .then((rsp) => {
+          return rsp.json()
+        })
+        .then((response) => {
+          this.recipes_list = response['list']
+        })
+        .catch(() => {
+          alert('backend error')
+        })
+    },
+
     /*get the mockup list of doctors from the BE*/
     getDoctorsListFromBE() {
       fetch('http://localhost:3001/doctors', {
@@ -112,8 +134,6 @@ export default {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-
-        /*Preflight si apoi raspunsul - e inca in pending*/
       })
         .then((rsp) => {
           return rsp.json()
@@ -135,10 +155,9 @@ export default {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(shortFormRecipe), // {recipe: this.recipe}
+        body: JSON.stringify(shortFormRecipe),
       })
         .then((d) => {
-          // console.log(d.status)
           return d.json()
         })
         .then((response) => {
@@ -165,26 +184,6 @@ export default {
 
     check_pill_distribution_modification() {
       for (let index = 0; index < this.pills_table.length; index++) {
-        // console.log(
-        //   this.pills_table[index].morning_pill_number +
-        //     ' ' +
-        //     this.initial_pills_table[index].morning_pill_number,
-        // )
-        // console.log(
-        //   this.pills_table[index].lunch_pill_number +
-        //     ' ' +
-        //     this.initial_pills_table[index].lunch_pill_number,
-        // )
-        // console.log(
-        //   this.pills_table[index].dinner_pill_number +
-        //     ' ' +
-        //     this.initial_pills_table[index].dinner_pill_number,
-        // )
-        // console.log(
-        //   this.pills_table[index].before_bed_pill_number +
-        //     ' ' +
-        //     this.initial_pills_table[index].before_bed_pill_number,
-        // )
         if (
           this.pills_table[index].morning_pill_number ===
             this.initial_pills_table[index].morning_pill_number &&
@@ -206,7 +205,8 @@ export default {
      * or
      * - changed the current date (then change the recipe's current date) - the future_date calculation will be handled by the BE
      * when the list of recipes is retrieved)
-     *
+     * or
+     * - change a pill quantity from the pills distribution table
      * when the update button is pressed, a PUT request will be sent to the BE, to save the updated recipe
      * then RecipesView will be pushed, to see the modified recipe in the list of recipes
      *
@@ -217,7 +217,9 @@ export default {
       if (this.check_recipe_modification()) {
         alert('Nu ați făcut nicio modificare!')
       } else {
-        if (this.recipe.doctor.name !== this.edited_doctor_name) {
+        if (
+          this.recipe.doctor.name !== this.edited_doctor_name
+        ) {
           this.recipe.doctor.name = this.edited_doctor_name
         }
         if (
@@ -263,8 +265,6 @@ export default {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-
-        /*Preflight si apoi raspunsul - e inca in pending*/
       })
         .then((rsp) => {
           return rsp.json()
@@ -286,13 +286,7 @@ export default {
         })
     },
     computeData() {
-      // this.pills_table = []
       for (let index = 0; index < this.morning.length; index++) {
-        // console.log(this.morning[index])
-        // console.log(this.lunch[index])
-        // console.log(this.dinner[index])
-        // console.log(this.before_bed[index])
-        // console.log('-------')
 
         let row = {
           id: '',
@@ -393,12 +387,10 @@ export default {
         </option>
       </select>
 
-      <!-- Schimba distributia de pastile daca a fost gresit ceva la ea -->
       <p style="font-weight: bold; margin-top: 10px; margin-bottom: 6px">
         Schimbă distribuția pastilelor:
       </p>
       <div>
-        <!--        <div>{{ this.pills_table[0] }}</div> - de ce nu merge?-->
         <table>
           <tbody>
             <tr>

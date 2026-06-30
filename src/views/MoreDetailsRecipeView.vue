@@ -1,5 +1,5 @@
-<!--This view was created to display more details about a recipe, like the previous renewal dates of the recipe, the duration
-  and the doctor specialization. More information regarding prescription plan and pills name and quantity will be added in the future.
+<!--This view was created to display more details about a prescription, like patient and doctor info, the previous renewal dates of the prescription,
+the duration, the doctor specialization and the pills distribution table.
     NOTE: recipe and prescription terms are used interchangeably
   -->
 
@@ -39,10 +39,16 @@ export default {
         prescription_dates: [],
         status: '',
         distance_between_prescriptions: '',
-        pill_configuration_list: [],
       },
       showModal: false,
       renewConfirmationMenu: false,
+
+      pills_table: [],
+      morning: [],
+      lunch: [],
+      dinner: [],
+      before_bed: [],
+      pills_distribution: {},
     }
   },
   methods: {
@@ -62,6 +68,7 @@ export default {
       let r = localStorage.getItem('recipe')
       if (r) {
         this.recipe = JSON.parse(r)
+        this.getPillsConfigurationFromBE(this.recipe.id)
         // console.log(this.recipe)
       }
     },
@@ -94,7 +101,8 @@ export default {
           return d.json()
         })
         .then((response) => {
-          if (response['result']) {
+          console.log(response['status'])
+          if (response['status']) {
             alert('Update ok!')
           } else {
             alert('Failed update recipe')
@@ -110,15 +118,109 @@ export default {
       this.recipe.recipe_duration.split(' ')
       this.recipe.prescription_dates.push(new Date(Date.now()))
 
+      this.computePillDistributionForDB()
+
       let shortFormRecipe = {}
       shortFormRecipe.id = this.recipe.id
       shortFormRecipe.doctor = this.recipe.doctor
       shortFormRecipe.patient = this.recipe.patient
       shortFormRecipe.recipe_duration = this.recipe.recipe_duration
       shortFormRecipe.prescription_dates = this.recipe.prescription_dates
+      shortFormRecipe.pills_distribution = this.pills_distribution
 
       this.sendEditRequestToBE(shortFormRecipe)
       this.goToRecipesView()
+    },
+
+    /*this function retrieves from the backend the prescription pills distribution
+     * and it assigns to each part of the day a list of strings of the form id:quantity and then
+     * it calls computeData function that is creating the rows that will appear in the table*/
+    getPillsConfigurationFromBE(id) {
+      fetch(`http://localhost:3001/pills/pills_configuration/${id}`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      })
+        .then((rsp) => {
+          return rsp.json()
+        })
+        .then((response) => {
+          //console.log(response['result'][0]['morning'].split('#'))
+          this.morning = response['result'][0]['morning'].split('#')
+          //console.log(response['result'][0]['lunch'].split('#'))
+          this.lunch = response['result'][0]['lunch'].split('#')
+          //console.log(response['result'][0]['dinner'].split('#'))
+          this.dinner = response['result'][0]['dinner'].split('#')
+          //console.log(response['result'][0]['before_bed'].split('#'))
+          this.before_bed = response['result'][0]['before_bed'].split('#')
+          // this.pills_configuration = response['result'][0]
+          this.computeData()
+        })
+        .catch(() => {
+          alert('backend error pills configuration table')
+        })
+    },
+
+    /*form the rows of the table*/
+    computeData() {
+      for (let index = 0; index < this.morning.length; index++) {
+        let row = {
+          id: '',
+          name: '',
+          morning_pill_number: '0',
+          lunch_pill_number: '0',
+          dinner_pill_number: '0',
+          before_bed_pill_number: '0',
+        }
+
+        row.id = this.morning[index].split(':')[0]
+        row.name = this.getPillName(this.morning[index].split(':')[0])
+        row.morning_pill_number = this.morning[index].split(':')[1]
+        row.lunch_pill_number = this.lunch[index].split(':')[1]
+        row.dinner_pill_number = this.dinner[index].split(':')[1]
+        row.before_bed_pill_number = this.before_bed[index].split(':')[1]
+
+        this.pills_table.push(row)
+      }
+    },
+    // search for the pill name based on the pill id
+    getPillName(id) {
+      for (let index = 0; index < this.$store.state.pills_collection.length; index++) {
+        if (this.$store.state.pills_collection[index].id === id) {
+          return this.$store.state.pills_collection[index].name
+        }
+      }
+    },
+
+    /*form the pills distribution row that will be saved in the database*/
+    computePillDistributionForDB() {
+      for (let index = 0; index < this.pills_table.length; index++) {
+        if (index === this.pills_table.length - 1) {
+          this.morning_distribution +=
+            this.pills_table[index].id + ':' + this.pills_table[index].morning_pill_number
+          this.lunch_distribution +=
+            this.pills_table[index].id + ':' + this.pills_table[index].lunch_pill_number
+          this.dinner_distribution +=
+            this.pills_table[index].id + ':' + this.pills_table[index].dinner_pill_number
+          this.before_bed_distribution +=
+            this.pills_table[index].id + ':' + this.pills_table[index].before_bed_pill_number
+        } else {
+          this.morning_distribution +=
+            this.pills_table[index].id + ':' + this.pills_table[index].morning_pill_number + '#'
+          this.lunch_distribution +=
+            this.pills_table[index].id + ':' + this.pills_table[index].lunch_pill_number + '#'
+          this.dinner_distribution +=
+            this.pills_table[index].id + ':' + this.pills_table[index].dinner_pill_number + '#'
+          this.before_bed_distribution +=
+            this.pills_table[index].id + ':' + this.pills_table[index].before_bed_pill_number + '#'
+        }
+      }
+      this.pills_distribution.morning = this.morning_distribution
+      this.pills_distribution.lunch = this.lunch_distribution
+      this.pills_distribution.dinner = this.dinner_distribution
+      this.pills_distribution.before_bed = this.before_bed_distribution
     },
     /*Going back to RecipesView means firstly removing the recipe from localStorage
      and then pushing the RecipesView path*/

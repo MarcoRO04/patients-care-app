@@ -3,11 +3,10 @@
 -->
 
 <script>
-import MyFooter from '@/components/MyFooter.vue'
 
 export default {
   name: 'App',
-  components: { MyFooter },
+  components: {},
   created() {
     this.emitter.on('login_process', (event) => this.handleLogin(event.my_login))
   },
@@ -38,37 +37,13 @@ export default {
         this.$router.push('/')
       }
     },
-    //
-    // displayList(){
-    //   console.log(this.recipes_list);
-    //   this.emitter.emit("list_from_BE",{list: this.recipes_list});
-    // },
-    //for the moment let's assume that the list exists and it is initialized
-    // initializeRecipeListFromBE(){
-    //   fetch('http://localhost:3001/recipes',{
-    //     method: 'GET',
-    //     headers: {
-    //       'Accept': 'application/json',
-    //       'Content-Type': 'application/json',
-    //     },
-    //
-    //     /*Preflight si apoi raspunsul - e inca in pending*/
-    //   }).then(rsp =>{
-    //     return rsp.json()
-    //   }).then(list => {
-    //     // console.log(list)
-    //     this.recipes_list = list
-    //     // this.emitter.emit("list_from_BE",{list: this.recipes_list});
-    //   }).catch(err=>{console.log(err)})
-    // },
   },
 }
 </script>
 
 <template>
-  <!--  <button @click="getRecipesListFromBE">Test</button>-->
   <RouterView />
-<!--  <MyFooter></MyFooter>-->
 </template>
 
-<style scoped></style>
+<style scoped>
+</style>

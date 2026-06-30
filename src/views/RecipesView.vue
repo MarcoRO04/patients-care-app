@@ -1,4 +1,5 @@
-<!--This is the main view of the application, and it contains a list of cards
+<!--This is the main view of the application, and it contains a list prescriptions
+represented as clickable cards
 (multiple RecipeCard.vue) and a menu with some operations that you can make on the list.
 E.g.
 - searching a prescription by patient name or doctor name (the search bar)
@@ -8,7 +9,7 @@ E.g.
   The renewal procedure is described in RecipeCard.vue
 
   Besides this, there are also some user level operations that can be done
-  from this view, like logging out or seeing the user profile (not yet implemented)
+  from this view, like logging out
 
   NOTE: recipe and prescription terms are used interchangeably
   -->
@@ -47,12 +48,9 @@ export default {
   },
   mounted() {
     this.getRecipesListFromBE()
-    // console.log(this.recipes_list)
     this.emitter.on('delete_operation', (event) => this.handleDelete(event.id)) // delete or edit
-    console.log(this.$store.state.count)
   },
   updated() {
-    // console.log(this.recipes_list) /*test if the list updates after I delete a recipe*/
   },
   methods: {
     faPills() {
@@ -103,18 +101,11 @@ export default {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-
-        /*Preflight si apoi raspunsul - e inca in pending*/
       })
         .then((rsp) => {
           return rsp.json()
         })
         .then((response) => {
-          // console.log(response['list'])
-          // for (let i = 0; i < response['list'].length; i++) {
-          //   this.recipes_list[i] = response['list'][i]
-          // }
-          // console.log(this.recipes_list)
           this.recipes_list = response['list']
         })
         .catch(() => {
@@ -164,18 +155,6 @@ export default {
         recipe.patient.name.includes(this.searched_name) ||
         recipe.doctor.name.includes(this.searched_name)
       )
-    },
-    count_red_recipes() {
-      for (let r in this.recipes_list) {
-        if (this.recipes_list[r].status === '1') {
-          this.red_recipes_counter++
-        }
-      }
-      if (this.red_recipes_counter === 1) {
-        this.text_popUp_alert_recipe = 'rețetă'
-      } else {
-        this.text_popUp_alert_recipe = 'rețete'
-      }
     },
     showAlertModal() {
       this.show_red_status_recipe_alert = !this.show_red_status_recipe_alert
@@ -257,7 +236,7 @@ export default {
   <div class="recipes-view-box">
     <!--User operations-->
     <div class="user-div">
-      <button class="user-profile-btn"><FontAwesomeIcon :icon="faCircleUser()" /> Profil</button>
+<!--      <button class="user-profile-btn"><FontAwesomeIcon :icon="faCircleUser()" /> Profil</button>-->
       <button class="logout-btn" @click="logout">
         <FontAwesomeIcon :icon="faRightFromBracket()" />Logout
       </button>
@@ -396,10 +375,10 @@ export default {
   </div>
 
   <!-- Pop-up to alert the user about the red status recipes-->
-  <div id="recipes-alert" v-show="red_recipes_counter > 0 && show_red_status_recipe_alert === true">
-    <div class="recipes-alert-modal-content">
-      <div class="alert-header">
-        <h2 class="alert-header-content">Alertă</h2>
+  <div id="recipes-pop-up" v-show="red_recipes_counter > 0 && show_red_status_recipe_alert === true">
+    <div class="recipes-modal-content">
+      <div class="header">
+        <h2 class="header-content">Alertă</h2>
         <button class="button-cancel-x" @click="showAlertModal">
           <FontAwesomeIcon :icon="faXmark()" />
         </button>
@@ -415,7 +394,7 @@ export default {
 <style scoped>
 .user-div {
   background-color: transparent;
-  padding-bottom: 25px;
+  padding-bottom: 50px;
 }
 
 .user-profile-btn {
@@ -535,14 +514,14 @@ export default {
 }
 
 /*----------------------------------*/
-.alert-header {
+.header {
   background-color: #cf2e2e;
   position: relative;
   display: flex;
   width: 100%;
   height: 38px;
 }
-.alert-header-content {
+.header-content {
   width: 100%;
   padding-left: 70px;
   color: white;
@@ -553,7 +532,7 @@ export default {
   color: white;
   margin-right: 0;
 }
-#recipes-alert {
+#recipes-pop-up {
   text-align: center;
   /*display: none; Hidden by default*/
   position: fixed; /* Stay in place */
@@ -567,7 +546,7 @@ export default {
   background-color: rgb(0, 0, 0); /* Fallback color */
   background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
 }
-.recipes-alert-modal-content {
+.recipes-modal-content {
   background-color: #fefefe;
   margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
   border: 1px solid black;
